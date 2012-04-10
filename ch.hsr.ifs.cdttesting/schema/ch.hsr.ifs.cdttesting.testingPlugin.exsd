@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="ch.hsr.ifs.cdttesting" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="ch.hsr.ifs.cdttesting" id="ch.hsr.ifs.cdttesting.testingPlugin" name="CDT RTS Testing Plugin"/>
+      </appinfo>
+      <documentation>
+         Extend this extension point if your plugin wants to use the CDT RTS (Refactoring Test Suite) testing framework.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="rtsLocation"/>
+            <element ref="activator"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="rtsLocation">
+      <annotation>
+         <documentation>
+            rtsLocation is used to define the location (folder) where your *.rts files are located.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  If your rts files reside in &lt;yourProject&gt;/resources/com.example/&lt;lastJavaPackageNameSegment&gt;/&lt;testSuiteName&gt;.rts, then you use &quot;/resources/com.example/&quot; as name.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="activator">
+      <complexType>
+         <attribute name="class" type="string">
+            <annotation>
+               <documentation>
+                  Use your TestPlugin&apos;s activator class here. The provided activator will be used to retrive *.rts files.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn="org.eclipse.ui.plugin.AbstractUIPlugin:"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         [Enter the first release in which this extension point appears.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         [Enter extension point usage example here.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="apiinfo"/>
+      </appinfo>
+      <documentation>
+         [Enter API information here.]
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="implementation"/>
+      </appinfo>
+      <documentation>
+         [Enter information about supplied implementation of this extension point.]
+      </documentation>
+   </annotation>
+
+
+</schema>
