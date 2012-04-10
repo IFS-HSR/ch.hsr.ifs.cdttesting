@@ -17,9 +17,8 @@
          </appinfo>
       </annotation>
       <complexType>
-         <sequence>
-            <element ref="rtsLocation"/>
-            <element ref="activator"/>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="testResouresLocation"/>
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -48,26 +47,16 @@
       </complexType>
    </element>
 
-   <element name="rtsLocation">
-      <annotation>
-         <documentation>
-            rtsLocation is used to define the location (folder) where your *.rts files are located.
-         </documentation>
-      </annotation>
+   <element name="testResouresLocation">
       <complexType>
-         <attribute name="name" type="string">
+         <attribute name="sourceLocation" type="string" use="required">
             <annotation>
                <documentation>
                   If your rts files reside in &lt;yourProject&gt;/resources/com.example/&lt;lastJavaPackageNameSegment&gt;/&lt;testSuiteName&gt;.rts, then you use &quot;/resources/com.example/&quot; as name.
                </documentation>
             </annotation>
          </attribute>
-      </complexType>
-   </element>
-
-   <element name="activator">
-      <complexType>
-         <attribute name="class" type="string">
+         <attribute name="activatorClass" type="string" use="required">
             <annotation>
                <documentation>
                   Use your TestPlugin&apos;s activator class here. The provided activator will be used to retrive *.rts files.

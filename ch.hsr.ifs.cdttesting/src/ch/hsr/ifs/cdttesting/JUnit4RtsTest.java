@@ -1,12 +1,6 @@
 package ch.hsr.ifs.cdttesting;
 
-import helpers.ExtensionHelper;
-
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,7 +17,6 @@ import org.eclipse.cdt.core.testplugin.CProjectHelper;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -102,12 +95,12 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 
 	@RTSTestCases
 	public static Map<String, ArrayList<TestSourceFile>> testCases(Class<? extends JUnit4RtsTest> testClass) throws Exception {
-		RtsTestInfo testInfo = new RtsTestInfo(testClass);
+		RtsFileInfo rtsFileInfo = new RtsFileInfo(testClass);
 		try {
-			Map<String, ArrayList<TestSourceFile>> testCases = createTests(testInfo.getRtsFileReader());
+			Map<String, ArrayList<TestSourceFile>> testCases = createTests(rtsFileInfo.getRtsFileReader());
 			return testCases;
 		} finally {
-			testInfo.getCloseReaderStream();
+			rtsFileInfo.closeReaderStream();
 		}
 	}
 
@@ -204,11 +197,7 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 
 	private String appendSubPackages(String rtsFileName) {
 		String testClassPackage = getClass().getPackage().getName();
-		String prefix = testClassPackage.substring(ExtensionHelper.getTestPackagePrefix().length());
-		if (prefix.startsWith(".")) {
-			prefix = prefix.substring(1);
-		}
-		return prefix + "/" + rtsFileName;
+		return testClassPackage + "." + rtsFileName;
 	}
 
 	@Override
@@ -219,8 +208,9 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 	}
 
 	private void initReferencedProject(String projectName, String rtsFileName) throws Exception {
-		RtsTestInfo testInfo = new RtsTestInfo(rtsFileName);
-		BufferedReader in = testInfo.getRtsFileReader(); // createTestResourceReader();
+		RtsFileInfo rtsFileInfo = new RtsFileInfo(rtsFileName);
+		try {
+			BufferedReader in = rtsFileInfo.getRtsFileReader();
 		Map<String, ArrayList<TestSourceFile>> testCases = createTests(in);
 		if (testCases.isEmpty()) {
 			throw new Exception("Failed ot add referenced project. RTS file " + rtsFileName + " does not contain any test-cases.");
@@ -234,86 +224,8 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 			}
 		}
 		referencedProjects.add(cProj);
-	}
-}
-
-class RtsTestInfo {
-
-	private String completeRTSPath;
-	private BufferedReader rtsFileReader;
-
-	public RtsTestInfo(Class<? extends JUnit4RtsTest> testClass) throws FileNotFoundException {
-		initRtsFilePath(testClass);
-		initReader();
-	}
-
-	public RtsTestInfo(String rtsFileName) {
-		if (rtsFileName.endsWith(".rts")) {
-			rtsFileName = rtsFileName.substring(0, rtsFileName.length() - 4);
+		} finally {
+			rtsFileInfo.closeReaderStream();
 		}
-		initRtsFilePathWithName(ExtensionHelper.getActivatorClass().getPackage().getName() + "." + rtsFileName);
-		initReader();
-	}
-
-	public void getCloseReaderStream() throws IOException {
-		if (rtsFileReader != null) {
-			rtsFileReader.close();
-		}
-	}
-
-	private void initReader() {
-		InputStream resourceAsStream = ExtensionHelper.getActivatorClass().getResourceAsStream(completeRTSPath);
-		rtsFileReader = new BufferedReader(new InputStreamReader(resourceAsStream));
-	}
-
-	private void initRtsFilePath(Class<? extends JUnit4RtsTest> testClass) throws FileNotFoundException {
-		if (initRtsFilePathWithAnnotation(testClass)) {
-			return;
-		} else if (initRtsFilePathWithName(testClass.getName())) {
-			return;
-		}
-		throw new FileNotFoundException("*/" + testClass.getSimpleName() + ".rts");
-	}
-
-	private boolean initRtsFilePathWithName(String name) {
-		for (IConfigurationElement curElement : ExtensionHelper.getExtensions()) {
-			if (curElement.getName().equals(TestingPlugin.XML_RTS_LOCATION_ELEMTENT_NAME)) {
-				String testResourcePrefix = curElement.getAttribute("name");
-				StringBuilder completeRTSPathBuilder = new StringBuilder(testResourcePrefix);
-				completeRTSPathBuilder.append(name.substring(ExtensionHelper.getTestPackagePrefix().length()).replace(".", "/")).append(".rts");
-				InputStream resourceAsStream = ExtensionHelper.getActivatorClass().getResourceAsStream(completeRTSPathBuilder.toString());
-				if (resourceAsStream != null) {
-					completeRTSPath = completeRTSPathBuilder.toString();
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	private boolean initRtsFilePathWithAnnotation(Class<? extends JUnit4RtsTest> testClass) {
-		RunFor runForAnnotation = testClass.getAnnotation(RunFor.class);
-		boolean hasAnnotation = runForAnnotation != null;
-		if (hasAnnotation) {
-			completeRTSPath = runForAnnotation.rtsFile();
-		}
-		return hasAnnotation;
-	}
-
-	public String getTestResourcePrefix() {
-		for (IConfigurationElement curElement : ExtensionHelper.getExtensions()) {
-			if (curElement.getName().equals(TestingPlugin.XML_RTS_LOCATION_ELEMTENT_NAME)) {
-				return curElement.getAttribute("name");
-			}
-		}
-		return null;
-	}
-
-	// private String getRtsFilePath() {
-	// return completeRTSPath;
-	// }
-
-	public BufferedReader getRtsFileReader() {
-		return rtsFileReader;
 	}
 }

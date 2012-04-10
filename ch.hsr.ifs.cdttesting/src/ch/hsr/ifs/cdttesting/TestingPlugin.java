@@ -11,8 +11,6 @@ public class TestingPlugin extends AbstractUIPlugin {
 	// The plug-in ID
 	public static final String PLUGIN_ID = "ch.hsr.ifs.cdttesting"; //$NON-NLS-1$
 	public static final String XML_EXTENSION_POINT_ID = "ch.hsr.ifs.cdttesting.testingPlugin";
-	public static final String XML_RTS_LOCATION_ELEMTENT_NAME = "rtsLocation";
-	public static final String XML_ACTIVATOR_ELEMTENT_NAME = "activator";
 
 	// The shared instance
 	private static TestingPlugin plugin;
