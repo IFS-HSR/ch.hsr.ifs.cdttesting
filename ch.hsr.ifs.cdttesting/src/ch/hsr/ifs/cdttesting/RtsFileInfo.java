@@ -23,7 +23,7 @@ public class RtsFileInfo {
 
 	public RtsFileInfo(Class<? extends JUnit4RtsTest> testClass) throws FileNotFoundException, CoreException {
 		if (!initRtsFilePathWithAnnotation(testClass) && !initRtsFilePathWithName(testClass.getName())) {
-			throw new FileNotFoundException("*/" + testClass.getSimpleName() + RTS_FILE_EXTENSION);
+			throw new FileNotFoundException(testClass.getSimpleName() + RTS_FILE_EXTENSION);
 		}
 		initReader();
 	}

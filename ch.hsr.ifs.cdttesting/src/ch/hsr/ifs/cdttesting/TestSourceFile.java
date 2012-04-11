@@ -11,8 +11,7 @@
  *******************************************************************************/
 package ch.hsr.ifs.cdttesting;
 
-import helpers.FileHelper;
-
+import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,7 +38,12 @@ public class TestSourceFile {
 
 	public TestSourceFile(String name) {
 		super();
-		this.name = FileHelper.useSystemSeparators(name);
+		this.name = useSystemSeperator(name);
+	}
+
+	private String useSystemSeperator(String name) {
+		char systemSeparator = File.separatorChar;
+		return name.replace('\\', systemSeparator).replace('/', systemSeparator);
 	}
 
 	public String getExpectedSource() {

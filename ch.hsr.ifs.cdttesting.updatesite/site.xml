@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/ch.hsr.ifs.cdttesting.feature_1.0.0.201204111350.jar" id="ch.hsr.ifs.cdttesting.feature" version="1.0.0.201204111350">
+      <category name="ch.hsr.ifs.cdttesting.category"/>
+   </feature>
+   <category-def name="ch.hsr.ifs.cdttesting.category" label="Testing Features"/>
+</site>
