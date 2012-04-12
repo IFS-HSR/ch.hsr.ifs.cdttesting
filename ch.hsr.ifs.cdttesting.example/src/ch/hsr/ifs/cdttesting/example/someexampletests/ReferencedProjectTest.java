@@ -1,0 +1,36 @@
+/*******************************************************************************
+ * Copyright (c) 2010 Institute for Software, HSR Hochschule fuer Technik  
+ * Rapperswil, University of applied sciences and others
+ * All rights reserved.
+ * 
+ * Contributors:
+ *     Institute for Software - initial API and implementation
+ ******************************************************************************/
+package ch.hsr.ifs.cdttesting.example.someexampletests;
+
+import java.util.Arrays;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import ch.hsr.ifs.cdttesting.JUnit4RtsTest;
+
+public class ReferencedProjectTest extends JUnit4RtsTest {
+
+	private static final String REFERENCED_PROJECT_NAME1 = "otherProject1";
+	private static final String REFERENCED_PROJECT_NAME2 = "otherProject2";
+
+	@Override
+	@Before
+	public void setUp() throws Exception {
+		addReferencedProject(REFERENCED_PROJECT_NAME1, "ReferencedProjectTest_p2.rts");
+		addReferencedProject(REFERENCED_PROJECT_NAME2, "ReferencedProjectTest_p3.rts");
+		super.setUp();
+	}
+
+	@Override
+	@Test
+	public void runTest() throws Throwable {
+		assertEquals("[P/otherProject1, P/otherProject2]", Arrays.toString(project.getReferencedProjects()));
+	}
+}

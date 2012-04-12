@@ -69,41 +69,31 @@
       </complexType>
    </element>
 
-   <annotation>
-      <appinfo>
-         <meta.section type="since"/>
-      </appinfo>
-      <documentation>
-         [Enter the first release in which this extension point appears.]
-      </documentation>
-   </annotation>
 
    <annotation>
       <appinfo>
          <meta.section type="examples"/>
       </appinfo>
       <documentation>
-         [Enter extension point usage example here.]
+         &lt;plugin&gt;
+   &lt;extension point=&quot;ch.hsr.ifs.cdttesting.testingPlugin&quot;&gt;
+	   &lt;testResouresLocation sourceLocation=&quot;/resources/ch.hsr.ifs.cdttesting.example.exampleTestFolder/&quot; activatorClass=&quot;ch.hsr.ifs.cdttesting.example.MyTestPlugin&quot;/&gt;
+   &lt;/extension&gt;
+&lt;/plugin&gt;
       </documentation>
    </annotation>
+
+
 
    <annotation>
       <appinfo>
-         <meta.section type="apiinfo"/>
+         <meta.section type="copyright"/>
       </appinfo>
       <documentation>
-         [Enter API information here.]
+         Copyright (c) 2010 Institute for Software, HSR Hochschule fuer
+Technik Rapperswil, University of applied sciences and others
+All rights reserved.
       </documentation>
    </annotation>
-
-   <annotation>
-      <appinfo>
-         <meta.section type="implementation"/>
-      </appinfo>
-      <documentation>
-         [Enter information about supplied implementation of this extension point.]
-      </documentation>
-   </annotation>
-
 
 </schema>
