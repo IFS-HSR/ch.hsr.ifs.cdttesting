@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="ch.hsr.ifs.cdttesting.feature"
-      label="IFS CDT-Testing Feature"
+      id="ch.hsr.ifs.cdttesting.example.feature"
+      label="Example Code"
       version="1.0.0.qualifier"
       provider-name="IFS">
 
    <description url="https://github.com/IFS-HSR/ch.hsr.ifs.cdttesting">
-      This Plugin provides Junit4 testing classes that can be used
-to test Eclipse CDT C/C++ code based functionality. This includes
-correct indexer setup, external include path support and referenced
-projects.
+      Example Source using cdttesting plugin.
+Use &quot;File-&gt;Import...-&gt;Plug-in Development-&gt;Plug-ins and Fragments&quot; to import the plugin ch.hsr.ifs.cdttesting.example to import the example code into your workspace. Make sure that the option &quot;Import as Project with source folders&quot; is active while importing (first wizard page).
    </description>
 
    <copyright>
@@ -31,7 +29,8 @@ a) in the case of the initial Contributor, the initial code and documentation di
 b) in the case of each subsequent Contributor:
 i) changes to the Program, and
 ii) additions to the Program;
-where such changes and/or additions to the Program originate from and are distributed by that particular Contributor. A Contribution &apos;originates&apos; from a Contributor if it was added to the Program by such Contributor itself or anyone acting on such Contributor&apos;s behalf. Contributions do not include additions to the Program which: (i) are separate modules of software distributed in conjunction with the Program under their own license agreement, and (ii) are not derivative works of the Program.
+where such changes and/or additions to the Program originate from and are distributed by that particular Contributor. A Contribution &apos;originates&apos; from a Contributor if it was added to the Program by such Contributor itself or anyone acting on such Contribu
+tor&apos;s behalf. Contributions do not include additions to the Program which: (i) are separate modules of software distributed in conjunction with the Program under their own license agreement, and (ii) are not derivative works of the Program.
 &quot;Contributor&quot; means any person or entity that distributes the Program.
 
 &quot;Licensed Patents&quot; mean patent claims licensable by a Contributor which are necessarily infringed by the use or sale of its Contribution alone or when combined with the Program.
@@ -42,9 +41,15 @@ where such changes and/or additions to the Program originate from and are distri
 
 2. GRANT OF RIGHTS
 
-a) Subject to the terms of this Agreement, each Contributor hereby grants Recipient a non-exclusive, worldwide, royalty-free copyright license to reproduce, prepare derivative works of, publicly display, publicly perform, distribute and sublicense the Contribution of such Contributor, if any, and such derivative works, in source code and object code form.
-b) Subject to the terms of this Agreement, each Contributor hereby grants Recipient a non-exclusive, worldwide, royalty-free patent license under Licensed Patents to make, use, sell, offer to sell, import and otherwise transfer the Contribution of such Contributor, if any, in source code and object code form. This patent license shall apply to the combination of the Contribution and the Program if, at the time the Contribution is added by the Contributor, such addition of the Contribution causes such combination to be covered by the Licensed Patents. The patent license shall not apply to any other combinations which include the Contribution. No hardware per se is licensed hereunder.
-c) Recipient understands that although each Contributor grants the licenses to its Contributions set forth herein, no assurances are provided by any Contributor that the Program does not infringe the patent or other intellectual property rights of any other entity. Each Contributor disclaims any liability to Recipient for claims brought by any other entity based on infringement of intellectual property rights or otherwise. As a condition to exercising the rights and licenses granted hereunder, each Recipient hereby assumes sole responsibility to secure any other intellectual property rights needed, if any. For example, if a third party patent license is required to allow Recipient to distribute the Program, it is Recipient&apos;s responsibility to acquire that license before distributing the Program.
+a) Subject to the terms of this Agreement, each Contributor hereby grants Recipient a non-exclusive, worldwide, royalty-free copyright license to reproduce, prepare derivative works of, publicly display, publicly perform, distribute and sublicense the Contribution o
+f such Contributor, if any, and such derivative works, in source code and object code form.
+b) Subject to the terms of this Agreement, each Contributor hereby grants Recipient a non-exclusive, worldwide, royalty-free patent license under Licensed Patents to make, use, sell, offer to sell, import and otherwise transfer the Contribution of such Contributor, 
+if any, in source code and object code form. This patent license shall apply to the combination of the Contribution and the Program if, at the time the Contribution is added by the Contributor, such addition of the Contribution causes such combination to be covered 
+by the Licensed Patents. The patent license shall not apply to any other combinations which include the Contribution. No hardware per se is licensed hereunder.
+c) Recipient understands that although each Contributor grants the licenses to its Contributions set forth herein, no assurances are provided by any Contributor that the Program does not infringe the patent or other intellectual property rights of any other entity. 
+Each Contributor disclaims any liability to Recipient for claims brought by any other entity based on infringement of intellectual property rights or otherwise. As a condition to exercising the rights and licenses granted hereunder, each Recipient hereby assumes sol
+e responsibility to secure any other intellectual property rights needed, if any. For example, if a third party patent license is required to allow Recipient to distribute the Program, it is Recipient&apos;s responsibility to acquire that license before distributing
+ the Program.
 d) Each Contributor represents that to its knowledge it has sufficient copyright rights in its Contribution, if any, to grant the copyright license set forth in this Agreement.
 3. REQUIREMENTS
 
@@ -102,11 +107,11 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <import plugin="org.eclipse.cdt.core.tests" version="5.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.cdt.core" version="5.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.resources" version="3.7.100" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.jface.text" version="3.7.0" match="greaterOrEqual"/>
+      <import plugin="ch.hsr.ifs.cdttesting" version="1.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
-         id="ch.hsr.ifs.cdttesting"
+         id="ch.hsr.ifs.cdttesting.example"
          download-size="0"
          install-size="0"
          version="1.0.0.qualifier"

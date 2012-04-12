@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ch.hsr.ifs.cdttesting</groupId>
+  <artifactId>cdttesting</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <properties>
+	<eclipse-version>indigo</eclipse-version>
+  </properties>
+  <repositories>
+	<repository>
+		<id>helios-release</id>
+		<url>http://download.eclipse.org/releases/${eclipse-version}/</url>
+		<layout>p2</layout>
+	</repository>
+	<!-- the following local repository does not provide the complete cdt installation anymore since a newer version (8.0.2 currently) is available from "helios-release" above. Since the testing components of cdt are not available there, the local repository bellow is still needed. -->
+	<repository>
+		<id>indigo-cdt-release_8_0</id>
+		<url>jar:file:///usr/local/lib/includator_build/cdt-master-8.0.0-I201106081058.zip!/</url>
+		<layout>p2</layout>
+	</repository>
+  </repositories>
+  <modules>
+    <module>ch.hsr.ifs.cdttesting</module>
+    <module>ch.hsr.ifs.cdttesting.example</module>
+    <module>ch.hsr.ifs.cdttesting.example.feature</module>
+    <module>ch.hsr.ifs.cdttesting.feature</module>
+    <module>ch.hsr.ifs.cdttesting.updatesite</module>
+  </modules>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>0.14.1</version>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

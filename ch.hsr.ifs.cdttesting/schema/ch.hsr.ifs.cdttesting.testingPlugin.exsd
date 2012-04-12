@@ -77,7 +77,7 @@
       <documentation>
          &lt;plugin&gt;
    &lt;extension point=&quot;ch.hsr.ifs.cdttesting.testingPlugin&quot;&gt;
-	   &lt;testResouresLocation sourceLocation=&quot;/resources/ch.hsr.ifs.cdttesting.example.exampleTestFolder/&quot; activatorClass=&quot;ch.hsr.ifs.cdttesting.example.MyTestPlugin&quot;/&gt;
+    &lt;testResouresLocation sourceLocation=&quot;/resources/ch.hsr.ifs.cdttesting.example.exampleTestFolder/&quot; activatorClass=&quot;ch.hsr.ifs.cdttesting.example.MyTestPlugin&quot;/&gt;
    &lt;/extension&gt;
 &lt;/plugin&gt;
       </documentation>
@@ -90,7 +90,7 @@
          <meta.section type="copyright"/>
       </appinfo>
       <documentation>
-         Copyright (c) 2010 Institute for Software, HSR Hochschule fuer
+         Copyright (c) 2012 Institute for Software, HSR Hochschule fuer
 Technik Rapperswil, University of applied sciences and others
 All rights reserved.
       </documentation>
