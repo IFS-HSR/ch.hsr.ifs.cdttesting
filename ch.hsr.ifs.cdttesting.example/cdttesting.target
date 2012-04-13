@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.6"?>
+
+<target name="Running Platform" sequenceNumber="5">
+<locations>
+<location path="${eclipse_home}" type="Profile"/>
+<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.cdt.feature.group" version="8.0.2.201202111925"/>
+<repository location="http://download.eclipse.org/releases/indigo"/>
+</location>
+</locations>
+<environment>
+<os>linux</os>
+<ws>gtk</ws>
+<arch>x86_64</arch>
+<nl>en_US</nl>
+</environment>
+<launcherArgs>
+<vmArgs>-Xms40m -Xmx384m</vmArgs>
+</launcherArgs>
+</target>
