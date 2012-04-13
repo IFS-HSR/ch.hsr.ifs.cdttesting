@@ -18,7 +18,8 @@ import org.junit.runners.Suite.SuiteClasses;
 //			ExternalIncludeDependencyTestFrameworkTest.class,
 			SourceFileContentTest.class,
 			ReferencedProjectTest.class,
-			CheckNoUnresolvedInclusionsTest.class
+			CheckNoUnresolvedInclusionsTest.class,
+			ExternalIncludeDependencyTestFrameworkTest.class
 			//@formatter:on	
 })
 public class SomeExampleTestsSuite {

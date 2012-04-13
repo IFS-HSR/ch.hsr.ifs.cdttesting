@@ -8,7 +8,6 @@
  ******************************************************************************/
 package ch.hsr.ifs.cdttesting.example.someexampletests;
 
-
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IStatus;
@@ -38,7 +37,7 @@ public class CheckNoUnresolvedInclusionsTest extends JUnit4RtsTest implements IL
 		assertNull(loggedStatus.getException());
 		assertEquals(CCorePlugin.PLUGIN_ID, loggingPlugin);
 		assertEquals(IStatus.INFO, loggedStatus.getSeverity());
-		assertTrue(loggedStatus.getMessage().contains("1 declarations; 0 references; 13 unresolved inclusions; 0 syntax errors; 0 unresolved names"));
+		assertTrue(loggedStatus.getMessage().contains("1 declarations; 0 references; 0 unresolved inclusions; 0 syntax errors; 0 unresolved names"));
 		assertTrue(loggedStatus.getMessage().startsWith("Indexed 'RegressionTestProject' (1 sources, 13 headers)"));
 	}
 

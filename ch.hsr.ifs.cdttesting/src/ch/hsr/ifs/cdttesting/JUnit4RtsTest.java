@@ -11,8 +11,10 @@
 package ch.hsr.ifs.cdttesting;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -22,11 +24,18 @@ import java.util.regex.Pattern;
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.dom.IPDOMManager;
 import org.eclipse.cdt.core.index.IIndexManager;
+import org.eclipse.cdt.core.model.CModelException;
+import org.eclipse.cdt.core.model.CoreModel;
 import org.eclipse.cdt.core.model.ICProject;
+import org.eclipse.cdt.core.model.IPathEntry;
 import org.eclipse.cdt.core.testplugin.CProjectHelper;
+import org.eclipse.cdt.core.testplugin.TestScannerProvider;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -46,15 +55,21 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 	 * Key: projectName, value: rtsFileName
 	 */
 	private final LinkedHashMap<String, String> referencedProjectsToLoad;
+	private final List<String> externalIncudeDirPaths;
+	private final List<String> inProjectIncudeDirPaths;
 
 	public JUnit4RtsTest() {
+		ExternalResourceHelper.copyPluginResourcesToTestingWorkspace(getClass());
 		referencedProjectsToLoad = new LinkedHashMap<String, String>();
+		externalIncudeDirPaths = new ArrayList<String>();
+		inProjectIncudeDirPaths = new ArrayList<String>();
 	}
 
 	@Override
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
+		addIncludePathDirs();
 		setUpIndex();
 	}
 
@@ -221,21 +236,78 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 		RtsFileInfo rtsFileInfo = new RtsFileInfo(rtsFileName);
 		try {
 			BufferedReader in = rtsFileInfo.getRtsFileReader();
-		Map<String, ArrayList<TestSourceFile>> testCases = createTests(in);
-		if (testCases.isEmpty()) {
-			throw new Exception("Failed ot add referenced project. RTS file " + rtsFileName + " does not contain any test-cases.");
-		} else if (testCases.size() > 1) {
-			throw new Exception("RTS files + " + rtsFileName + " which represents a referenced project must only contain a single test case.");
-		}
-		ICProject cProj = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER);
-		for (TestSourceFile testFile : testCases.values().iterator().next()) {
-			if (testFile.getSource().length() > 0) {
-				importFile(testFile.getName(), testFile.getSource(), cProj.getProject());
+			Map<String, ArrayList<TestSourceFile>> testCases = createTests(in);
+			if (testCases.isEmpty()) {
+				throw new Exception("Failed ot add referenced project. RTS file " + rtsFileName + " does not contain any test-cases.");
+			} else if (testCases.size() > 1) {
+				throw new Exception("RTS files + " + rtsFileName + " which represents a referenced project must only contain a single test case.");
 			}
-		}
-		referencedProjects.add(cProj);
+			ICProject cProj = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER);
+			for (TestSourceFile testFile : testCases.values().iterator().next()) {
+				if (testFile.getSource().length() > 0) {
+					importFile(testFile.getName(), testFile.getSource(), cProj.getProject());
+				}
+			}
+			referencedProjects.add(cProj);
 		} finally {
 			rtsFileInfo.closeReaderStream();
 		}
+	}
+
+	protected void addIncludeDirPath(String path) {
+		externalIncudeDirPaths.add(path);
+	}
+
+	protected void addInProjectIncludeDirPath(String projectRelativePath) {
+		inProjectIncudeDirPaths.add(projectRelativePath);
+	}
+
+	private void addIncludePathDirs() {
+		addIncludeDirPath("indexerParseUpfrontFakeLib"); // this prevents indexer of yielding unresolved inclusions for default parse-upfront-headers
+		String[] array = new String[externalIncudeDirPaths.size() + inProjectIncudeDirPaths.size()];
+		int i = 0;
+		for (; i < externalIncudeDirPaths.size(); i++) {
+			String externalAbsolutePath = makeExternalResourceAbsolutePath(externalIncudeDirPaths.get(i));
+			File folder = new File(externalAbsolutePath);
+			if (!folder.exists()) {
+				System.err.println("Adding external include path dir " + externalAbsolutePath + " to test " + getName() + " which does not exist.");
+			}
+			array[i] = externalAbsolutePath;
+		}
+		for (; i < array.length; i++) {
+			String inProjectAbsolutePath = makeProjectAbsolutePath(inProjectIncudeDirPaths.get(i - externalIncudeDirPaths.size()));
+			File folder = new File(inProjectAbsolutePath);
+			if (!folder.exists()) {
+				System.err.println("Adding external include path dir " + inProjectAbsolutePath + " to test " + getName() + " which does not exist.");
+			}
+			array[i] = inProjectAbsolutePath;
+		}
+		externalIncudeDirPaths.clear();
+		inProjectIncudeDirPaths.clear();
+		addIncludeRefs(array);
+		TestScannerProvider.sIncludes = array;
+	}
+
+	private static void addIncludeRefs(String[] pathsToAdd) {
+		try {
+			IPathEntry[] allPathEntries = cproject.getRawPathEntries();
+			IPathEntry[] newPathEntries = new IPathEntry[allPathEntries.length + pathsToAdd.length];
+			System.arraycopy(allPathEntries, 0, newPathEntries, 0, allPathEntries.length);
+			for (int i = 0; i < pathsToAdd.length; i++) {
+				newPathEntries[allPathEntries.length + i] = CoreModel.newIncludeEntry(cproject.getPath(), null, new Path(pathsToAdd[i]));
+			}
+			cproject.setRawPathEntries(newPathEntries, new NullProgressMonitor());
+		} catch (CModelException e) {
+			e.printStackTrace();
+		}
+	}
+
+	protected String makeExternalResourceAbsolutePath(String relativePath) {
+		return ExternalResourceHelper.makeExternalResourceAbsolutePath(relativePath);
+	}
+
+	protected String makeProjectAbsolutePath(String relativePath) {
+		IPath projectPath = project.getLocation();
+		return projectPath.append(relativePath).toOSString();
 	}
 }

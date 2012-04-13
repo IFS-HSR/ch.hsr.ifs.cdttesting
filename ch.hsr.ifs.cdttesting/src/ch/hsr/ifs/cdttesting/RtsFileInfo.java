@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.Bundle;
 
 public class RtsFileInfo {
 
@@ -100,5 +101,9 @@ public class RtsFileInfo {
 		IExtensionRegistry reg = Platform.getExtensionRegistry();
 		IConfigurationElement[] extensions = reg.getConfigurationElementsFor(TestingPlugin.XML_EXTENSION_POINT_ID);
 		return extensions;
+	}
+	
+	public Bundle getBundle() {
+		return Platform.getBundle(activeExtension.getContributor().getName());
 	}
 }

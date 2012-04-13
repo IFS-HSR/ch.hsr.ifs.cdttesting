@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/ch.hsr.ifs.cdttesting.feature_1.0.0.qualifier.jar" id="ch.hsr.ifs.cdttesting.feature" version="1.0.0.qualifier">
+   <feature url="features/ch.hsr.ifs.cdttesting.feature_1.0.1.qualifier.jar" id="ch.hsr.ifs.cdttesting.feature" version="1.0.1.qualifier">
       <category name="ch.hsr.ifs.cdttesting.category"/>
    </feature>
-   <feature url="features/ch.hsr.ifs.cdttesting.example.feature_1.0.0.qualifier.jar" id="ch.hsr.ifs.cdttesting.example.feature" version="1.0.0.qualifier">
+   <feature url="features/ch.hsr.ifs.cdttesting.example.feature_1.0.1.qualifier.jar" id="ch.hsr.ifs.cdttesting.example.feature" version="1.0.1.qualifier">
       <category name="ch.hsr.ifs.cdttesting.category"/>
    </feature>
    <category-def name="ch.hsr.ifs.cdttesting.category" label="Testing Features"/>
