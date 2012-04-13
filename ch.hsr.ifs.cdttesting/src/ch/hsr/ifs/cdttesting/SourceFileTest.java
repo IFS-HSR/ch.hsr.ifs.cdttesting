@@ -12,15 +12,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
-import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.dom.IPDOMManager;
-import org.eclipse.cdt.core.model.ICProject;
-import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
-import org.eclipse.cdt.core.settings.model.ICProjectDescription;
 import org.eclipse.cdt.core.testplugin.CProjectHelper;
 import org.eclipse.cdt.core.tests.BaseTestFramework;
 import org.eclipse.core.resources.IFile;
@@ -39,13 +34,11 @@ public abstract class SourceFileTest extends BaseTestFramework {
 	protected String fileWithSelection;
 	protected TextSelection selection;
 	protected String activeFileName;
-	protected final ArrayList<ICProject> referencedProjects;
 	protected boolean createCProject = false;
 
 	public SourceFileTest() {
 		super();
 		fileMap = new TreeMap<String, TestSourceFile>();
-		referencedProjects = new ArrayList<ICProject>();
 	}
 
 	public void initTestSourceFiles(ArrayList<TestSourceFile> files) {
@@ -129,8 +122,6 @@ public abstract class SourceFileTest extends BaseTestFramework {
 		for (TestSourceFile testFile : fileMap.values()) {
 			importFile(testFile.getName(), testFile.getSource());
 		}
-		initReferencedProjects();
-		setupProjectReferences();
 	}
 
 	private void adaptProject() {
@@ -144,25 +135,6 @@ public abstract class SourceFileTest extends BaseTestFramework {
 			}
 			if (project == null)
 				fail("Unable to create project"); //$NON-NLS-1$
-		}
-	}
-
-	protected void initReferencedProjects() throws Exception {
-		// default do nothing. Baseclasses can override.
-	}
-
-	private void setupProjectReferences() throws CoreException {
-		if (referencedProjects.size() > 0) {
-			ICProjectDescription des = CCorePlugin.getDefault().getProjectDescription(project.getProject(), true);
-			ICConfigurationDescription cfgs[] = des.getConfigurations();
-			for (ICConfigurationDescription config : cfgs) {
-				Map<String, String> refMap = config.getReferenceInfo();
-				for (ICProject refProject : referencedProjects) {
-					refMap.put(refProject.getProject().getName(), ""); //$NON-NLS-1$
-				}
-				config.setReferenceInfo(refMap);
-			}
-			CCorePlugin.getDefault().setProjectDescription(project, des);
 		}
 	}
 

@@ -28,6 +28,8 @@ import org.eclipse.cdt.core.model.CModelException;
 import org.eclipse.cdt.core.model.CoreModel;
 import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.core.model.IPathEntry;
+import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
+import org.eclipse.cdt.core.settings.model.ICProjectDescription;
 import org.eclipse.cdt.core.testplugin.CProjectHelper;
 import org.eclipse.cdt.core.testplugin.TestScannerProvider;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -57,26 +59,62 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 	private final LinkedHashMap<String, String> referencedProjectsToLoad;
 	private final List<String> externalIncudeDirPaths;
 	private final List<String> inProjectIncudeDirPaths;
+	protected final ArrayList<ICProject> referencedProjects;
 
 	public JUnit4RtsTest() {
 		ExternalResourceHelper.copyPluginResourcesToTestingWorkspace(getClass());
 		referencedProjectsToLoad = new LinkedHashMap<String, String>();
 		externalIncudeDirPaths = new ArrayList<String>();
 		inProjectIncudeDirPaths = new ArrayList<String>();
+		referencedProjects = new ArrayList<ICProject>();
 	}
 
 	@Override
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
+		initReferencedProjects();
+		setupProjectReferences();
 		addIncludePathDirs();
+		preSetupIndex();
 		setUpIndex();
+	}
+
+	protected void preSetupIndex() {
+		// do nothing, extending classes can override
+	}
+
+	private void setupProjectReferences() throws CoreException {
+		if (referencedProjects.size() > 0) {
+			ICProjectDescription des = CCorePlugin.getDefault().getProjectDescription(project.getProject(), true);
+			ICConfigurationDescription cfgs[] = des.getConfigurations();
+			for (ICConfigurationDescription config : cfgs) {
+				Map<String, String> refMap = config.getReferenceInfo();
+				for (ICProject refProject : referencedProjects) {
+					refMap.put(refProject.getProject().getName(), ""); //$NON-NLS-1$
+				}
+				config.setReferenceInfo(refMap);
+			}
+			CCorePlugin.getDefault().setProjectDescription(project, des);
+		}
 	}
 
 	@Override
 	@After
 	public void tearDown() throws Exception {
+		deleteReferencedProjects();
 		super.tearDown();
+	}
+
+	private void deleteReferencedProjects() {
+		for (ICProject curProj : referencedProjects) {
+			try {
+				curProj.getProject().delete(true, false, monitor);
+			} catch (CoreException e) {
+				// ignore
+			}
+		}
+		referencedProjects.clear();
 	}
 
 	protected void setUpIndex() throws CoreException, InterruptedException {
@@ -98,7 +136,6 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 			CCorePlugin.getIndexManager().setIndexerId(curProj, IPDOMManager.ID_FAST_INDEXER);
 			CCorePlugin.getIndexManager().reindex(curProj);
 		}
-
 		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
 
 		boolean joined = CCorePlugin.getIndexManager().joinIndexer(20000, NULL_PROGRESS_MONITOR);
@@ -225,7 +262,6 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 		return testClassPackage + "." + rtsFileName;
 	}
 
-	@Override
 	protected void initReferencedProjects() throws Exception {
 		for (Entry<String, String> curEntry : referencedProjectsToLoad.entrySet()) {
 			initReferencedProject(curEntry.getKey(), curEntry.getValue());

@@ -52,7 +52,7 @@
          <attribute name="sourceLocation" type="string" use="required">
             <annotation>
                <documentation>
-                  If your rts files reside in &lt;yourProject&gt;/resources/com.example/&lt;lastJavaPackageNameSegment&gt;/&lt;testSuiteName&gt;.rts, then you use &quot;/resources/com.example/&quot; as name.
+                  If your rts files reside in {yourProject}/resources/com.example/{lastJavaPackageNameSegment}/{testSuiteName}.rts, then you use &quot;/resources/com.example/&quot; as name.
                </documentation>
             </annotation>
          </attribute>
