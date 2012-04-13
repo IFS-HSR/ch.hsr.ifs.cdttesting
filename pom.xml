@@ -15,16 +15,11 @@
 		<url>http://download.eclipse.org/releases/${eclipse-version}/</url>
 		<layout>p2</layout>
 	</repository>
-	<!-- the following local repository does not provide the complete cdt installation anymore since a newer version (8.0.2 currently) is available from "helios-release" above. Since the testing components of cdt are not available there, the local repository bellow is still needed. -->
-	<repository>
-		<id>indigo-cdt-release_8_0</id>
-		<url>jar:file:///usr/local/lib/includator_build/cdt-master-8.0.0-I201106081058.zip!/</url>
-		<layout>p2</layout>
-	</repository>
   </repositories>
   <modules>
     <module>ch.hsr.ifs.cdttesting</module>
     <module>ch.hsr.ifs.cdttesting.example</module>
+    <module>org.eclipse.cdt.core.tests</module>
     <module>ch.hsr.ifs.cdttesting.example.feature</module>
     <module>ch.hsr.ifs.cdttesting.feature</module>
     <module>ch.hsr.ifs.cdttesting.updatesite</module>
