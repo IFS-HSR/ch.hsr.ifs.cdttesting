@@ -7,6 +7,9 @@
       </appinfo>
       <documentation>
          Extend this extension point if your plugin wants to use the CDT RTS (Refactoring Test Suite) testing framework.
+
+To get a running example, do &quot;File-&gt;Import-&gt;Plug-in Developement-&gt;Plug-ins and Fragments&quot; and select &quot;ch.hsr.ifs.cdttesting.example&quot; from the active target platform.
+Run TestSuiteAll.java as Eclipse Plug-in test.
       </documentation>
    </annotation>
 
@@ -80,6 +83,9 @@
     &lt;testResouresLocation sourceLocation=&quot;/resources/ch.hsr.ifs.cdttesting.example.exampleTestFolder/&quot; activatorClass=&quot;ch.hsr.ifs.cdttesting.example.MyTestPlugin&quot;/&gt;
    &lt;/extension&gt;
 &lt;/plugin&gt;
+
+To get a running example, do &quot;File-&gt;Import-&gt;Plug-in Developement-&gt;Plug-ins and Fragments&quot; and select &quot;ch.hsr.ifs.cdttesting.example&quot; from the active target platform.
+Run TestSuiteAll.java as Eclipse Plug-in test.
       </documentation>
    </annotation>
 
