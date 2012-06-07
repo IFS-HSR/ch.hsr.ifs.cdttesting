@@ -10,6 +10,9 @@
 to test Eclipse CDT C/C++ code based functionality. This includes
 correct indexer setup, external include path support and referenced
 projects.
+Also, RTS tests cannot, as with normal RTS tests, only be used to run a whole suite, but one can now re-run a single (e.g. failing test).
+
+This features also contains the CDT plugin org.eclipse.cdt.tests. This is the case because CDTs own features do not contain it, since it is only required when running tests. When doing CDT plugin-develompemnt however, is is required and had in the past to be (1) directly imported into the workspace form CDT repositories or (2) added as plugin via local dependency.
    </description>
 
    <copyright>
