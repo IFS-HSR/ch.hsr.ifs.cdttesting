@@ -17,7 +17,6 @@ import java.util.TreeMap;
 
 import org.eclipse.cdt.core.dom.IPDOMManager;
 import org.eclipse.cdt.core.testplugin.CProjectHelper;
-import org.eclipse.cdt.core.tests.BaseTestFramework;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;

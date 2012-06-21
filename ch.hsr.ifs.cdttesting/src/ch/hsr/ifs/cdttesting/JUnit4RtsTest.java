@@ -324,7 +324,7 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 		TestScannerProvider.sIncludes = array;
 	}
 
-	private static void addIncludeRefs(String[] pathsToAdd) {
+	private void addIncludeRefs(String[] pathsToAdd) {
 		try {
 			IPathEntry[] allPathEntries = cproject.getRawPathEntries();
 			IPathEntry[] newPathEntries = new IPathEntry[allPathEntries.length + pathsToAdd.length];

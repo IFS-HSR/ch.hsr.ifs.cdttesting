@@ -19,7 +19,9 @@ import org.junit.runners.Suite.SuiteClasses;
 			SourceFileContentTest.class,
 			ReferencedProjectTest.class,
 			CheckNoUnresolvedInclusionsTest.class,
-			ExternalIncludeDependencyTestFrameworkTest.class
+			ExternalIncludeDependencyTestFrameworkTest.class,
+			CProjectTest.class,
+			TwoIndexFileForOneFileTest.class,
 			//@formatter:on	
 })
 public class SomeExampleTestsSuite {
