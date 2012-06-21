@@ -4,10 +4,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ch.hsr.ifs.cdttesting</groupId>
   <artifactId>cdttesting</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
 	<eclipse-version>indigo</eclipse-version>
+	<tycho-version>0.14.1</tycho-version>
   </properties>
   <repositories>
 	<repository>
@@ -30,7 +31,7 @@
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-maven-plugin</artifactId>
-        <version>0.14.1</version>
+        <version>${tycho-version}</version>
         <extensions>true</extensions>
       </plugin>
     </plugins>

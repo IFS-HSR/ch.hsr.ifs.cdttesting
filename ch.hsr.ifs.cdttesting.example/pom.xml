@@ -5,10 +5,25 @@
   <parent>
     <artifactId>cdttesting</artifactId>
     <groupId>ch.hsr.ifs.cdttesting</groupId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
   </parent>
   <groupId>ch.hsr.ifs.cdttesting</groupId>
   <artifactId>ch.hsr.ifs.cdttesting.example</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
-  <packaging>eclipse-plugin</packaging>
+  <version>1.0.2-SNAPSHOT</version>
+  <packaging>eclipse-test-plugin</packaging>
+    <build>
+      <sourceDirectory>src</sourceDirectory>
+      <plugins>
+        <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-surefire-plugin</artifactId>
+        <version>${tycho-version}</version>
+        <configuration>
+          <testSuite>ch.hsr.ifs.cdttesting.example</testSuite>
+          <testClass>ch.hsr.ifs.cdttesting.example.TestSuiteAll</testClass>
+          <useUIHarness>true</useUIHarness>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
