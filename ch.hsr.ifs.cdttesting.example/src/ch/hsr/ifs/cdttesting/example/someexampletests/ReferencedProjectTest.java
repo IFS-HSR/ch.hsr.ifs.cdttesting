@@ -10,6 +10,7 @@ package ch.hsr.ifs.cdttesting.example.someexampletests;
 
 import java.util.Arrays;
 
+import org.eclipse.cdt.core.model.IIncludeReference;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,5 +33,9 @@ public class ReferencedProjectTest extends JUnit4RtsTest {
 	@Test
 	public void runTest() throws Throwable {
 		assertEquals("[P/otherProject1, P/otherProject2]", Arrays.toString(project.getReferencedProjects()));
+		IIncludeReference[] inc = cproject.getIncludeReferences();
+		assertEquals(3, inc.length);
+		assertEquals(makeWorkspaceAbsolutePath(REFERENCED_PROJECT_NAME1), inc[1].getElementName());
+		assertEquals(makeWorkspaceAbsolutePath(REFERENCED_PROJECT_NAME2), inc[2].getElementName());
 	}
 }

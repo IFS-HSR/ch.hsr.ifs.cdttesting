@@ -299,8 +299,9 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 	}
 
 	private void addIncludePathDirs() {
-		addIncludeDirPath("indexerParseUpfrontFakeLib"); // this prevents indexer of yielding unresolved inclusions for default parse-upfront-headers
-		String[] array = new String[externalIncudeDirPaths.size() + inProjectIncudeDirPaths.size()];
+		addIncludeDirPath("indexerParseUpfrontFakeLib"); // this prevents the indexer of yielding unresolved inclusions for default parse-upfront-headers
+		int externalProjectOffset = externalIncudeDirPaths.size() + inProjectIncudeDirPaths.size();
+		String[] array = new String[externalProjectOffset + referencedProjects.size()];
 		int i = 0;
 		for (; i < externalIncudeDirPaths.size(); i++) {
 			String externalAbsolutePath = makeExternalResourceAbsolutePath(externalIncudeDirPaths.get(i));
@@ -310,7 +311,7 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 			}
 			array[i] = externalAbsolutePath;
 		}
-		for (; i < array.length; i++) {
+		for (; i < externalProjectOffset; i++) {
 			String inProjectAbsolutePath = makeProjectAbsolutePath(inProjectIncudeDirPaths.get(i - externalIncudeDirPaths.size()));
 			File folder = new File(inProjectAbsolutePath);
 			if (!folder.exists()) {
@@ -318,19 +319,28 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 			}
 			array[i] = inProjectAbsolutePath;
 		}
+		for (; i < array.length; i++) {
+			ICProject referencedProj = referencedProjects.get(i - externalProjectOffset);
+			array[i] = referencedProj.getProject().getLocation().toOSString();
+		}
 		externalIncudeDirPaths.clear();
 		inProjectIncudeDirPaths.clear();
-		addIncludeRefs(array);
+		addIncludeRefs(array, externalProjectOffset);
 		TestScannerProvider.sIncludes = array;
 	}
 
-	private void addIncludeRefs(String[] pathsToAdd) {
+	private void addIncludeRefs(String[] pathsToAdd, int externalProjectOffset) {
 		try {
 			IPathEntry[] allPathEntries = cproject.getRawPathEntries();
 			IPathEntry[] newPathEntries = new IPathEntry[allPathEntries.length + pathsToAdd.length];
 			System.arraycopy(allPathEntries, 0, newPathEntries, 0, allPathEntries.length);
-			for (int i = 0; i < pathsToAdd.length; i++) {
-				newPathEntries[allPathEntries.length + i] = CoreModel.newIncludeEntry(cproject.getPath(), null, new Path(pathsToAdd[i]));
+			int i = 0;
+			for (; i < externalProjectOffset; i++) {
+				newPathEntries[allPathEntries.length + i] = CoreModel.newIncludeEntry(null, null, new Path(pathsToAdd[i]));
+			}
+			for (; i < pathsToAdd.length; i++) {
+				ICProject referencedProj = referencedProjects.get(i - externalProjectOffset);
+				newPathEntries[allPathEntries.length + i] = CoreModel.newIncludeEntry(null, referencedProj.getPath().makeRelative(), null);
 			}
 			cproject.setRawPathEntries(newPathEntries, new NullProgressMonitor());
 		} catch (CModelException e) {
@@ -345,5 +355,9 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 	protected String makeProjectAbsolutePath(String relativePath) {
 		IPath projectPath = project.getLocation();
 		return projectPath.append(relativePath).toOSString();
+	}
+
+	protected String makeWorkspaceAbsolutePath(String relativePath) {
+		return ResourcesPlugin.getWorkspace().getRoot().getLocation().append(relativePath).toOSString();
 	}
 }
