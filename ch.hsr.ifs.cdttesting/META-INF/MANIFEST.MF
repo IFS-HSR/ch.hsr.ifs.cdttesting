@@ -8,8 +8,8 @@ Bundle-Vendor: IFS
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.junit,
- org.eclipse.cdt.core.tests;bundle-version="5.3.0",
- org.eclipse.cdt.core;bundle-version="5.3.0",
+ org.eclipse.cdt.core.tests;bundle-version="[5.3.0,5.4.0)",
+ org.eclipse.cdt.core;bundle-version="[5.3.0,5.4.0)",
  org.eclipse.core.resources;bundle-version="3.7.100",
  org.eclipse.jface.text;bundle-version="3.7.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
