@@ -2,7 +2,7 @@
 <feature
       id="ch.hsr.ifs.cdttesting.example.feature"
       label="Example Code"
-      version="1.0.2.qualifier"
+      version="2.0.0.qualifier"
       provider-name="IFS">
 
    <description url="https://github.com/IFS-HSR/ch.hsr.ifs.cdttesting">
@@ -114,7 +114,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
          id="ch.hsr.ifs.cdttesting.example"
          download-size="0"
          install-size="0"
-         version="1.0.2.qualifier"
+         version="2.0.0.qualifier"
          unpack="false"/>
 
 </feature>

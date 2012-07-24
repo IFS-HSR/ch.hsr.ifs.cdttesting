@@ -2,7 +2,7 @@
 <feature
       id="ch.hsr.ifs.cdttesting.feature"
       label="IFS CDT-Testing Feature"
-      version="1.0.2.qualifier"
+      version="2.0.0.qualifier"
       provider-name="IFS">
 
    <description url="https://github.com/IFS-HSR/ch.hsr.ifs.cdttesting">
@@ -112,21 +112,21 @@ This Agreement is governed by the laws of the State of New York and the intellec
          id="ch.hsr.ifs.cdttesting"
          download-size="0"
          install-size="0"
-         version="1.0.2.qualifier"
+         version="2.0.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.cdt.core.tests"
          download-size="0"
          install-size="0"
-         version="5.3.2.qualifier"
+         version="5.4.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.cdt.ui.tests"
          download-size="0"
          install-size="0"
-         version="5.3.2.qualifier"
+         version="5.4.0.qualifier"
          unpack="false"/>
 
 </feature>

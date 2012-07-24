@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.6"?>
+<?pde version="3.8"?>
 
-<target name="Running Platform" sequenceNumber="5">
+<target name="Running Platform" sequenceNumber="7">
 <locations>
 <location path="${eclipse_home}" type="Profile"/>
-<location includeAllPlatforms="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.cdt.feature.group" version="8.0.2.201202111925"/>
-<repository location="http://download.eclipse.org/releases/indigo"/>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.cdt.feature.group" version="8.1.0.201206111645"/>
+<repository location="http://download.eclipse.org/releases/juno"/>
 </location>
 </locations>
 <environment>
