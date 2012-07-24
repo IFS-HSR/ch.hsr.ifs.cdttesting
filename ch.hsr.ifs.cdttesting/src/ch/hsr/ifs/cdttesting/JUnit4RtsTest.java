@@ -299,7 +299,6 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 	}
 
 	private void addIncludePathDirs() {
-		addIncludeDirPath("indexerParseUpfrontFakeLib"); // this prevents the indexer of yielding unresolved inclusions for default parse-upfront-headers
 		int externalProjectOffset = externalIncudeDirPaths.size() + inProjectIncudeDirPaths.size();
 		String[] array = new String[externalProjectOffset + referencedProjects.size()];
 		int i = 0;

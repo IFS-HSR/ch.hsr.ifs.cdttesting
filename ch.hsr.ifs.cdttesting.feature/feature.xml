@@ -122,11 +122,4 @@ This Agreement is governed by the laws of the State of New York and the intellec
          version="5.4.0.qualifier"
          unpack="false"/>
 
-   <plugin
-         id="org.eclipse.cdt.ui.tests"
-         download-size="0"
-         install-size="0"
-         version="5.4.0.qualifier"
-         unpack="false"/>
-
 </feature>
