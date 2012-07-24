@@ -20,8 +20,8 @@
   <modules>
     <module>ch.hsr.ifs.cdttesting</module>
     <module>ch.hsr.ifs.cdttesting.example</module>
-    <module>workspace/org.eclipse.cdt/core/org.eclipse.cdt.core.tests</module>
-    <module>workspace/org.eclipse.cdt/core/org.eclipse.cdt.ui.tests</module>
+    <module>workspace_indigo/org.eclipse.cdt/core/org.eclipse.cdt.core.tests</module>
+    <module>workspace_indigo/org.eclipse.cdt/core/org.eclipse.cdt.ui.tests</module>
     <module>ch.hsr.ifs.cdttesting.example.feature</module>
     <module>ch.hsr.ifs.cdttesting.feature</module>
     <module>ch.hsr.ifs.cdttesting.updatesite</module>
