@@ -125,6 +125,7 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 			doSetUpIndex();
 			status = checkTestStatus();
 		} while (!status && attempt++ < tries);
+		assertTrue("The indexing operation of the test CProject has not finished jet. This should not happen...", status);
 	}
 
 	private void doSetUpIndex() throws CoreException, InterruptedException {
@@ -138,12 +139,14 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 		}
 		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
 
-		boolean joined = CCorePlugin.getIndexManager().joinIndexer(20000, NULL_PROGRESS_MONITOR);
+		boolean joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, NULL_PROGRESS_MONITOR);
 		if (!joined) {
 			// Second join due to some strange interruption of JobMonitor when starting unit tests.
 			System.err.println("First join on indexer failed. Trying again.");
 			joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, NULL_PROGRESS_MONITOR);
-			assertTrue("The indexing operation of the test CProject has not finished jet. This should not happen...", joined);
+			if (!joined) {
+				System.err.println("Second join on indexer failed. Trying again.");
+			}
 		}
 	}
 
@@ -274,7 +277,7 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 			BufferedReader in = rtsFileInfo.getRtsFileReader();
 			Map<String, ArrayList<TestSourceFile>> testCases = createTests(in);
 			if (testCases.isEmpty()) {
-				throw new Exception("Failed ot add referenced project. RTS file " + rtsFileName + " does not contain any test-cases.");
+				throw new Exception("Failed to add referenced project. RTS file " + rtsFileName + " does not contain any test-cases.");
 			} else if (testCases.size() > 1) {
 				throw new Exception("RTS files + " + rtsFileName + " which represents a referenced project must only contain a single test case.");
 			}
