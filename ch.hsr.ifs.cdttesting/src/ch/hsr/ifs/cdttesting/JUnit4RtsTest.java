@@ -38,6 +38,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -117,7 +119,7 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 		referencedProjects.clear();
 	}
 
-	protected void setUpIndex() throws CoreException, InterruptedException {
+	protected void setUpIndex() throws CoreException {
 		final int tries = 3;
 		int attempt = 0;
 		boolean status;
@@ -128,9 +130,8 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 		assertTrue("The indexing operation of the test CProject has not finished jet. This should not happen...", status);
 	}
 
-	private void doSetUpIndex() throws CoreException, InterruptedException {
+	private void doSetUpIndex() throws CoreException {
 		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
-
 		CCorePlugin.getIndexManager().setIndexerId(cproject, IPDOMManager.ID_FAST_INDEXER);
 		CCorePlugin.getIndexManager().reindex(cproject);
 		for (ICProject curProj : referencedProjects) {
@@ -205,6 +206,9 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 			}
 
 			switch (matcherState) {
+			case skip:
+			case inTest:
+				break;
 			case inSource:
 				if (actFile != null) {
 					actFile.addLineToSource(line);
@@ -361,5 +365,25 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 
 	protected String makeWorkspaceAbsolutePath(String relativePath) {
 		return ResourcesPlugin.getWorkspace().getRoot().getLocation().append(relativePath).toOSString();
+	}
+
+	protected IWorkbenchWindow getActiveWorkbenchWindow() {
+		IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if (activeWorkbenchWindow == null) {
+			IWorkbenchWindow[] workbenchWindows = PlatformUI.getWorkbench().getWorkbenchWindows();
+			assertEquals("There should be exactly one workbench window. Includator test will thus fail.", 1, workbenchWindows.length);
+			activeWorkbenchWindow = workbenchWindows[0];
+		}
+		return activeWorkbenchWindow;
+	}
+
+	protected void closeOpenEditors() throws Exception {
+		new UIThreadSyncRunnable() {
+
+			@Override
+			protected void runSave() throws Exception {
+				getActiveWorkbenchWindow().getActivePage().closeAllEditors(false);
+			}
+		}.runSyncOnUIThread();
 	}
 }
