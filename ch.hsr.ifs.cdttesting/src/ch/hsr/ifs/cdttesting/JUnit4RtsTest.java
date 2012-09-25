@@ -120,43 +120,24 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 	}
 
 	protected void setUpIndex() throws CoreException {
-		final int tries = 3;
-		int attempt = 0;
-		boolean status;
-		do {
-			doSetUpIndex();
-			status = checkTestStatus();
-		} while (!status && attempt++ < tries);
-		assertTrue("The indexing operation of the test CProject has not finished jet. This should not happen...", status);
-	}
-
-	private void doSetUpIndex() throws CoreException {
-		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
-		CCorePlugin.getIndexManager().setIndexerId(cproject, IPDOMManager.ID_FAST_INDEXER);
-		CCorePlugin.getIndexManager().reindex(cproject);
-		for (ICProject curProj : referencedProjects) {
-			CCorePlugin.getIndexManager().setIndexerId(curProj, IPDOMManager.ID_FAST_INDEXER);
-			CCorePlugin.getIndexManager().reindex(curProj);
-		}
-		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
-
-		boolean joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, NULL_PROGRESS_MONITOR);
-		if (!joined) {
-			// Second join due to some strange interruption of JobMonitor when starting unit tests.
-			System.err.println("First join on indexer failed. Trying again.");
-			joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, NULL_PROGRESS_MONITOR);
-			if (!joined) {
-				System.err.println("Second join on indexer failed. Trying again.");
+			ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
+			CCorePlugin.getIndexManager().setIndexerId(cproject, IPDOMManager.ID_FAST_INDEXER);
+			CCorePlugin.getIndexManager().reindex(cproject);
+			for (ICProject curProj : referencedProjects) {
+				CCorePlugin.getIndexManager().setIndexerId(curProj, IPDOMManager.ID_FAST_INDEXER);
+				CCorePlugin.getIndexManager().reindex(curProj);
 			}
-		}
-	}
-
-	private boolean checkTestStatus() throws CoreException {
-		boolean hasFiles = CCorePlugin.getIndexManager().getIndex(cproject).getAllFiles().length != 0;
-		if (!hasFiles) {
-			System.err.println("Test " + getName() + " is not properly setup and will most likely fail!");
-		}
-		return hasFiles;
+			ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
+			
+			boolean joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, NULL_PROGRESS_MONITOR);
+			if (!joined) {
+				// Second join due to some strange interruption of JobMonitor when starting unit tests.
+				System.err.println("First join on indexer failed. Trying again.");
+				joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, NULL_PROGRESS_MONITOR);
+				if (!joined) {
+					System.err.println("Second join on indexer failed. Trying again.");
+				}
+			}
 	}
 
 	@RTSTestCases
