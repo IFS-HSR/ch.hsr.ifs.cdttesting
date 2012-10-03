@@ -22,6 +22,7 @@
     <module>ch.hsr.ifs.cdttesting.example</module>
     <module>workspace_juno/org.eclipse.cdt/core/org.eclipse.cdt.core.tests</module>
     <module>workspace_juno/org.eclipse.cdt/core/org.eclipse.cdt.ui.tests</module>
+    <module>workspace_juno/org.eclipse.cdt/codan/org.eclipse.cdt.codan.core.test</module>
     <module>ch.hsr.ifs.cdttesting.example.feature</module>
     <module>ch.hsr.ifs.cdttesting.feature</module>
     <module>ch.hsr.ifs.cdttesting.updatesite</module>
