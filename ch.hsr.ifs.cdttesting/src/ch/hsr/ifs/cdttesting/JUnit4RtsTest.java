@@ -104,6 +104,8 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 	@Override
 	@After
 	public void tearDown() throws Exception {
+		closeOpenEditors();
+		TestScannerProvider.clear();
 		deleteReferencedProjects();
 		super.tearDown();
 	}

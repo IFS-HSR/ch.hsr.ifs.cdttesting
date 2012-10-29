@@ -15,12 +15,9 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.TreeMap;
 
-import org.eclipse.cdt.core.dom.IPDOMManager;
-import org.eclipse.cdt.core.testplugin.CProjectHelper;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.TextSelection;
@@ -116,24 +113,8 @@ public abstract class SourceFileTest extends BaseTestFramework {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		adaptProject();
-
 		for (TestSourceFile testFile : fileMap.values()) {
 			importFile(testFile.getName(), testFile.getSource());
-		}
-	}
-
-	private void adaptProject() {
-		if (createCProject) {
-			try {
-				cleanupProject();
-				cproject = CProjectHelper.createCProject("RegressionTestProject", "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ //$NON-NLS-2$
-				project = cproject.getProject();
-			} catch (CoreException e) {
-			} catch (Exception e) {
-			}
-			if (project == null)
-				fail("Unable to create project"); //$NON-NLS-1$
 		}
 	}
 
