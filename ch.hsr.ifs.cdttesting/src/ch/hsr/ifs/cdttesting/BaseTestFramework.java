@@ -55,13 +55,14 @@ abstract public class BaseTestFramework extends TestCase {
 			return;
 		}
 		if (CCorePlugin.getDefault() != null && CCorePlugin.getDefault().getCoreModel() != null) {
+			String projectName = makeProjectName();
 			monitor = new NullProgressMonitor();
 			workspace = ResourcesPlugin.getWorkspace();
 			try {
 				if (instantiateCCProject) {
-					cproject = CProjectHelper.createCCProject("RegressionTestProject", "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ //$NON-NLS-2$
+					cproject = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ //$NON-NLS-2$
 				} else {
-					cproject = CProjectHelper.createCProject("RegressionTestProject", "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ //$NON-NLS-2$
+					cproject = CProjectHelper.createCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				project = cproject.getProject();
 			} catch (CoreException e) {
@@ -72,6 +73,10 @@ abstract public class BaseTestFramework extends TestCase {
 			}
 			fileManager = new FileManager();
 		}
+	}
+
+	private String makeProjectName() {
+		return getName().replaceAll("[^\\w]", "_");
 	}
 
 	public BaseTestFramework() {

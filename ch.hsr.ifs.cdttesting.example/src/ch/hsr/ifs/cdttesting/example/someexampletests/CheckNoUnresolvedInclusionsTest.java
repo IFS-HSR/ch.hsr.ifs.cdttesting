@@ -38,7 +38,7 @@ public class CheckNoUnresolvedInclusionsTest extends JUnit4RtsTest implements IL
 		assertEquals(CCorePlugin.PLUGIN_ID, loggingPlugin);
 		assertEquals(IStatus.INFO, loggedStatus.getSeverity());
 		assertTrue(loggedStatus.getMessage().contains("1 declarations; 0 references; 0 unresolved inclusions; 0 syntax errors; 0 unresolved names"));
-		assertTrue(loggedStatus.getMessage().startsWith("Indexed 'RegressionTestProject' (1 sources, 0 headers)"));
+		assertTrue(loggedStatus.getMessage().startsWith("Indexed '" + project.getName() + "' (1 sources, 0 headers)"));
 	}
 
 	@Override

@@ -18,6 +18,7 @@ import java.util.TreeMap;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.TextSelection;
@@ -116,6 +117,7 @@ public abstract class SourceFileTest extends BaseTestFramework {
 		for (TestSourceFile testFile : fileMap.values()) {
 			importFile(testFile.getName(), testFile.getSource());
 		}
+		project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 	}
 
 	protected IFile importFile(String fileName, String contents, IProject project) throws Exception {

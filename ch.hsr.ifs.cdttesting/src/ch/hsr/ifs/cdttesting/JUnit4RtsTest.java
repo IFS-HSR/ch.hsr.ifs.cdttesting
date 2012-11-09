@@ -32,11 +32,12 @@ import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.core.settings.model.ICProjectDescription;
 import org.eclipse.cdt.core.testplugin.CProjectHelper;
 import org.eclipse.cdt.core.testplugin.TestScannerProvider;
+import org.eclipse.cdt.ui.CUIPlugin;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -108,6 +109,12 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 		TestScannerProvider.clear();
 		deleteReferencedProjects();
 		super.tearDown();
+		disposeCDTAstCache();
+	}
+
+	@SuppressWarnings("restriction")
+	private void disposeCDTAstCache() {
+		CUIPlugin.getDefault().getASTProvider().dispose();
 	}
 
 	private void deleteReferencedProjects() {
@@ -122,24 +129,26 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 	}
 
 	protected void setUpIndex() throws CoreException {
-			ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
-			CCorePlugin.getIndexManager().setIndexerId(cproject, IPDOMManager.ID_FAST_INDEXER);
-			CCorePlugin.getIndexManager().reindex(cproject);
-			for (ICProject curProj : referencedProjects) {
-				CCorePlugin.getIndexManager().setIndexerId(curProj, IPDOMManager.ID_FAST_INDEXER);
-				CCorePlugin.getIndexManager().reindex(curProj);
-			}
-			ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
-			
-			boolean joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, NULL_PROGRESS_MONITOR);
+		disposeCDTAstCache();
+		project.refreshLocal(IResource.DEPTH_INFINITE, NULL_PROGRESS_MONITOR);
+		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
+		CCorePlugin.getIndexManager().setIndexerId(cproject, IPDOMManager.ID_FAST_INDEXER);
+		CCorePlugin.getIndexManager().reindex(cproject);
+		for (ICProject curProj : referencedProjects) {
+			CCorePlugin.getIndexManager().setIndexerId(curProj, IPDOMManager.ID_FAST_INDEXER);
+			CCorePlugin.getIndexManager().reindex(curProj);
+		}
+		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
+
+		boolean joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, NULL_PROGRESS_MONITOR);
+		if (!joined) {
+			// Second join due to some strange interruption of JobMonitor when starting unit tests.
+			System.err.println("First join on indexer failed. Trying again.");
+			joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, NULL_PROGRESS_MONITOR);
 			if (!joined) {
-				// Second join due to some strange interruption of JobMonitor when starting unit tests.
-				System.err.println("First join on indexer failed. Trying again.");
-				joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, NULL_PROGRESS_MONITOR);
-				if (!joined) {
-					System.err.println("Second join on indexer failed. Trying again.");
-				}
+				System.err.println("Second join on indexer failed. Trying again.");
 			}
+		}
 	}
 
 	@RTSTestCases
@@ -331,7 +340,7 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 				ICProject referencedProj = referencedProjects.get(i - externalProjectOffset);
 				newPathEntries[allPathEntries.length + i] = CoreModel.newIncludeEntry(null, referencedProj.getPath().makeRelative(), null);
 			}
-			cproject.setRawPathEntries(newPathEntries, new NullProgressMonitor());
+			cproject.setRawPathEntries(newPathEntries, NULL_PROGRESS_MONITOR);
 		} catch (CModelException e) {
 			e.printStackTrace();
 		}
