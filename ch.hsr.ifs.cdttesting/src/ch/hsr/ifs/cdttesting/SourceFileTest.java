@@ -9,8 +9,10 @@
 package ch.hsr.ifs.cdttesting;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -131,13 +133,36 @@ public abstract class SourceFileTest extends BaseTestFramework {
 			}
 		}
 		InputStream stream = new ByteArrayInputStream(contents.getBytes());
-		if (file.exists())
-			file.setContents(stream, false, false, monitor);
-		else
-			file.create(stream, false, monitor);
+		if (file.exists()) {
+			System.err.println("Overwriding existing file which should not yet exist: " + fileName);
+			file.setContents(stream, true, false, monitor);
+		} else
+			file.create(stream, true, monitor);
 
 		fileManager.addFile(file);
+		checkFileContent(file.getLocation(), contents);
 		return file;
+	}
+
+	private void checkFileContent(IPath location, String expected) throws IOException {
+		Reader in = null;
+		try {
+			in = new FileReader(location.toOSString());
+			StringBuilder existing = new StringBuilder();
+			char[] buffer = new char[4096];
+			int read = 0;
+			do {
+				existing.append(buffer, 0, read);
+				read = in.read(buffer);
+			} while (read >= 0);
+			if (!expected.equals(existing.toString())) {
+				System.err.println("file " + location + " not yet written.");
+			}
+		} finally {
+			if (in != null) {
+				in.close();
+			}
+		}
 	}
 
 	@Override

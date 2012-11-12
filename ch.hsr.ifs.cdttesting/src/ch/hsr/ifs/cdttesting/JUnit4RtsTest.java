@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.dom.IPDOMManager;
+import org.eclipse.cdt.core.index.IIndex;
 import org.eclipse.cdt.core.index.IIndexManager;
 import org.eclipse.cdt.core.model.CModelException;
 import org.eclipse.cdt.core.model.CoreModel;
@@ -81,6 +82,25 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 		addIncludePathDirs();
 		preSetupIndex();
 		setUpIndex();
+		checkTestStatus();
+	}
+
+	private boolean checkTestStatus() throws CoreException {
+		IIndex index = CCorePlugin.getIndexManager().getIndex(cproject);
+		boolean hasFiles = false;
+		try {
+			index.acquireReadLock();
+			hasFiles = index.getAllFiles().length != 0;
+			if (!hasFiles) {
+				System.err.println("Test " + getName() + " is not properly setup and will most likely fail!");
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			fail();
+		} finally {
+			index.releaseReadLock();
+		}
+		return hasFiles;
 	}
 
 	protected void preSetupIndex() {
@@ -94,7 +114,7 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 			for (ICConfigurationDescription config : cfgs) {
 				Map<String, String> refMap = config.getReferenceInfo();
 				for (ICProject refProject : referencedProjects) {
-					refMap.put(refProject.getProject().getName(), ""); //$NON-NLS-1$
+					refMap.put(refProject.getProject().getName(), "");
 				}
 				config.setReferenceInfo(refMap);
 			}
@@ -132,21 +152,19 @@ public abstract class JUnit4RtsTest extends SourceFileTest {
 		disposeCDTAstCache();
 		project.refreshLocal(IResource.DEPTH_INFINITE, NULL_PROGRESS_MONITOR);
 		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
+		// reindexing will happen automatically after call of setIndexerId
 		CCorePlugin.getIndexManager().setIndexerId(cproject, IPDOMManager.ID_FAST_INDEXER);
-		CCorePlugin.getIndexManager().reindex(cproject);
 		for (ICProject curProj : referencedProjects) {
 			CCorePlugin.getIndexManager().setIndexerId(curProj, IPDOMManager.ID_FAST_INDEXER);
-			CCorePlugin.getIndexManager().reindex(curProj);
 		}
 		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
 
 		boolean joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, NULL_PROGRESS_MONITOR);
 		if (!joined) {
-			// Second join due to some strange interruption of JobMonitor when starting unit tests.
-			System.err.println("First join on indexer failed. Trying again.");
+			System.err.println("Join on indexer failed. " + getName() + "might fail.");
 			joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, NULL_PROGRESS_MONITOR);
 			if (!joined) {
-				System.err.println("Second join on indexer failed. Trying again.");
+				System.err.println("Second join on indexer failed.");
 			}
 		}
 	}

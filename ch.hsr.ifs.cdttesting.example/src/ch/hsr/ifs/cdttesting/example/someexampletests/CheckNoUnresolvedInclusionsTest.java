@@ -12,6 +12,7 @@ import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
+import org.junit.After;
 import org.junit.Test;
 
 import ch.hsr.ifs.cdttesting.JUnit4RtsTest;
@@ -45,5 +46,15 @@ public class CheckNoUnresolvedInclusionsTest extends JUnit4RtsTest implements IL
 	public void logging(IStatus status, String plugin) {
 		loggedStatus = status;
 		loggingPlugin = plugin;
+	}
+
+	@Override
+	@After
+	public void tearDown() throws Exception {
+		Plugin plugin = CCorePlugin.getDefault();
+		if (plugin != null) {
+			plugin.getLog().removeLogListener(this);
+		}
+		super.tearDown();
 	}
 }

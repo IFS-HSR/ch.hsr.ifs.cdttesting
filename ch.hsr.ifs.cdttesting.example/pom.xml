@@ -22,6 +22,7 @@
           <testSuite>ch.hsr.ifs.cdttesting.example</testSuite>
           <testClass>ch.hsr.ifs.cdttesting.example.TestSuiteAll</testClass>
           <useUIHarness>true</useUIHarness>
+          <useUIThread>false</useUIThread>
         </configuration>
       </plugin>
     </plugins>

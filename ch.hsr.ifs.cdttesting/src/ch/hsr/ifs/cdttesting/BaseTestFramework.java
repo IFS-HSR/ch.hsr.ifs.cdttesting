@@ -76,7 +76,7 @@ abstract public class BaseTestFramework extends TestCase {
 	}
 
 	private String makeProjectName() {
-		return getName().replaceAll("[^\\w]", "_");
+		return getName().replaceAll("[^\\w]", "_") + "_project";
 	}
 
 	public BaseTestFramework() {
