@@ -35,8 +35,7 @@ public class ExternalResourceHelper {
 	public static void copyPluginResourcesToTestingWorkspace(Class<? extends JUnit4RtsTest> testClass) {
 		if (!isLoaded) {
 			try {
-				RtsFileInfo testInfo;
-				testInfo = new RtsFileInfo(testClass);
+				RtsFileInfo testInfo = new RtsFileInfo(testClass);
 				URI rootUri = ResourcesPlugin.getWorkspace().getRoot().getLocationURI();
 				IPath rootPath = new Path(rootUri.getPath());
 				String baseFolderPath = getTargetFilePath(EXTERNAL_TEST_RESOURCE, rootPath);

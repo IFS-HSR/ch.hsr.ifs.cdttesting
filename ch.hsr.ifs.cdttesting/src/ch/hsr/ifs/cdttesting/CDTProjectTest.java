@@ -38,7 +38,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 /**
  * @author aniefer
  */
-abstract public class BaseTestFramework extends TestCase {
+abstract public class CDTProjectTest extends TestCase {
 	protected NullProgressMonitor monitor;
 	protected IWorkspace workspace;
 	protected IProject project;
@@ -79,14 +79,14 @@ abstract public class BaseTestFramework extends TestCase {
 		return getName().replaceAll("[^\\w]", "_") + "_project";
 	}
 
-	public BaseTestFramework() {
+	public CDTProjectTest() {
 		super();
 	}
 
 	/**
 	 * @param name
 	 */
-	public BaseTestFramework(String name) {
+	public CDTProjectTest(String name) {
 		super(name);
 	}
 

@@ -25,7 +25,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.TextSelection;
 
-public abstract class SourceFileTest extends BaseTestFramework {
+public abstract class SourceFileTest extends CDTProjectTest {
 	protected static final NullProgressMonitor NULL_PROGRESS_MONITOR = new NullProgressMonitor();
 	private static final String CONFIG_FILE_NAME = ".config";
 
