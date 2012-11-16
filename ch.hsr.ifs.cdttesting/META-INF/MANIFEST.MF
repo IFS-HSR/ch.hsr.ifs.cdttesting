@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Cdttesting
 Bundle-SymbolicName: ch.hsr.ifs.cdttesting;singleton:=true
-Bundle-Version: 2.0.0.qualifier
+Bundle-Version: 3.0.0.qualifier
 Bundle-Activator: ch.hsr.ifs.cdttesting.TestingPlugin
 Bundle-Vendor: IFS
 Require-Bundle: org.eclipse.ui,
@@ -15,11 +15,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.cdt.ui;bundle-version="5.5.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Export-Package: ch.hsr.ifs.cdttesting;
-  uses:="org.eclipse.jface.text,
-   org.eclipse.core.runtime,
-   org.junit.runners,
-   org.eclipse.core.resources,
-   org.eclipse.ui.plugin,
-   org.osgi.framework,
-   org.eclipse.cdt.core.tests"
+Export-Package: ch.hsr.ifs.cdttesting.cdt,
+ ch.hsr.ifs.cdttesting.helpers,
+ ch.hsr.ifs.cdttesting.rts,
+ ch.hsr.ifs.cdttesting.rts.junit4,
+ ch.hsr.ifs.cdttesting.testsourcefile

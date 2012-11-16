@@ -6,12 +6,17 @@
  * Contributors:
  *     Institute for Software - initial API and implementation
  ******************************************************************************/
-package ch.hsr.ifs.cdttesting;
+package ch.hsr.ifs.cdttesting.rts.junit4;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RunFor {
-	String rtsFile();
+@Target(ElementType.METHOD)
+@Inherited
+public @interface RTSTestCases {
+
 }

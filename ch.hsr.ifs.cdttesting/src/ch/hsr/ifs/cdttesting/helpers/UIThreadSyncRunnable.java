@@ -1,4 +1,4 @@
-package ch.hsr.ifs.cdttesting;
+package ch.hsr.ifs.cdttesting.helpers;
 
 import org.eclipse.ui.PlatformUI;
 

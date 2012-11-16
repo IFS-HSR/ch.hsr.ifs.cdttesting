@@ -18,9 +18,9 @@ import org.eclipse.cdt.core.index.IndexLocationFactory;
 import org.eclipse.cdt.core.model.ICProject;
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.JUnit4RtsTest;
+import ch.hsr.ifs.cdttesting.rts.junit4.CDTProjectJUnit4RtsTest;
 
-public class TwoIndexFileForOneFileTest extends JUnit4RtsTest {
+public class TwoIndexFileForOneFileTest extends CDTProjectJUnit4RtsTest {
 
 	private IIndex index;
 

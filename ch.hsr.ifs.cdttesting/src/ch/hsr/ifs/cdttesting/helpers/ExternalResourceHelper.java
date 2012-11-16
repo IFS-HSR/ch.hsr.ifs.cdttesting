@@ -6,7 +6,7 @@
  * Contributors:
  *     Institute for Software - initial API and implementation
  ******************************************************************************/
-package ch.hsr.ifs.cdttesting;
+package ch.hsr.ifs.cdttesting.helpers;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -24,6 +24,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
+import ch.hsr.ifs.cdttesting.rts.junit4.CDTProjectJUnit4RtsTest;
+import ch.hsr.ifs.cdttesting.rts.junit4.RtsFileInfo;
+
 public class ExternalResourceHelper {
 
 	private static boolean isLoaded = false;
@@ -32,7 +35,7 @@ public class ExternalResourceHelper {
 	public static final String NL = System.getProperty("line.separator");
 	public static final char PATH_SEGMENT_SEPARATOR = File.separatorChar;
 
-	public static void copyPluginResourcesToTestingWorkspace(Class<? extends JUnit4RtsTest> testClass) {
+	public static void copyPluginResourcesToTestingWorkspace(Class<? extends CDTProjectJUnit4RtsTest> testClass) {
 		if (!isLoaded) {
 			try {
 				RtsFileInfo testInfo = new RtsFileInfo(testClass);

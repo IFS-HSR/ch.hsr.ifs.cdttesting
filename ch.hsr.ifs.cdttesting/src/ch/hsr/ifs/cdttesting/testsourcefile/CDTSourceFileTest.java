@@ -6,38 +6,43 @@
  * Contributors:
  *     Institute for Software - initial API and implementation
  ******************************************************************************/
-package ch.hsr.ifs.cdttesting;
+package ch.hsr.ifs.cdttesting.testsourcefile;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeMap;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
+import org.eclipse.cdt.core.dom.IPDOMManager;
+import org.eclipse.cdt.core.model.ICProject;
+import org.eclipse.cdt.core.testplugin.CProjectHelper;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.TextSelection;
 
-public abstract class SourceFileTest extends CDTProjectTest {
-	protected static final NullProgressMonitor NULL_PROGRESS_MONITOR = new NullProgressMonitor();
+import ch.hsr.ifs.cdttesting.cdt.CDTProjectTest;
+
+public abstract class CDTSourceFileTest extends CDTProjectTest {
 	private static final String CONFIG_FILE_NAME = ".config";
 
 	protected TreeMap<String, TestSourceFile> fileMap;
 	protected String fileWithSelection;
 	protected TextSelection selection;
 	protected String activeFileName;
-	protected boolean createCProject = false;
 
-	public SourceFileTest() {
+	/**
+	 * Key: projectName, value: project's files
+	 */
+	protected final LinkedHashMap<String, ArrayList<TestSourceFile>> referencedProjectsToLoad;
+
+	public CDTSourceFileTest() {
 		super();
 		fileMap = new TreeMap<String, TestSourceFile>();
+		referencedProjectsToLoad = new LinkedHashMap<String, ArrayList<TestSourceFile>>();
 	}
 
 	public void initTestSourceFiles(ArrayList<TestSourceFile> files) {
@@ -113,67 +118,33 @@ public abstract class SourceFileTest extends CDTProjectTest {
 	}
 
 	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-
+	protected void setupFiles() throws Exception {
 		for (TestSourceFile testFile : fileMap.values()) {
 			importFile(testFile.getName(), testFile.getSource());
 		}
 		project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 	}
 
-	protected IFile importFile(String fileName, String contents, IProject project) throws Exception {
-		IFile file = project.getFile(fileName);
-		IPath projectRelativePath = file.getProjectRelativePath();
-		for (int i = projectRelativePath.segmentCount() - 1; i > 0; i--) {
-			IPath folderPath = file.getProjectRelativePath().removeLastSegments(i);
-			IFolder folder = project.getFolder(folderPath);
-			if (!folder.exists()) {
-				folder.create(false, true, monitor);
-			}
-		}
-		InputStream stream = new ByteArrayInputStream(contents.getBytes());
-		if (file.exists()) {
-			System.err.println("Overwriding existing file which should not yet exist: " + fileName);
-			file.setContents(stream, true, false, monitor);
-		} else
-			file.create(stream, true, monitor);
-
-		fileManager.addFile(file);
-		checkFileContent(file.getLocation(), contents);
-		return file;
-	}
-
-	private void checkFileContent(IPath location, String expected) throws IOException {
-		Reader in = null;
-		try {
-			in = new FileReader(location.toOSString());
-			StringBuilder existing = new StringBuilder();
-			char[] buffer = new char[4096];
-			int read = 0;
-			do {
-				existing.append(buffer, 0, read);
-				read = in.read(buffer);
-			} while (read >= 0);
-			if (!expected.equals(existing.toString())) {
-				System.err.println("file " + location + " not yet written.");
-			}
-		} finally {
-			if (in != null) {
-				in.close();
-			}
-		}
-	}
-
-	@Override
-	protected IFile importFile(String fileName, String contents) throws Exception {
-		return importFile(fileName, contents, project);
-	}
-
 	@Override
 	protected void tearDown() throws Exception {
-		fileManager.closeAllFiles();
 		super.tearDown();
 		cleanupProject();
+	}
+
+	@Override
+	protected void initReferencedProjects() throws Exception {
+		for (Entry<String, ArrayList<TestSourceFile>> curEntry : referencedProjectsToLoad.entrySet()) {
+			initReferencedProject(curEntry.getKey(), curEntry.getValue());
+		}
+	}
+
+	private void initReferencedProject(String projectName, List<TestSourceFile> testCases) throws Exception {
+		ICProject cProj = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER);
+		for (TestSourceFile testFile : testCases) {
+			if (testFile.getSource().length() > 0) {
+				importFile(testFile.getName(), testFile.getSource(), cProj.getProject());
+			}
+		}
+		referencedProjects.add(cProj);
 	}
 }

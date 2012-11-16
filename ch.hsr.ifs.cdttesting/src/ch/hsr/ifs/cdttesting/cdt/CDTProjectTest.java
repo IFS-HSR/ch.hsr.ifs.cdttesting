@@ -1,22 +1,31 @@
 /*******************************************************************************
- * Copyright (c) 2012 Institute for Software.
+ * Copyright (c) 2004, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
- *     Institute for Software - initial API and implementation
- ******************************************************************************/
-package ch.hsr.ifs.cdttesting;
+ *     IBM Corporation - initial API and implementation
+ *     Markus Schorn (Wind River Systems)
+ *******************************************************************************/
 
-import java.io.BufferedReader;
+/*
+ * Created on Oct 4, 2004
+ */
+package ch.hsr.ifs.cdttesting.cdt;
+
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+
+import junit.framework.TestCase;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.dom.IPDOMManager;
@@ -29,43 +38,65 @@ import org.eclipse.cdt.core.model.IPathEntry;
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.core.settings.model.ICProjectDescription;
 import org.eclipse.cdt.core.testplugin.CProjectHelper;
+import org.eclipse.cdt.core.testplugin.FileManager;
 import org.eclipse.cdt.core.testplugin.TestScannerProvider;
 import org.eclipse.cdt.ui.CUIPlugin;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
 
-@RunWith(RTSTest.class)
-public abstract class JUnit4RtsTest extends RtsTest {
+import ch.hsr.ifs.cdttesting.helpers.ExternalResourceHelper;
+import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
 
+/**
+ * @author aniefer
+ */
+abstract public class CDTProjectTest extends TestCase {
+	protected static final NullProgressMonitor NULL_PROGRESS_MONITOR = new NullProgressMonitor();
+	protected IWorkspace workspace;
+	protected IProject project;
+	protected ICProject cproject;
+	protected FileManager fileManager;
+	protected boolean indexDisabled = false;
 	/**
-	 * Key: projectName, value: rtsFileName
+	 * when set to false, a C project will be created instead of a (default) C++ project
 	 */
-	private final LinkedHashMap<String, String> referencedProjectsToLoad;
-	private final List<String> externalIncudeDirPaths;
-	private final List<String> inProjectIncudeDirPaths;
-	protected final ArrayList<ICProject> referencedProjects;
+	protected boolean instantiateCCProject = true;
 
-	public JUnit4RtsTest() {
-		ExternalResourceHelper.copyPluginResourcesToTestingWorkspace(getClass());
-		referencedProjectsToLoad = new LinkedHashMap<String, String>();
+	protected ArrayList<ICProject> referencedProjects;
+	private List<String> externalIncudeDirPaths;
+	private List<String> inProjectIncudeDirPaths;
+
+	public CDTProjectTest() {
+		init();
+	}
+
+	public CDTProjectTest(String name) {
+		super(name);
+		init();
+	}
+
+	private void init() {
+		referencedProjects = new ArrayList<ICProject>();
 		externalIncudeDirPaths = new ArrayList<String>();
 		inProjectIncudeDirPaths = new ArrayList<String>();
-		referencedProjects = new ArrayList<ICProject>();
 	}
 
 	@Override
-	@Before
-	public void setUp() throws Exception {
+	protected void setUp() throws Exception {
 		super.setUp();
+		initProject();
+		setupFiles();
 		initReferencedProjects();
 		setupProjectReferences();
 		addIncludePathDirs();
@@ -73,6 +104,99 @@ public abstract class JUnit4RtsTest extends RtsTest {
 		setUpIndex();
 		checkTestStatus();
 	}
+
+	protected abstract void setupFiles() throws Exception;
+
+	@Override
+	protected void tearDown() throws Exception {
+		closeOpenEditors();
+		TestScannerProvider.clear();
+		deleteReferencedProjects();
+		fileManager.closeAllFiles();
+		disposeProjMembers();
+		disposeCDTAstCache();
+	}
+
+	private void initProject() {
+		if (project != null) {
+			return;
+		}
+		if (CCorePlugin.getDefault() != null && CCorePlugin.getDefault().getCoreModel() != null) {
+			String projectName = makeProjectName();
+			workspace = ResourcesPlugin.getWorkspace();
+			try {
+				if (instantiateCCProject) {
+					cproject = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ //$NON-NLS-2$
+				} else {
+					cproject = CProjectHelper.createCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+				project = cproject.getProject();
+			} catch (CoreException e) {
+				/* boo */
+			}
+			if (project == null) {
+				fail("Unable to create project"); //$NON-NLS-1$
+			}
+			fileManager = new FileManager();
+		}
+	}
+
+	private String makeProjectName() {
+		return getName().replaceAll("[^\\w]", "_") + "_project";
+	}
+
+	public void cleanupProject() throws Exception {
+		try {
+			project.delete(true, false, NULL_PROGRESS_MONITOR);
+		} catch (Throwable e) {
+			/* boo */
+		} finally {
+			project = null;
+		}
+	}
+
+	private void disposeProjMembers() throws CoreException {
+		if (project == null || !project.exists())
+			return;
+
+		IResource[] members = project.members();
+		for (int i = 0; i < members.length; i++) {
+			if (members[i].getName().equals(".project") || members[i].getName().equals(".cproject")) //$NON-NLS-1$ //$NON-NLS-2$
+				continue;
+			if (members[i].getName().equals(".settings"))
+				continue;
+			try {
+				members[i].delete(false, NULL_PROGRESS_MONITOR);
+			} catch (Throwable e) {
+				/* boo */
+			}
+		}
+	}
+
+	// protected IFile importFile(String fileName, String contents) throws Exception {
+	// IFile file = project.getProject().getFile(fileName);
+	// InputStream stream = new ByteArrayInputStream(contents.getBytes());
+	// if (file.exists()) {
+	// file.setContents(stream, false, false, NULL_PROGRESS_MONITOR);
+	// } else {
+	// IPath path = file.getLocation();
+	// path = path.makeRelativeTo(project.getLocation());
+	// if (path.segmentCount() > 1) {
+	// path = path.removeLastSegments(1);
+	//
+	// for (int i = path.segmentCount() - 1; i >= 0; i--) {
+	// IPath currentPath = path.removeLastSegments(i);
+	// IFolder folder = project.getFolder(currentPath);
+	// if (!folder.exists()) {
+	// folder.create(false, true, null);
+	// }
+	// }
+	// }
+	// file.create(stream, false, NULL_PROGRESS_MONITOR);
+	// }
+	// fileManager.addFile(file);
+	// return file;
+	// }
 
 	private boolean checkTestStatus() throws CoreException {
 		IIndex index = CCorePlugin.getIndexManager().getIndex(cproject);
@@ -98,7 +222,7 @@ public abstract class JUnit4RtsTest extends RtsTest {
 
 	private void setupProjectReferences() throws CoreException {
 		if (referencedProjects.size() > 0) {
-			ICProjectDescription des = CCorePlugin.getDefault().getProjectDescription(project.getProject(), true);
+			ICProjectDescription des = CCorePlugin.getDefault().getProjectDescription(project, true);
 			ICConfigurationDescription cfgs[] = des.getConfigurations();
 			for (ICConfigurationDescription config : cfgs) {
 				Map<String, String> refMap = config.getReferenceInfo();
@@ -111,33 +235,7 @@ public abstract class JUnit4RtsTest extends RtsTest {
 		}
 	}
 
-	@Override
-	@After
-	public void tearDown() throws Exception {
-		closeOpenEditors();
-		TestScannerProvider.clear();
-		deleteReferencedProjects();
-		super.tearDown();
-		disposeCDTAstCache();
-	}
-
-	@SuppressWarnings("restriction")
-	private void disposeCDTAstCache() {
-		CUIPlugin.getDefault().getASTProvider().dispose();
-	}
-
-	private void deleteReferencedProjects() {
-		for (ICProject curProj : referencedProjects) {
-			try {
-				curProj.getProject().delete(true, false, monitor);
-			} catch (CoreException e) {
-				// ignore
-			}
-		}
-		referencedProjects.clear();
-	}
-
-	protected void setUpIndex() throws CoreException {
+	private void setUpIndex() throws CoreException {
 		disposeCDTAstCache();
 		project.refreshLocal(IResource.DEPTH_INFINITE, NULL_PROGRESS_MONITOR);
 		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
@@ -158,53 +256,7 @@ public abstract class JUnit4RtsTest extends RtsTest {
 		}
 	}
 
-	@RTSTestCases
-	public static Map<String, ArrayList<TestSourceFile>> testCases(Class<? extends JUnit4RtsTest> testClass) throws Exception {
-		RtsFileInfo rtsFileInfo = new RtsFileInfo(testClass);
-		try {
-			Map<String, ArrayList<TestSourceFile>> testCases = createTests(rtsFileInfo.getRtsFileReader());
-			return testCases;
-		} finally {
-			rtsFileInfo.closeReaderStream();
-		}
-	}
-
-	protected void addReferencedProject(String projectName, String rtsFileName) {
-		referencedProjectsToLoad.put(projectName, appendSubPackages(rtsFileName));
-	}
-
-	private String appendSubPackages(String rtsFileName) {
-		String testClassPackage = getClass().getPackage().getName();
-		return testClassPackage + "." + rtsFileName;
-	}
-
-	protected void initReferencedProjects() throws Exception {
-		for (Entry<String, String> curEntry : referencedProjectsToLoad.entrySet()) {
-			initReferencedProject(curEntry.getKey(), curEntry.getValue());
-		}
-	}
-
-	private void initReferencedProject(String projectName, String rtsFileName) throws Exception {
-		RtsFileInfo rtsFileInfo = new RtsFileInfo(rtsFileName);
-		try {
-			BufferedReader in = rtsFileInfo.getRtsFileReader();
-			Map<String, ArrayList<TestSourceFile>> testCases = createTests(in);
-			if (testCases.isEmpty()) {
-				throw new Exception("Failed to add referenced project. RTS file " + rtsFileName + " does not contain any test-cases.");
-			} else if (testCases.size() > 1) {
-				throw new Exception("RTS files + " + rtsFileName + " which represents a referenced project must only contain a single test case.");
-			}
-			ICProject cProj = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER);
-			for (TestSourceFile testFile : testCases.values().iterator().next()) {
-				if (testFile.getSource().length() > 0) {
-					importFile(testFile.getName(), testFile.getSource(), cProj.getProject());
-				}
-			}
-			referencedProjects.add(cProj);
-		} finally {
-			rtsFileInfo.closeReaderStream();
-		}
-	}
+	protected abstract void initReferencedProjects() throws Exception;
 
 	protected void addIncludeDirPath(String path) {
 		externalIncudeDirPaths.add(path);
@@ -263,6 +315,58 @@ public abstract class JUnit4RtsTest extends RtsTest {
 		}
 	}
 
+	protected IFile importFile(String fileName, String contents, IProject project) throws Exception {
+		IFile file = project.getFile(fileName);
+		IPath projectRelativePath = file.getProjectRelativePath();
+		for (int i = projectRelativePath.segmentCount() - 1; i > 0; i--) {
+			IPath folderPath = file.getProjectRelativePath().removeLastSegments(i);
+			IFolder folder = project.getFolder(folderPath);
+			if (!folder.exists()) {
+				folder.create(false, true, NULL_PROGRESS_MONITOR);
+			}
+		}
+		InputStream stream = new ByteArrayInputStream(contents.getBytes());
+		if (file.exists()) {
+			System.err.println("Overwriding existing file which should not yet exist: " + fileName);
+			file.setContents(stream, true, false, NULL_PROGRESS_MONITOR);
+		} else
+			file.create(stream, true, NULL_PROGRESS_MONITOR);
+
+		fileManager.addFile(file);
+		checkFileContent(file.getLocation(), contents);
+		return file;
+	}
+
+	private void checkFileContent(IPath location, String expected) throws IOException {
+		Reader in = null;
+		try {
+			in = new FileReader(location.toOSString());
+			StringBuilder existing = new StringBuilder();
+			char[] buffer = new char[4096];
+			int read = 0;
+			do {
+				existing.append(buffer, 0, read);
+				read = in.read(buffer);
+			} while (read >= 0);
+			if (!expected.equals(existing.toString())) {
+				System.err.println("file " + location + " not yet written.");
+			}
+		} finally {
+			if (in != null) {
+				in.close();
+			}
+		}
+	}
+
+	protected IFile importFile(String fileName, String contents) throws Exception {
+		return importFile(fileName, contents, project);
+	}
+
+	@SuppressWarnings("restriction")
+	private void disposeCDTAstCache() {
+		CUIPlugin.getDefault().getASTProvider().dispose();
+	}
+
 	protected String makeExternalResourceAbsolutePath(String relativePath) {
 		return ExternalResourceHelper.makeExternalResourceAbsolutePath(relativePath);
 	}
@@ -274,6 +378,17 @@ public abstract class JUnit4RtsTest extends RtsTest {
 
 	protected String makeWorkspaceAbsolutePath(String relativePath) {
 		return ResourcesPlugin.getWorkspace().getRoot().getLocation().append(relativePath).toOSString();
+	}
+
+	private void deleteReferencedProjects() {
+		for (ICProject curProj : referencedProjects) {
+			try {
+				curProj.getProject().delete(true, false, NULL_PROGRESS_MONITOR);
+			} catch (CoreException e) {
+				// ignore
+			}
+		}
+		referencedProjects.clear();
 	}
 
 	protected IWorkbenchWindow getActiveWorkbenchWindow() {

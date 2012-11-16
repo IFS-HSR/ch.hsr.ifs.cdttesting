@@ -15,9 +15,9 @@ import org.eclipse.core.runtime.Plugin;
 import org.junit.After;
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.JUnit4RtsTest;
+import ch.hsr.ifs.cdttesting.rts.junit4.CDTProjectJUnit4RtsTest;
 
-public class CheckNoUnresolvedInclusionsTest extends JUnit4RtsTest implements ILogListener {
+public class CheckNoUnresolvedInclusionsTest extends CDTProjectJUnit4RtsTest implements ILogListener {
 
 	IStatus loggedStatus;
 	String loggingPlugin;

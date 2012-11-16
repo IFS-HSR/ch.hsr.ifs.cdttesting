@@ -1,4 +1,4 @@
-package ch.hsr.ifs.cdttesting;
+package ch.hsr.ifs.cdttesting.rts;
 
 import java.io.BufferedReader;
 import java.util.ArrayList;
@@ -7,8 +7,11 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ch.hsr.ifs.cdttesting.rts.junit4.RtsFileInfo;
+import ch.hsr.ifs.cdttesting.testsourcefile.CDTSourceFileTest;
+import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
-public class RtsTest extends SourceFileTest {
+public class CDTProjectRtsTest extends CDTSourceFileTest {
 
 	private enum MatcherState {
 		skip, inTest, inSource, inExpectedResult
@@ -100,11 +103,32 @@ public class RtsTest extends SourceFileTest {
 		if (matcherBeginOfTest.find()) {
 			return matcherBeginOfTest.group(1);
 		} else {
-			return Messages.getString("IncludatorTester.NotNamed");
+			return "Not Named";
 		}
 	}
 
 	private static boolean lineMatchesBeginOfResult(final String line) {
 		return createMatcherFromString(resultRegexp, line).find();
+	}
+
+	protected void addReferencedProject(String projectName, String rtsFileName) throws Exception {
+		RtsFileInfo rtsFileInfo = new RtsFileInfo(appendSubPackages(rtsFileName));
+		try {
+			BufferedReader in = rtsFileInfo.getRtsFileReader();
+			Map<String, ArrayList<TestSourceFile>> testCases = createTests(in);
+			if (testCases.isEmpty()) {
+				throw new Exception("Failed to add referenced project. RTS file " + rtsFileName + " does not contain any test-cases.");
+			} else if (testCases.size() > 1) {
+				throw new Exception("RTS files + " + rtsFileName + " which represents a referenced project must only contain a single test case.");
+			}
+			referencedProjectsToLoad.put(projectName, testCases.values().iterator().next());
+		} finally {
+			rtsFileInfo.closeReaderStream();
+		}
+	}
+
+	private String appendSubPackages(String rtsFileName) {
+		String testClassPackage = getClass().getPackage().getName();
+		return testClassPackage + "." + rtsFileName;
 	}
 }

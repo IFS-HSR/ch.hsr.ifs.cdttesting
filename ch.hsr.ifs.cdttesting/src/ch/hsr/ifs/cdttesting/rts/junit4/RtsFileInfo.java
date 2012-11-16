@@ -8,7 +8,7 @@
  * Contributors:
  *     Institute for Software - initial API and implementation
  ******************************************************************************/
-package ch.hsr.ifs.cdttesting;
+package ch.hsr.ifs.cdttesting.rts.junit4;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -23,6 +23,8 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 
+import ch.hsr.ifs.cdttesting.TestingPlugin;
+
 public class RtsFileInfo {
 
 	private static final String XML_ACTIVATOR_CLASS = "activatorClass";
@@ -32,7 +34,7 @@ public class RtsFileInfo {
 	private BufferedReader rtsFileReader;
 	private IConfigurationElement activeExtension;
 
-	public RtsFileInfo(Class<? extends JUnit4RtsTest> testClass) throws FileNotFoundException, CoreException {
+	public RtsFileInfo(Class<? extends CDTProjectJUnit4RtsTest> testClass) throws FileNotFoundException, CoreException {
 		if (!initRtsFilePathWithAnnotation(testClass) && !initRtsFilePathWithName(testClass.getName())) {
 			throw new FileNotFoundException(testClass.getSimpleName() + RTS_FILE_EXTENSION);
 		}
@@ -84,7 +86,7 @@ public class RtsFileInfo {
 		return activator.getClass();
 	}
 
-	private boolean initRtsFilePathWithAnnotation(Class<? extends JUnit4RtsTest> testClass) {
+	private boolean initRtsFilePathWithAnnotation(Class<? extends CDTProjectJUnit4RtsTest> testClass) {
 		RunFor runForAnnotation = testClass.getAnnotation(RunFor.class);
 		boolean hasAnnotation = runForAnnotation != null;
 		if (hasAnnotation) {

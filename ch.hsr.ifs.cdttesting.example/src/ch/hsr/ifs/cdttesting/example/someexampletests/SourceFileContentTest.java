@@ -10,9 +10,9 @@ package ch.hsr.ifs.cdttesting.example.someexampletests;
 
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.JUnit4RtsTest;
+import ch.hsr.ifs.cdttesting.rts.junit4.CDTProjectJUnit4RtsTest;
 
-public class SourceFileContentTest extends JUnit4RtsTest {
+public class SourceFileContentTest extends CDTProjectJUnit4RtsTest {
 
 	public static final String NL = System.getProperty("line.separator");
 

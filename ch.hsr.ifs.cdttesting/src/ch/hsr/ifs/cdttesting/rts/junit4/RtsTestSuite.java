@@ -6,7 +6,7 @@
  * Contributors:
  *     Institute for Software - initial API and implementation
  ******************************************************************************/
-package ch.hsr.ifs.cdttesting;
+package ch.hsr.ifs.cdttesting.rts.junit4;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -24,12 +24,15 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
 
+import ch.hsr.ifs.cdttesting.testsourcefile.CDTSourceFileTest;
+import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
+
 /**
  * 
  * This class is an adaptation of the Parameterized class from JUnit4.
  * 
  */
-public class RTSTest extends Suite {
+public class RtsTestSuite extends Suite {
 
 	private class RTSTestRunner extends BlockJUnit4ClassRunner {
 
@@ -45,7 +48,7 @@ public class RTSTest extends Suite {
 
 		@Override
 		public Object createTest() throws Exception {
-			SourceFileTest instance = (SourceFileTest) getTestClass().getOnlyConstructor().newInstance();
+			CDTSourceFileTest instance = (CDTSourceFileTest) getTestClass().getOnlyConstructor().newInstance();
 			instance.setName(testName);
 			instance.initTestSourceFiles(testFiles);
 			return instance;
@@ -77,7 +80,7 @@ public class RTSTest extends Suite {
 	/**
 	 * Only called reflectively. Do not use programmatically.
 	 */
-	public RTSTest(Class<?> klass) throws Throwable {
+	public RtsTestSuite(Class<?> klass) throws Throwable {
 		super(klass, Collections.<Runner> emptyList());
 		Map<String, ArrayList<TestSourceFile>> parametersList = getParametersList(getTestClass());
 		for (Entry<String, ArrayList<TestSourceFile>> testCase : parametersList.entrySet())

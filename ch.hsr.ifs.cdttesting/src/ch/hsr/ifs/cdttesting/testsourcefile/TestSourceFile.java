@@ -9,7 +9,7 @@
  * Contributors: 
  * Institute for Software - initial API and implementation
  *******************************************************************************/
-package ch.hsr.ifs.cdttesting;
+package ch.hsr.ifs.cdttesting.testsourcefile;
 
 import java.io.File;
 import java.util.regex.Matcher;
@@ -23,18 +23,18 @@ import org.eclipse.jface.text.TextSelection;
  */
 public class TestSourceFile {
 
-	private static final String REPLACEMENT = ""; //$NON-NLS-1$
+	private static final String REPLACEMENT = "";
 	private final String name;
 	private final StringBuilder source = new StringBuilder();
 	private StringBuilder expectedSource;
-	private final String separator = System.getProperty("line.separator"); //$NON-NLS-1$
+	private final String separator = System.getProperty("line.separator");
 	private int selectionStart = -1;
 	private int selectionEnd = -1;
 
-	protected static final String selectionStartRegex = "/\\*\\$\\*/"; //$NON-NLS-1$
-	protected static final String selectionEndRegex = "/\\*\\$\\$\\*/"; //$NON-NLS-1$
-	protected static final String selectionStartLineRegex = "(.*)(" + selectionStartRegex + ")(.*)"; //$NON-NLS-1$ //$NON-NLS-2$
-	protected static final String selectionEndLineRegex = "(.*)(" + selectionEndRegex + ")(.*)"; //$NON-NLS-1$ //$NON-NLS-2$
+	protected static final String selectionStartRegex = "/\\*\\$\\*/";
+	protected static final String selectionEndRegex = "/\\*\\$\\$\\*/";
+	protected static final String selectionStartLineRegex = "(.*)(" + selectionStartRegex + ")(.*)";
+	protected static final String selectionEndLineRegex = "(.*)(" + selectionEndRegex + ")(.*)";
 
 	public TestSourceFile(String name) {
 		super();
