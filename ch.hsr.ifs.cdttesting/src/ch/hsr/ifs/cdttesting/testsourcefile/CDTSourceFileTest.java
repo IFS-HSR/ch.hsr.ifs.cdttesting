@@ -10,7 +10,6 @@ package ch.hsr.ifs.cdttesting.testsourcefile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -37,15 +36,15 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 	/**
 	 * Key: projectName, value: project's files
 	 */
-	protected final LinkedHashMap<String, ArrayList<TestSourceFile>> referencedProjectsToLoad;
+	protected final LinkedHashMap<String, List<TestSourceFile>> referencedProjectsToLoad;
 
 	public CDTSourceFileTest() {
 		super();
 		fileMap = new TreeMap<String, TestSourceFile>();
-		referencedProjectsToLoad = new LinkedHashMap<String, ArrayList<TestSourceFile>>();
+		referencedProjectsToLoad = new LinkedHashMap<String, List<TestSourceFile>>();
 	}
 
-	public void initTestSourceFiles(ArrayList<TestSourceFile> files) {
+	public void initTestSourceFiles(List<TestSourceFile> files) {
 		initActiveFileName(files);
 		TestSourceFile configFile = null;
 		for (TestSourceFile file : files) {
@@ -62,7 +61,7 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 		initSelection(files);
 	}
 
-	private void initSelection(ArrayList<TestSourceFile> files) {
+	private void initSelection(List<TestSourceFile> files) {
 		for (TestSourceFile file : files) {
 			TextSelection selection = file.getSelection();
 			if (selection != null) {
@@ -73,7 +72,7 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 		}
 	}
 
-	private void initActiveFileName(ArrayList<TestSourceFile> files) {
+	private void initActiveFileName(List<TestSourceFile> files) {
 		activeFileName = ".unknown";
 		int index = 0;
 		if (files.size() <= index) {
@@ -133,7 +132,7 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 
 	@Override
 	protected void initReferencedProjects() throws Exception {
-		for (Entry<String, ArrayList<TestSourceFile>> curEntry : referencedProjectsToLoad.entrySet()) {
+		for (Entry<String, List<TestSourceFile>> curEntry : referencedProjectsToLoad.entrySet()) {
 			initReferencedProject(curEntry.getKey(), curEntry.getValue());
 		}
 	}
