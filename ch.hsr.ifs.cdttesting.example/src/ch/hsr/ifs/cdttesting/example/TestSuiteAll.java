@@ -12,13 +12,15 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+import ch.hsr.ifs.cdttesting.example.annotationtest.SomeExampleAnnotationTestsSuite;
 import ch.hsr.ifs.cdttesting.example.someexampletests.SomeExampleTestsSuite;
- 
+
 @RunWith(Suite.class)
 @SuiteClasses({
-			//@formatter:off
-			SomeExampleTestsSuite.class
-			//@formatter:on
+//@formatter:off
+	SomeExampleTestsSuite.class,
+	SomeExampleAnnotationTestsSuite.class,
+	//@formatter:on
 })
 public class TestSuiteAll {
 }

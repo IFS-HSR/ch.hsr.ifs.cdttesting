@@ -6,7 +6,7 @@
  * Contributors:
  *     Institute for Software - initial API and implementation
  ******************************************************************************/
-package ch.hsr.ifs.cdttesting.example.someexampletests;
+package ch.hsr.ifs.cdttesting.example.annotationtest;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -14,15 +14,9 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	//@formatter:off
-	ExternalIncludeDependencyTestFrameworkTest.class,
-	SourceFileContentTest.class,
-	ReferencedProjectTest.class,
-	CheckNoUnresolvedInclusionsTest.class,
-	ExternalIncludeDependencyTestFrameworkTest.class,
-	CProjectTest.class,
-	TwoIndexFileForOneFileTest.class,
-	//@formatter:on	
+// @formatter:off
+	AnnotationTest.class,
+	// @formatter:on
 })
-public class SomeExampleTestsSuite {
+public class SomeExampleAnnotationTestsSuite {
 }

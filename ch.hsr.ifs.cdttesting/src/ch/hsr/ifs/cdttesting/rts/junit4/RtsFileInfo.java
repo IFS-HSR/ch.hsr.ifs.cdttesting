@@ -86,13 +86,19 @@ public class RtsFileInfo {
 		return activator.getClass();
 	}
 
-	private boolean initRtsFilePathWithAnnotation(Class<? extends CDTProjectJUnit4RtsTest> testClass) {
+	private boolean initRtsFilePathWithAnnotation(Class<? extends CDTProjectJUnit4RtsTest> testClass) throws CoreException {
 		RunFor runForAnnotation = testClass.getAnnotation(RunFor.class);
-		boolean hasAnnotation = runForAnnotation != null;
-		if (hasAnnotation) {
+		if (runForAnnotation != null) {
 			completeRTSPath = runForAnnotation.rtsFile();
+			for (IConfigurationElement curElement : getExtensions()) {
+				activeExtension = curElement;
+				InputStream resourceAsStream = getActivatorClass().getResourceAsStream(completeRTSPath);
+				if (resourceAsStream != null) {
+					return true;
+				}
+			}
 		}
-		return hasAnnotation;
+		return false;
 	}
 
 	public BufferedReader getRtsFileReader() {
@@ -104,7 +110,7 @@ public class RtsFileInfo {
 		IConfigurationElement[] extensions = reg.getConfigurationElementsFor(TestingPlugin.XML_EXTENSION_POINT_ID);
 		return extensions;
 	}
-	
+
 	public Bundle getBundle() {
 		return Platform.getBundle(activeExtension.getContributor().getName());
 	}

@@ -10,6 +10,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.cdt.core.tests;bundle-version="5.4.1",
  org.eclipse.cdt.core;bundle-version="5.4.1",
  org.eclipse.core.resources;bundle-version="3.7.100",
- ch.hsr.ifs.cdttesting;bundle-version="2.0.0"
+ ch.hsr.ifs.cdttesting;bundle-version="3.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: ch.hsr.ifs.cdttesting.example,
+ ch.hsr.ifs.cdttesting.example.annotationtest,
+ ch.hsr.ifs.cdttesting.example.someexampletests
