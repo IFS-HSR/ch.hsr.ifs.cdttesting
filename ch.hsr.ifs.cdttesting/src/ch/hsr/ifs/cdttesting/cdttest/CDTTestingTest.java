@@ -1,4 +1,4 @@
-package ch.hsr.ifs.cdttesting.rts;
+package ch.hsr.ifs.cdttesting.cdttest;
 
 import java.io.BufferedReader;
 import java.util.ArrayList;
@@ -7,11 +7,22 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.runner.RunWith;
+
+import ch.hsr.ifs.cdttesting.helpers.ExternalResourceHelper;
+import ch.hsr.ifs.cdttesting.rts.junit4.RTSTestCases;
 import ch.hsr.ifs.cdttesting.rts.junit4.RtsFileInfo;
-import ch.hsr.ifs.cdttesting.testsourcefile.CDTSourceFileTest;
+import ch.hsr.ifs.cdttesting.rts.junit4.RtsTestSuite;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
-public class CDTProjectRtsTest extends CDTSourceFileTest {
+@RunWith(RtsTestSuite.class)
+public class CDTTestingTest extends CDTSourceFileTest {
+
+	public CDTTestingTest() {
+		ExternalResourceHelper.copyPluginResourcesToTestingWorkspace(getClass());
+	}
 
 	private enum MatcherState {
 		skip, inTest, inSource, inExpectedResult
@@ -130,5 +141,28 @@ public class CDTProjectRtsTest extends CDTSourceFileTest {
 	private String appendSubPackages(String rtsFileName) {
 		String testClassPackage = getClass().getPackage().getName();
 		return testClassPackage + "." + rtsFileName;
+	}
+
+	@RTSTestCases
+	public static Map<String, ArrayList<TestSourceFile>> testCases(Class<? extends CDTTestingTest> testClass) throws Exception {
+		RtsFileInfo rtsFileInfo = new RtsFileInfo(testClass);
+		try {
+			Map<String, ArrayList<TestSourceFile>> testCases = createTests(rtsFileInfo.getRtsFileReader());
+			return testCases;
+		} finally {
+			rtsFileInfo.closeReaderStream();
+		}
+	}
+
+	@Before
+	@Override
+	public void setUp() throws Exception {
+		super.setUp();
+	}
+
+	@After
+	@Override
+	public void tearDown() throws Exception {
+		super.tearDown();
 	}
 }

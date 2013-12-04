@@ -14,9 +14,9 @@ import org.eclipse.cdt.core.model.IIncludeReference;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.rts.junit4.CDTProjectJUnit4RtsTest;
+import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
 
-public class ReferencedProjectTest extends CDTProjectJUnit4RtsTest {
+public class ReferencedProjectTest extends CDTTestingTest {
 
 	private static final String REFERENCED_PROJECT_NAME1 = "otherProject1";
 	private static final String REFERENCED_PROJECT_NAME2 = "otherProject2";

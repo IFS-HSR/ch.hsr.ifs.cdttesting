@@ -6,7 +6,7 @@
  * Contributors:
  *     Institute for Software - initial API and implementation
  ******************************************************************************/
-package ch.hsr.ifs.cdttesting.testsourcefile;
+package ch.hsr.ifs.cdttesting.cdttest;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.TextSelection;
 
-import ch.hsr.ifs.cdttesting.cdt.CDTProjectTest;
+import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
 public abstract class CDTSourceFileTest extends CDTProjectTest {
 	private static final String CONFIG_FILE_NAME = ".config";

@@ -10,11 +10,11 @@ package ch.hsr.ifs.cdttesting.example.annotationtest;
 
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.rts.junit4.CDTProjectJUnit4RtsTest;
+import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
 import ch.hsr.ifs.cdttesting.rts.junit4.RunFor;
 
 @RunFor(rtsFile = "/resources/AnnotationTestNotDefaultLocation.rts")
-public class AnnotationTest extends CDTProjectJUnit4RtsTest {
+public class AnnotationTest extends CDTTestingTest {
 
 	public static final String NL = System.getProperty("line.separator");
 

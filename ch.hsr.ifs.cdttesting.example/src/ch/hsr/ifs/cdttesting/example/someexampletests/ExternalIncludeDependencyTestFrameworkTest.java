@@ -14,9 +14,9 @@ import org.eclipse.cdt.core.model.IIncludeReference;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.rts.junit4.CDTProjectJUnit4RtsTest;
+import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
 
-public class ExternalIncludeDependencyTestFrameworkTest extends CDTProjectJUnit4RtsTest {
+public class ExternalIncludeDependencyTestFrameworkTest extends CDTTestingTest {
 
 	@Override
 	@Before

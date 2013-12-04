@@ -13,9 +13,9 @@ import org.eclipse.cdt.core.CProjectNature;
 import org.eclipse.core.resources.IProjectNature;
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.rts.junit4.CDTProjectJUnit4RtsTest;
+import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
 
-public class CProjectTest extends CDTProjectJUnit4RtsTest {
+public class CProjectTest extends CDTTestingTest {
 
 	@Override
 	public void setUp() throws Exception {

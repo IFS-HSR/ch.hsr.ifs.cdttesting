@@ -13,7 +13,7 @@
 /*
  * Created on Oct 4, 2004
  */
-package ch.hsr.ifs.cdttesting.cdt;
+package ch.hsr.ifs.cdttesting.cdttest;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -172,31 +172,6 @@ abstract public class CDTProjectTest extends TestCase {
 			}
 		}
 	}
-
-	// protected IFile importFile(String fileName, String contents) throws Exception {
-	// IFile file = project.getProject().getFile(fileName);
-	// InputStream stream = new ByteArrayInputStream(contents.getBytes());
-	// if (file.exists()) {
-	// file.setContents(stream, false, false, NULL_PROGRESS_MONITOR);
-	// } else {
-	// IPath path = file.getLocation();
-	// path = path.makeRelativeTo(project.getLocation());
-	// if (path.segmentCount() > 1) {
-	// path = path.removeLastSegments(1);
-	//
-	// for (int i = path.segmentCount() - 1; i >= 0; i--) {
-	// IPath currentPath = path.removeLastSegments(i);
-	// IFolder folder = project.getFolder(currentPath);
-	// if (!folder.exists()) {
-	// folder.create(false, true, null);
-	// }
-	// }
-	// }
-	// file.create(stream, false, NULL_PROGRESS_MONITOR);
-	// }
-	// fileManager.addFile(file);
-	// return file;
-	// }
 
 	private boolean checkTestStatus() throws CoreException {
 		IIndex index = CCorePlugin.getIndexManager().getIndex(cproject);

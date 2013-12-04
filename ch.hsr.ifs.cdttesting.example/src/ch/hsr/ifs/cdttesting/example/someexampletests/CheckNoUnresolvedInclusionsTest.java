@@ -15,9 +15,9 @@ import org.eclipse.core.runtime.Plugin;
 import org.junit.After;
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.rts.junit4.CDTProjectJUnit4RtsTest;
+import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
 
-public class CheckNoUnresolvedInclusionsTest extends CDTProjectJUnit4RtsTest implements ILogListener {
+public class CheckNoUnresolvedInclusionsTest extends CDTTestingTest implements ILogListener {
 
 	IStatus loggedStatus;
 	String loggingPlugin;
@@ -34,6 +34,7 @@ public class CheckNoUnresolvedInclusionsTest extends CDTProjectJUnit4RtsTest imp
 	@Override
 	@Test
 	public void runTest() throws Throwable {
+		//logging by indexer happens in super.setUp() call
 		assertNotNull(loggedStatus);
 		assertNull(loggedStatus.getException());
 		assertEquals(CCorePlugin.PLUGIN_ID, loggingPlugin);

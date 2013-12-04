@@ -24,7 +24,7 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
 
-import ch.hsr.ifs.cdttesting.testsourcefile.CDTSourceFileTest;
+import ch.hsr.ifs.cdttesting.cdttest.CDTSourceFileTest;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
 /**

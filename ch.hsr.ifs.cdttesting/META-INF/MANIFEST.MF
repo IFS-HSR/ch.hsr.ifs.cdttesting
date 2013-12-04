@@ -13,10 +13,10 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources;bundle-version="3.7.100",
  org.eclipse.jface.text;bundle-version="3.7.0",
  org.eclipse.cdt.ui;bundle-version="5.5.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Export-Package: ch.hsr.ifs.cdttesting.cdt,
+Export-Package: ch.hsr.ifs.cdttesting,
+ ch.hsr.ifs.cdttesting.cdttest,
  ch.hsr.ifs.cdttesting.helpers,
- ch.hsr.ifs.cdttesting.rts,
  ch.hsr.ifs.cdttesting.rts.junit4,
  ch.hsr.ifs.cdttesting.testsourcefile

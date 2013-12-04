@@ -24,6 +24,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 
 import ch.hsr.ifs.cdttesting.TestingPlugin;
+import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
 
 public class RtsFileInfo {
 
@@ -34,7 +35,7 @@ public class RtsFileInfo {
 	private BufferedReader rtsFileReader;
 	private IConfigurationElement activeExtension;
 
-	public RtsFileInfo(Class<? extends CDTProjectJUnit4RtsTest> testClass) throws FileNotFoundException, CoreException {
+	public RtsFileInfo(Class<? extends CDTTestingTest> testClass) throws FileNotFoundException, CoreException {
 		if (!initRtsFilePathWithAnnotation(testClass) && !initRtsFilePathWithName(testClass.getName())) {
 			throw new FileNotFoundException(testClass.getSimpleName() + RTS_FILE_EXTENSION);
 		}
@@ -86,10 +87,10 @@ public class RtsFileInfo {
 		return activator.getClass();
 	}
 
-	private boolean initRtsFilePathWithAnnotation(Class<? extends CDTProjectJUnit4RtsTest> testClass) throws CoreException {
+	private boolean initRtsFilePathWithAnnotation(Class<? extends CDTTestingTest> testClass) throws CoreException {
 		RunFor runForAnnotation = testClass.getAnnotation(RunFor.class);
 		if (runForAnnotation != null) {
-			completeRTSPath = runForAnnotation.rtsFile();
+			completeRTSPath = runForAnnotation.rtsFile(); 
 			for (IConfigurationElement curElement : getExtensions()) {
 				activeExtension = curElement;
 				InputStream resourceAsStream = getActivatorClass().getResourceAsStream(completeRTSPath);

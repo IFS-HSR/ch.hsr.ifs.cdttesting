@@ -24,7 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
-import ch.hsr.ifs.cdttesting.rts.junit4.CDTProjectJUnit4RtsTest;
+import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
 import ch.hsr.ifs.cdttesting.rts.junit4.RtsFileInfo;
 
 public class ExternalResourceHelper {
@@ -35,7 +35,7 @@ public class ExternalResourceHelper {
 	public static final String NL = System.getProperty("line.separator");
 	public static final char PATH_SEGMENT_SEPARATOR = File.separatorChar;
 
-	public static void copyPluginResourcesToTestingWorkspace(Class<? extends CDTProjectJUnit4RtsTest> testClass) {
+	public static void copyPluginResourcesToTestingWorkspace(Class<? extends CDTTestingTest> testClass) {
 		if (!isLoaded) {
 			try {
 				RtsFileInfo testInfo = new RtsFileInfo(testClass);
