@@ -9,6 +9,8 @@
 package ch.hsr.ifs.cdttesting.cdttest;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -145,5 +147,33 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 			}
 		}
 		referencedProjects.add(cProj);
+	}
+
+	protected String getTestSource() throws IOException {
+		return getTestSource(activeFileName);
+	}
+
+	protected String getTestSource(String relativeFilePath) throws IOException {
+		if (relativeFilePath.startsWith("..")) {
+			return getExternalSource(makeProjectAbsolutePath(relativeFilePath));
+		}
+		return fileMap.get(relativeFilePath).getSource();
+	}
+
+	private String getExternalSource(String absoluteFilePath) throws IOException {
+		int len = (int) (new File(absoluteFilePath).length());
+		FileInputStream fis = new FileInputStream(absoluteFilePath);
+		byte buf[] = new byte[len];
+		fis.read(buf);
+		fis.close();
+		return new String(buf);
+	}
+
+	protected String getExpectedSource() {
+		return getExpectedSource(activeFileName);
+	}
+
+	protected String getExpectedSource(String relativeFilePath) {
+		return fileMap.get(relativeFilePath).getExpectedSource();
 	}
 }

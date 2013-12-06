@@ -88,7 +88,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		return testCases;
 	}
 
-	private static String getFileName(final String line) {
+	private static String getFileName(String line) {
 		Matcher matcherBeginOfTest = createMatcherFromString(fileRegexp, line);
 		if (matcherBeginOfTest.find()) {
 			return matcherBeginOfTest.group(1);
@@ -97,19 +97,19 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		}
 	}
 
-	private static boolean lineMatchesBeginOfTest(final String line) {
+	private static boolean lineMatchesBeginOfTest(String line) {
 		return createMatcherFromString(testRegexp, line).find();
 	}
 
-	private static boolean lineMatchesFileName(final String line) {
+	private static boolean lineMatchesFileName(String line) {
 		return createMatcherFromString(fileRegexp, line).find();
 	}
 
-	private static Matcher createMatcherFromString(final String pattern, final String line) {
+	private static Matcher createMatcherFromString(String pattern, String line) {
 		return Pattern.compile(pattern).matcher(line);
 	}
 
-	private static String getNameOfTest(final String line) {
+	private static String getNameOfTest(String line) {
 		Matcher matcherBeginOfTest = createMatcherFromString(testRegexp, line);
 		if (matcherBeginOfTest.find()) {
 			return matcherBeginOfTest.group(1);
@@ -118,7 +118,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		}
 	}
 
-	private static boolean lineMatchesBeginOfResult(final String line) {
+	private static boolean lineMatchesBeginOfResult(String line) {
 		return createMatcherFromString(resultRegexp, line).find();
 	}
 
