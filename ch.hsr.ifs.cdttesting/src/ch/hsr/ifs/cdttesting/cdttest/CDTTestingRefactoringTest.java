@@ -21,6 +21,9 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
+/**
+ * Most of the code for this class originates from CDT's RefactoringTestBase class. In our case, it executes on the more correctly set-up project/index of our cdttesting framework
+ */
 @SuppressWarnings("restriction")
 public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 

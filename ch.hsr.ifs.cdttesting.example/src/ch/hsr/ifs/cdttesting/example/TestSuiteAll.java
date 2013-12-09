@@ -13,6 +13,8 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import ch.hsr.ifs.cdttesting.example.annotationtest.SomeExampleAnnotationTestsSuite;
+import ch.hsr.ifs.cdttesting.example.examplecodantest.ExampleCodanTest;
+import ch.hsr.ifs.cdttesting.example.examplerefactoringtest.ExampleRefactoringTest;
 import ch.hsr.ifs.cdttesting.example.someexampletests.SomeExampleTestsSuite;
 
 @RunWith(Suite.class)
@@ -20,7 +22,9 @@ import ch.hsr.ifs.cdttesting.example.someexampletests.SomeExampleTestsSuite;
 //@formatter:off
 	SomeExampleTestsSuite.class,
 	SomeExampleAnnotationTestsSuite.class,
-	//@formatter:on
+	ExampleRefactoringTest.class,
+	ExampleCodanTest.class,
+//@formatter:on
 })
 public class TestSuiteAll {
 }

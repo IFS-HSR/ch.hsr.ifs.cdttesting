@@ -4,4 +4,28 @@
    <extension point="ch.hsr.ifs.cdttesting.testingPlugin">
 	   <testResouresLocation sourceLocation="/resources/ch.hsr.ifs.cdttesting.example.exampleTestFolder/" activatorClass="ch.hsr.ifs.cdttesting.example.MyTestPlugin"/>
    </extension>
+   
+   
+   <!-- This section of plugin.xml is only required when you require to have your own codan-tests-->
+   <extension
+        point="org.eclipse.cdt.codan.core.checkers">
+     <checker
+           class="ch.hsr.ifs.cdttesting.example.examplecodantest.MyCodanChecker"
+           id="ch.hsr.ifs.myCodanCheckerId"
+           name="MyChecker Name">
+        <problem
+              category="ch.hsr.ifs.myCodanProblemCategory"
+              defaultEnabled="true"
+              defaultSeverity="Error"
+              id="ch.hsr.ifs.myCodanProblemId"
+              markerType="org.eclipse.cdt.codan.core.codanProblem"
+              messagePattern="Declaration ''{0}'' is wrong."
+              name="My Problem Name">
+        </problem>
+     </checker>
+     <category
+           id="ch.hsr.ifs.myCodanProblemCategory"
+           name="My Checker Category Name">
+     </category>
+  </extension>
 </plugin>
