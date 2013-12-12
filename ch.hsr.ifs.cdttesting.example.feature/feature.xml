@@ -104,14 +104,27 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.junit"/>
-      <import plugin="org.eclipse.cdt.core.tests" version="5.3.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.core" version="5.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.resources" version="3.7.100" match="greaterOrEqual"/>
-      <import plugin="ch.hsr.ifs.cdttesting" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.core.tests" version="5.4.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.core" version="5.4.0" match="greaterOrEqual"/>
+      <import plugin="ch.hsr.ifs.cdttesting" version="3.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.ui"/>
+      <import plugin="org.eclipse.ltk.core.refactoring"/>
+      <import plugin="org.eclipse.text"/>
+      <import plugin="org.eclipse.jface.text" version="3.8.101" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.codan.core"/>
+      <import plugin="org.eclipse.cdt.codan.core.cxx"/>
    </requires>
 
    <plugin
          id="ch.hsr.ifs.cdttesting.example"
+         download-size="0"
+         install-size="0"
+         version="3.1.0.qualifier"
+         unpack="false"/>
+
+   <plugin
+         id="ch.hsr.ifs.cdttesting.example.source"
          download-size="0"
          install-size="0"
          version="3.1.0.qualifier"

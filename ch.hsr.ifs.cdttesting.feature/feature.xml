@@ -102,14 +102,47 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.junit"/>
-      <import plugin="org.eclipse.cdt.core.tests" version="5.3.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.core" version="5.3.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.resources" version="3.7.100" match="greaterOrEqual"/>
       <import plugin="org.eclipse.jface.text" version="3.7.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.core.tests" version="5.3.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.core" version="5.4.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.ui" version="5.5.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ltk.core.refactoring"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.cdt.codan.core"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.core.filesystem"/>
+      <import plugin="org.eclipse.ltk.core.refactoring" version="3.4.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.swt"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.help"/>
+      <import plugin="org.eclipse.search"/>
+      <import plugin="org.eclipse.compare"/>
+      <import plugin="org.eclipse.ui.console"/>
+      <import plugin="org.eclipse.core.expressions"/>
+      <import plugin="com.ibm.icu"/>
+      <import plugin="org.eclipse.core.filesystem" version="1.2.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.codan.checkers" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.codan.core" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.codan.core.cxx" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jface" version="3.6.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.jface.text" version="3.6.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.codan.checkers.ui" version="1.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.codan.ui" version="1.1.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.ide" version="3.6.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.cdt.codan.ui.cxx" version="2.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
          id="ch.hsr.ifs.cdttesting"
+         download-size="0"
+         install-size="0"
+         version="3.1.0.qualifier"
+         unpack="false"/>
+         
+   <plugin
+         id="ch.hsr.ifs.cdttesting.source"
          download-size="0"
          install-size="0"
          version="3.1.0.qualifier"
@@ -121,6 +154,13 @@ This Agreement is governed by the laws of the State of New York and the intellec
          install-size="0"
          version="5.4.0.qualifier"
          unpack="false"/>
+  
+   <plugin
+         id="org.eclipse.cdt.core.tests.source"
+         download-size="0"
+         install-size="0"
+         version="5.4.0.qualifier"
+         unpack="false"/>
 
    <plugin
          id="org.eclipse.cdt.ui.tests"
@@ -128,9 +168,23 @@ This Agreement is governed by the laws of the State of New York and the intellec
          install-size="0"
          version="5.4.0.qualifier"
          unpack="false"/>
+         
+  <plugin
+         id="org.eclipse.cdt.ui.tests.source"
+         download-size="0"
+         install-size="0"
+         version="5.4.0.qualifier"
+         unpack="false"/>
 
    <plugin
          id="org.eclipse.cdt.codan.core.test"
+         download-size="0"
+         install-size="0"
+         version="3.2.0.qualifier"
+         unpack="false"/>
+         
+   <plugin
+         id="org.eclipse.cdt.codan.core.test.source"
          download-size="0"
          install-size="0"
          version="3.2.0.qualifier"
