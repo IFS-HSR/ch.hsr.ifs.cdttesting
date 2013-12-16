@@ -13,7 +13,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import ch.hsr.ifs.cdttesting.example.annotationtest.SomeExampleAnnotationTestsSuite;
-import ch.hsr.ifs.cdttesting.example.examplecodantest.ExampleCodanTest;
+import ch.hsr.ifs.cdttesting.example.examplecodantest.ExampleCodanCheckerTest;
 import ch.hsr.ifs.cdttesting.example.examplerefactoringtest.ExampleRefactoringTest;
 import ch.hsr.ifs.cdttesting.example.someexampletests.SomeExampleTestsSuite;
 
@@ -23,7 +23,7 @@ import ch.hsr.ifs.cdttesting.example.someexampletests.SomeExampleTestsSuite;
 	SomeExampleTestsSuite.class,
 	SomeExampleAnnotationTestsSuite.class,
 	ExampleRefactoringTest.class,
-	ExampleCodanTest.class,
+	ExampleCodanCheckerTest.class,
 //@formatter:on
 })
 public class TestSuiteAll {

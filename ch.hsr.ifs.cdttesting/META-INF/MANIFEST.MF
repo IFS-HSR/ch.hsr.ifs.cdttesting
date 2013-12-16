@@ -16,7 +16,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.editors,
- org.eclipse.cdt.codan.core
+ org.eclipse.cdt.codan.core,
+ org.eclipse.ui.ide,
+ org.eclipse.cdt.codan.ui.cxx;bundle-version="3.2.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: ch.hsr.ifs.cdttesting,ch.hsr.ifs.cdttesting.cdttest,ch

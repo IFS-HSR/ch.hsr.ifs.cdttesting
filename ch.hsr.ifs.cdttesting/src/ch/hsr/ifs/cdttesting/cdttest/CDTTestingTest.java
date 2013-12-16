@@ -7,16 +7,23 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.cdt.internal.ui.util.ExternalEditorInput;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.ide.IDE;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
 import ch.hsr.ifs.cdttesting.helpers.ExternalResourceHelper;
+import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
 import ch.hsr.ifs.cdttesting.rts.junit4.RTSTestCases;
 import ch.hsr.ifs.cdttesting.rts.junit4.RtsFileInfo;
 import ch.hsr.ifs.cdttesting.rts.junit4.RtsTestSuite;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
+@SuppressWarnings("restriction")
 @RunWith(RtsTestSuite.class)
 public class CDTTestingTest extends CDTSourceFileTest {
 
@@ -164,5 +171,91 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	@Override
 	public void tearDown() throws Exception {
 		super.tearDown();
+	}
+
+	protected void runEventLoop() {
+		while (getActiveWorkbenchWindow().getShell().getDisplay().readAndDispatch()) {
+			// do nothing
+		}
+	}
+
+	private IWorkbenchPage getActivePage() {
+		return getActiveWorkbenchWindow().getActivePage();
+	}
+
+	protected void closeEditorsWithoutSaving() throws Exception {
+		FileHelper.clean(); // make sure we are not holding any reference to the open IDocument anymore (otherwise, local changes in dirty editors
+							// won't get lost).
+		new UIThreadSyncRunnable() {
+
+			@Override
+			protected void runSave() throws Exception {
+				getActivePage().closeAllEditors(false);
+			}
+		}.runSyncOnUIThread();
+	}
+
+	protected void saveAllEditors() throws Exception {
+		new UIThreadSyncRunnable() {
+
+			@Override
+			protected void runSave() throws Exception {
+				getActivePage().saveAllEditors(false);
+				runEventLoop();
+			}
+		}.runSyncOnUIThread();
+	}
+
+	protected void openActiveFileInEditor() throws Exception {
+		final IFile file = project.getFile(activeFileName);
+		new UIThreadSyncRunnable() {
+
+			@Override
+			protected void runSave() throws Exception {
+				IDE.openEditor(getActivePage(), file);
+				runEventLoop();
+			}
+		}.runSyncOnUIThread();
+	}
+
+	protected void openExternalFileInEditor(final String absolutePath) throws Exception {
+		new UIThreadSyncRunnable() {
+
+			@Override
+			protected void runSave() throws Exception {
+				ExternalEditorInput input = new ExternalEditorInput(FileHelper.stringToUri(absolutePath), project);
+				IDE.openEditor(getActivePage(), input, "org.eclipse.cdt.ui.editor.CEditor", true);
+				runEventLoop();
+			}
+		}.runSyncOnUIThread();
+	}
+
+	protected IFile getActiveIFile() {
+		return getIFile(activeFileName);
+	}
+
+	protected IFile getIFile(String relativePath) {
+		return project.getFile(relativePath);
+	}
+
+	protected IDocument getActiveDocument() throws Exception {
+		return getDocument(getActiveIFile());
+	}
+
+	protected IDocument getDocument(IFile file) {
+		return FileHelper.getDocument(file);
+	}
+
+	protected String getCurrentSource() {
+		return getCurrentSource(activeFileName);
+	}
+
+	protected String getCurrentSource(String relativeFilePath) {
+		String absolutePath = makeProjectAbsolutePath(relativeFilePath);
+		return getCurrentSourceAbsolutePath(absolutePath);
+	}
+
+	private String getCurrentSourceAbsolutePath(String absoluteFilePath) {
+		return FileHelper.getDocument(FileHelper.stringToUri(absoluteFilePath)).get();
 	}
 }

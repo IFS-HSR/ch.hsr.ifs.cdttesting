@@ -1,5 +1,6 @@
 package ch.hsr.ifs.cdttesting.cdttest;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,7 +21,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Before;
 
 @SuppressWarnings("restriction")
-public abstract class CDTTestingCodanTest extends CDTTestingTest {
+public abstract class CDTTestingCodanCheckerTest extends CDTTestingTest {
 
 	protected abstract String getProblemId();
 
@@ -56,18 +57,40 @@ public abstract class CDTTestingCodanTest extends CDTTestingTest {
 		codanProblem.setEnabled(true);
 	}
 
-	protected void assertProblemMarkers(String[] expectedMarkerMessages) throws CoreException {
-		assertProblemMarkers(IProblemReporter.GENERIC_CODE_ANALYSIS_MARKER_TYPE, expectedMarkerMessages);
+	protected void assertProblemMarkerMessages(String[] expectedMarkerMessages) throws CoreException {
+		assertProblemMarkerMessages(IProblemReporter.GENERIC_CODE_ANALYSIS_MARKER_TYPE, expectedMarkerMessages);
 	}
 
-	protected void assertProblemMarkers(String markerTypeStringToFind, String[] expectedMarkerMessages) throws CoreException {
-		List<String> expectedList = Arrays.asList(expectedMarkerMessages);
-		IMarker[] markers = findMarkers(markerTypeStringToFind);
-		assertEquals("actual marker count should match amount of expected marker messages", expectedMarkerMessages.length, markers.length);
+	protected void assertProblemMarkerMessages(String expectedMarkerId, String[] expectedMarkerMessages) throws CoreException {
+		List<String> expectedList = new ArrayList<>(Arrays.asList(expectedMarkerMessages));
+		IMarker[] markers = findMarkers(expectedMarkerId);
 		for (IMarker curMarker : markers) {
-			ICodanProblemMarker codanMarker = getCodanMarker(markers[0]);
-			assertTrue("marker-message '" + curMarker + "' not present in given markers", expectedList.contains(codanMarker.createMessage()));
+			String markerMsg = curMarker.getAttribute("message", null);
+			if (expectedList.contains(markerMsg)) {
+				expectedList.remove(markerMsg);
+			} else {
+				fail("marker-message '" + markerMsg + "' not present in given marker message list");
+			}
 		}
+		assertTrue("Not all expected messages found. Remaining: " + expectedList, expectedList.isEmpty());
+	}
+
+	protected void assertMarkerPositions(Integer... expectedMarkerLinse) throws CoreException {
+		assertMarkerPositions(IProblemReporter.GENERIC_CODE_ANALYSIS_MARKER_TYPE, expectedMarkerLinse);
+	}
+
+	protected void assertMarkerPositions(String expectedMarkerId, Integer... expectedMarkerLinse) throws CoreException {
+		List<Integer> expectedList = new ArrayList<>(Arrays.asList(expectedMarkerLinse));
+		IMarker[] markers = findMarkers(expectedMarkerId);
+		for (IMarker curMarker : markers) {
+			int markerLine = curMarker.getAttribute("lineNumber", -1);
+			if (expectedList.contains(markerLine)) {
+				expectedList.remove((Integer) markerLine);
+			} else {
+				fail("marker-line '" + markerLine + "' not present in given marker lines list");
+			}
+		}
+		assertTrue("Not all expected line numbers found. Remaining: " + expectedList, expectedList.isEmpty());
 	}
 
 	protected IMarker[] findMarkers(String markerTypeStringToFind) throws CoreException {

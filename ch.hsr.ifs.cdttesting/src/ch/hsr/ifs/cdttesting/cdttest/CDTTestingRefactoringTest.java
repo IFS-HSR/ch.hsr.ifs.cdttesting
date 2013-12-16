@@ -7,17 +7,12 @@ import org.eclipse.cdt.core.model.CoreModel;
 import org.eclipse.cdt.core.model.ICElement;
 import org.eclipse.cdt.internal.ui.refactoring.CRefactoring;
 import org.eclipse.cdt.internal.ui.refactoring.CRefactoringContext;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringContext;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
-import org.eclipse.ui.editors.text.TextFileDocumentProvider;
-import org.eclipse.ui.texteditor.IDocumentProvider;
 
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
@@ -173,48 +168,12 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 		assertTrue("Fatal error status expected", status.hasFatalError());
 	}
 
-	protected String getCurrentSource() throws CoreException {
-		return getCurrentSource(activeFileName);
-	}
-
-	protected String getCurrentSource(String relativeFilePath) throws CoreException {
-		String absolutePath = makeProjectAbsolutePath(relativeFilePath);
-		return getCurrentSourceAbsolutePath(absolutePath);
-	}
-
-	private String getCurrentSourceAbsolutePath(String absoluteFilePath) throws CoreException {
-		URI uri = new File(absoluteFilePath).toURI();
-		IFile file = getIFile(uri);
-
-		IDocumentProvider provider = new TextFileDocumentProvider();
-		if (file == null) {
-			return null;
-		}
-		provider.connect(file);
-		return provider.getDocument(file).get();
-	}
-
-	public static IFile getIFile(URI fileURI) {
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-
-		IFile[] files = root.findFilesForLocationURI(fileURI);
-		if (files.length == 1) {
-			return files[0];
-		}
-		for (IFile curFile : files) {
-			if (fileURI.getPath().endsWith(curFile.getFullPath().toString())) {
-				return curFile;
-			}
-		}
-		return null;
-	}
-	
 	protected URI getActiveFileUri() {
 		String absoluteFilePath = makeProjectAbsolutePath(activeFileName);
 		return new File(absoluteFilePath).toURI();
 	}
 
 	public ICElement getActiveCElement() {
-		return CoreModel.getDefault().create(getIFile(getActiveFileUri()));
+		return CoreModel.getDefault().create(getIFile(activeFileName));
 	}
 }

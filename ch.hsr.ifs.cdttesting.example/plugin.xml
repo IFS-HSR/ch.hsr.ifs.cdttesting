@@ -6,7 +6,7 @@
    </extension>
    
    
-   <!-- This section of plugin.xml is only required when you require to have your own codan-tests-->
+   <!-- This section of plugin.xml is only required when you require to have your own codan-tests. Also note that these acutally do not belong into the testing-plugin-project but rather into your plugin-project itself.-->
    <extension
         point="org.eclipse.cdt.codan.core.checkers">
      <checker
@@ -28,4 +28,11 @@
            name="My Checker Category Name">
      </category>
   </extension>
+  <extension
+         point="org.eclipse.cdt.codan.ui.codanMarkerResolution">
+      <resolution
+            class="ch.hsr.ifs.cdttesting.example.examplecodantest.MyQuickFix"
+            problemId="ch.hsr.ifs.myCodanProblemId">
+      </resolution>
+   </extension>
 </plugin>

@@ -4,7 +4,10 @@ import org.eclipse.cdt.codan.core.cxx.model.AbstractIndexAstChecker;
 import org.eclipse.cdt.core.dom.ast.IASTFunctionDefinition;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 
-
+/**
+ * Note that this class should actually not be contained in the testing-plugin-project but rather in the plugin-project itself (should be
+ * self-explaining)
+ */
 public class MyCodanChecker extends AbstractIndexAstChecker {
 
 	/**

@@ -2,9 +2,9 @@ package ch.hsr.ifs.cdttesting.example.examplecodantest;
 
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.cdttest.CDTTestingCodanTest;
+import ch.hsr.ifs.cdttesting.cdttest.CDTTestingCodanQuickfixTest;
 
-public class ExampleCodanTest extends CDTTestingCodanTest {
+public class ExampleCodanQuickFixTest extends CDTTestingCodanQuickfixTest {
 
 	@Override
 	protected String getProblemId() {
@@ -14,6 +14,7 @@ public class ExampleCodanTest extends CDTTestingCodanTest {
 	@Override
 	@Test
 	public void runTest() throws Throwable {
-		assertProblemMarkers(new String[] { "Declaration 'main' is wrong." });
+		runQuickFix(new MyQuickFix());
+		assertEquals(getExpectedSource(), getCurrentSource());
 	}
 }

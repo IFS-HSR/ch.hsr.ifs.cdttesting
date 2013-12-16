@@ -1,0 +1,4 @@
+/*/bin
+*.class
+/*/target/
+/*/surefire-reports/
