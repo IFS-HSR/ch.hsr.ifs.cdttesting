@@ -7,14 +7,26 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.cdt.internal.ui.editor.CEditor;
 import org.eclipse.cdt.internal.ui.util.ExternalEditorInput;
+import org.eclipse.cdt.ui.testplugin.Accessor;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.NotEnabledException;
 import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextOperationTarget;
+import org.eclipse.jface.text.ITextViewer;
+import org.eclipse.jface.text.JFaceTextUtil;
+import org.eclipse.jface.text.TextSelection;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.text.edits.MalformedTreeException;
+import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
@@ -35,6 +47,8 @@ import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 @SuppressWarnings("restriction")
 @RunWith(RtsTestSuite.class)
 public class CDTTestingTest extends CDTSourceFileTest {
+
+	public static final String NL = System.getProperty("line.separator");
 
 	public CDTTestingTest() {
 		ExternalResourceHelper.copyPluginResourcesToTestingWorkspace(getClass());
@@ -231,13 +245,23 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	protected void setSelectionIfAvailable(String fileName) {
 		TestSourceFile file = fileMap.get(fileName);
 		if (file != null && file.getSelection() != null) {
-			IEditorPart editor = getActivePage().getActiveEditor();
-			if (editor instanceof AbstractTextEditor) {
-				AbstractTextEditor textEditor = (AbstractTextEditor) editor;
-				ISelectionProvider selectionProvider = textEditor.getSelectionProvider();
+			ISelectionProvider selectionProvider = getActiveEditorSelectionProvider();
+			if (selectionProvider != null) {
 				selectionProvider.setSelection(file.getSelection());
+			} else {
+				fail("no active editor found.");
 			}
 		}
+	}
+
+	protected AbstractTextEditor getActiveEditor() {
+		IEditorPart editor = getActivePage().getActiveEditor();
+		return ((editor instanceof AbstractTextEditor) ? ((AbstractTextEditor) editor) : null);
+	}
+
+	protected ISelectionProvider getActiveEditorSelectionProvider() {
+		AbstractTextEditor editor = getActiveEditor();
+		return (editor != null) ? editor.getSelectionProvider() : null;
 	}
 
 	protected void openExternalFileInEditor(final String absolutePath) throws Exception {
@@ -284,5 +308,57 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	protected void executeCommand(String commandId) throws ExecutionException, NotDefinedException, NotEnabledException, NotHandledException {
 		IHandlerService hs = (IHandlerService) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IHandlerService.class);
 		hs.executeCommand(commandId, null);
+	}
+
+	protected void insertUserTyping(String text, int position) throws MalformedTreeException, BadLocationException {
+		insertUserTyping(text, position, 0);
+	}
+
+	protected void insertUserTyping(String text) throws MalformedTreeException, BadLocationException {
+		TextSelection selection = getCurrentEditorTextSelection();
+		if (selection != null) {
+			insertUserTyping(text, selection.getOffset(), selection.getLength());
+			return;
+		}
+		int caretPos = getCurrentEditorCaretPosition();
+		insertUserTyping(text, caretPos, 0);
+	}
+
+	private TextSelection getCurrentEditorTextSelection() {
+		ISelectionProvider selectionProvider = getActiveEditorSelectionProvider();
+		if (selectionProvider == null) {
+			return null;
+		}
+		ISelection selection = selectionProvider.getSelection();
+		return (selection instanceof TextSelection) ? ((TextSelection) selection) : null;
+	}
+
+	private int getCurrentEditorCaretPosition() {
+		ITextViewer viewer = (ITextViewer) getActiveEditor().getAdapter(ITextOperationTarget.class);
+		return JFaceTextUtil.getOffsetForCursorLocation(viewer);
+	}
+
+	protected void insertUserTyping(String text, int startPosition, int length) throws MalformedTreeException, BadLocationException {
+		IDocument document = getDocument(getActiveIFile());
+		//TODO: should adapt position so this also works on windows (extract from includator testing-infrastructure)
+		new ReplaceEdit(startPosition, length, text.replaceAll("\\n", NL)).apply(document);
+	}
+
+	/**
+	 * This method can e.g. be used to jump to next linked-edit-group by sending c='\t' (tab)
+	 */
+	protected void invokeKeyEvent(char c) {
+		AbstractTextEditor abstractEditor = getActiveEditor();
+		if (!(abstractEditor instanceof CEditor)) {
+			fail("active editor is no ceditor.");
+		}
+		StyledText textWidget = ((CEditor) abstractEditor).getViewer().getTextWidget();
+		assertNotNull(textWidget);
+		Accessor accessor = new Accessor(textWidget, StyledText.class);
+		Event event = new Event();
+		event.character = c;
+		event.keyCode = 0;
+		event.stateMask = 0;
+		accessor.invoke("handleKeyDown", new Object[] { event });
 	}
 }

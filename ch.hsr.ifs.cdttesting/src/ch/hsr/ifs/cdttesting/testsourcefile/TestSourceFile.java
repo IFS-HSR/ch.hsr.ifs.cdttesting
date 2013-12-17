@@ -27,7 +27,7 @@ public class TestSourceFile {
 	private final String name;
 	private final StringBuilder source = new StringBuilder();
 	private StringBuilder expectedSource;
-	private final String separator = System.getProperty("line.separator");
+	private static final String NL = System.getProperty("line.separator");
 	private int selectionStart = -1;
 	private int selectionEnd = -1;
 
@@ -79,14 +79,14 @@ public class TestSourceFile {
 			code = code.replaceAll(selectionEndRegex, REPLACEMENT);
 		}
 		if (source.length() > 0) {
-			source.append(separator);
+			source.append(NL);
 		}
 		source.append(code);
 	}
 
 	public void addLineToExpectedSource(String code) {
 		if (expectedSource.length() > 0) {
-			expectedSource.append(separator);
+			expectedSource.append(NL);
 		}
 		expectedSource.append(code);
 	}
