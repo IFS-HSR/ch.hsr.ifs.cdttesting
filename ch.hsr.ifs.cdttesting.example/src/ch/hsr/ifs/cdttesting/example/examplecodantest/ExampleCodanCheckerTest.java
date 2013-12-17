@@ -15,7 +15,7 @@ public class ExampleCodanCheckerTest extends CDTTestingCodanCheckerTest {
 	@Test
 	public void runTest() throws Throwable {
 		int markerExpectedOnLine = 1;
-		assertMarkerPositions(markerExpectedOnLine);
+		assertProblemMarkerPositions(markerExpectedOnLine);
 		assertProblemMarkerMessages(new String[] { "Declaration 'main' is wrong." });
 	}
 }

@@ -75,11 +75,23 @@ public abstract class CDTTestingCodanCheckerTest extends CDTTestingTest {
 		assertTrue("Not all expected messages found. Remaining: " + expectedList, expectedList.isEmpty());
 	}
 
-	protected void assertMarkerPositions(Integer... expectedMarkerLinse) throws CoreException {
-		assertMarkerPositions(IProblemReporter.GENERIC_CODE_ANALYSIS_MARKER_TYPE, expectedMarkerLinse);
+	protected void assertProblemMarker(String expectedMsg, int expectedLine) throws CoreException {
+		IMarker[] markers = findMarkers();
+		String msg = "assertProblemMarker(String, int) is only intended when there is exactly one marker. Use assertProblemMarker(String, int, IMarker) and findMarkers(...) otherwise.";
+		assertEquals(msg, 1, markers.length);
+		assertProblemMarker(expectedMsg, expectedLine, markers[0]);
 	}
 
-	protected void assertMarkerPositions(String expectedMarkerId, Integer... expectedMarkerLinse) throws CoreException {
+	protected void assertProblemMarker(String expectedMsg, int expectedLine, IMarker marker) {
+		assertEquals(expectedMsg, marker.getAttribute("message", null));
+		assertEquals(expectedLine, marker.getAttribute("lineNumber", -1));
+	}
+
+	protected void assertProblemMarkerPositions(Integer... expectedMarkerLinse) throws CoreException {
+		assertProblemMarkerPositions(IProblemReporter.GENERIC_CODE_ANALYSIS_MARKER_TYPE, expectedMarkerLinse);
+	}
+
+	protected void assertProblemMarkerPositions(String expectedMarkerId, Integer... expectedMarkerLinse) throws CoreException {
 		List<Integer> expectedList = new ArrayList<>(Arrays.asList(expectedMarkerLinse));
 		IMarker[] markers = findMarkers(expectedMarkerId);
 		for (IMarker curMarker : markers) {
