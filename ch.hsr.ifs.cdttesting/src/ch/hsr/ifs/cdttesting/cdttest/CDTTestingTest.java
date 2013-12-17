@@ -8,10 +8,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.cdt.internal.ui.util.ExternalEditorInput;
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.NotEnabledException;
+import org.eclipse.core.commands.NotHandledException;
+import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -213,9 +222,22 @@ public class CDTTestingTest extends CDTSourceFileTest {
 			@Override
 			protected void runSave() throws Exception {
 				IDE.openEditor(getActivePage(), file);
+				setSelectionIfAvailable(activeFileName);
 				runEventLoop();
 			}
 		}.runSyncOnUIThread();
+	}
+
+	protected void setSelectionIfAvailable(String fileName) {
+		TestSourceFile file = fileMap.get(fileName);
+		if (file != null && file.getSelection() != null) {
+			IEditorPart editor = getActivePage().getActiveEditor();
+			if (editor instanceof AbstractTextEditor) {
+				AbstractTextEditor textEditor = (AbstractTextEditor) editor;
+				ISelectionProvider selectionProvider = textEditor.getSelectionProvider();
+				selectionProvider.setSelection(file.getSelection());
+			}
+		}
 	}
 
 	protected void openExternalFileInEditor(final String absolutePath) throws Exception {
@@ -257,5 +279,10 @@ public class CDTTestingTest extends CDTSourceFileTest {
 
 	private String getCurrentSourceAbsolutePath(String absoluteFilePath) {
 		return FileHelper.getDocument(FileHelper.stringToUri(absoluteFilePath)).get();
+	}
+
+	protected void executeCommand(String commandId) throws ExecutionException, NotDefinedException, NotEnabledException, NotHandledException {
+		IHandlerService hs = (IHandlerService) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IHandlerService.class);
+		hs.executeCommand(commandId, null);
 	}
 }

@@ -78,13 +78,17 @@ public class TestSourceFile {
 			selectionEnd = end.start(2) + source.length();
 			code = code.replaceAll(selectionEndRegex, REPLACEMENT);
 		}
+		if (source.length() > 0) {
+			source.append(separator);
+		}
 		source.append(code);
-		source.append(separator);
 	}
 
 	public void addLineToExpectedSource(String code) {
+		if (expectedSource.length() > 0) {
+			expectedSource.append(separator);
+		}
 		expectedSource.append(code);
-		expectedSource.append(separator);
 	}
 
 	public TextSelection getSelection() {

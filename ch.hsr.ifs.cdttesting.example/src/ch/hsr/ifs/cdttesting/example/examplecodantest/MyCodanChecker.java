@@ -1,6 +1,7 @@
 package ch.hsr.ifs.cdttesting.example.examplecodantest;
 
 import org.eclipse.cdt.codan.core.cxx.model.AbstractIndexAstChecker;
+import org.eclipse.cdt.core.dom.ast.IASTDeclaration;
 import org.eclipse.cdt.core.dom.ast.IASTFunctionDefinition;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 
@@ -21,8 +22,12 @@ public class MyCodanChecker extends AbstractIndexAstChecker {
 
 	@Override
 	public void processAst(IASTTranslationUnit ast) {
-		IASTFunctionDefinition firstDecl = (IASTFunctionDefinition) ast.getDeclarations()[0];
-		String name = firstDecl.getDeclarator().getName().getRawSignature();
+		String name = "unknown";
+		IASTDeclaration firstDecl = ast.getDeclarations()[0];
+		if (firstDecl instanceof IASTFunctionDefinition) {
+			IASTFunctionDefinition functionDecl = (IASTFunctionDefinition) firstDecl;
+			name = functionDecl.getDeclarator().getName().getRawSignature();
+		}
 		reportProblem(MY_PROBLEM_ID, firstDecl, name); // note that the name-string is inserted into the "messagePattern" by replacing the "{0}" of the pattern.
 	}
 }
