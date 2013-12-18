@@ -30,6 +30,7 @@ public class TestSourceFile {
 	private static final String NL = System.getProperty("line.separator");
 	private int selectionStart = -1;
 	private int selectionEnd = -1;
+	private boolean firstInsert = true;
 
 	protected static final String selectionStartRegex = "/\\*\\$\\*/";
 	protected static final String selectionEndRegex = "/\\*\\$\\$\\*/";
@@ -78,17 +79,20 @@ public class TestSourceFile {
 			selectionEnd = end.start(2) + source.length();
 			code = code.replaceAll(selectionEndRegex, REPLACEMENT);
 		}
-		if (source.length() > 0) {
-			source.append(NL);
+		append(source, code);
+	}
+
+	private void append(StringBuilder builder, String code) {
+		if (firstInsert) {
+			firstInsert = false;
+		} else {
+			builder.append(NL);
 		}
-		source.append(code);
+		builder.append(code);
 	}
 
 	public void addLineToExpectedSource(String code) {
-		if (expectedSource.length() > 0) {
-			expectedSource.append(NL);
-		}
-		expectedSource.append(code);
+		append(expectedSource, code);
 	}
 
 	public TextSelection getSelection() {
@@ -105,5 +109,6 @@ public class TestSourceFile {
 
 	public void initExpectedSource() {
 		expectedSource = new StringBuilder();
+		firstInsert = true;
 	}
 }
