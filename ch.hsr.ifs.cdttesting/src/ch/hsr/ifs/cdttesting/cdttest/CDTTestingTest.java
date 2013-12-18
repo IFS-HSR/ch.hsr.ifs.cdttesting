@@ -301,7 +301,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		return getCurrentSourceAbsolutePath(absolutePath);
 	}
 
-	private String getCurrentSourceAbsolutePath(String absoluteFilePath) {
+	protected String getCurrentSourceAbsolutePath(String absoluteFilePath) {
 		return FileHelper.getDocument(FileHelper.stringToUri(absoluteFilePath)).get();
 	}
 
