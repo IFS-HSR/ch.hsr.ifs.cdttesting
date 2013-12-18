@@ -16,12 +16,10 @@ import ch.hsr.ifs.cdttesting.rts.junit4.RunFor;
 @RunFor(rtsFile = "/resources/AnnotationTestNotDefaultLocation.rts")
 public class AnnotationTest extends CDTTestingTest {
 
-	public static final String NL = System.getProperty("line.separator");
-
 	@Override
 	@Test
 	public void runTest() throws Throwable {
 		assertEquals("XY.cpp", activeFileName);
-		assertEquals("int main() { return 0; }" + NL, fileMap.get(activeFileName).getSource());
+		assertEquals("int main() { return 0; }", fileMap.get(activeFileName).getSource());
 	}
 }

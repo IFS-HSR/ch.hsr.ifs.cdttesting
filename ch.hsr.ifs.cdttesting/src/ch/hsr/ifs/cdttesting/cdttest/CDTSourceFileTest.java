@@ -101,9 +101,7 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 
 	private void initializeConfiguration(Properties properties) {
 		initCommonFields(properties);
-		if (!properties.isEmpty()) {
-			configureTest(properties);
-		}
+		configureTest(properties);
 	}
 
 	private void initializeConfiguration() {
