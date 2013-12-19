@@ -8,6 +8,7 @@ import org.eclipse.cdt.core.model.ICElement;
 import org.eclipse.cdt.internal.ui.refactoring.CRefactoring;
 import org.eclipse.cdt.internal.ui.refactoring.CRefactoringContext;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringContext;
@@ -61,7 +62,7 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 
 	protected void executeRefactoring(Refactoring refactoring, RefactoringContext context, boolean withUserInput, boolean expectedSuccess) throws CoreException, Exception {
 		try {
-			RefactoringStatus initialStatus = refactoring.checkInitialConditions(NULL_PROGRESS_MONITOR);
+			RefactoringStatus initialStatus = refactoring.checkInitialConditions(new NullProgressMonitor());
 			if (!expectedSuccess) {
 				assertStatusFatalError(initialStatus);
 				return;
@@ -76,7 +77,7 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 
 			if (withUserInput)
 				simulateUserInput();
-			RefactoringStatus finalStatus = refactoring.checkFinalConditions(NULL_PROGRESS_MONITOR);
+			RefactoringStatus finalStatus = refactoring.checkFinalConditions(new NullProgressMonitor());
 			if (expectedFinalWarnings != 0) {
 				assertStatusWarning(finalStatus, expectedFinalWarnings);
 			} else if (expectedFinalInfos != 0) {
@@ -84,8 +85,8 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 			} else {
 				assertStatusOk(finalStatus);
 			}
-			Change change = refactoring.createChange(NULL_PROGRESS_MONITOR);
-			change.perform(NULL_PROGRESS_MONITOR);
+			Change change = refactoring.createChange(new NullProgressMonitor());
+			change.perform(new NullProgressMonitor());
 		} finally {
 			if (context != null)
 				context.dispose();
@@ -95,10 +96,7 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 	protected void compareFiles() throws Exception {
 		for (TestSourceFile testFile : fileMap.values()) {
 			String expectedSource = testFile.getExpectedSource();
-
 			String actualSource = getCurrentSource(testFile.getName());
-			expectedSource = expectedSource.replace("\r\n", "\n");
-			actualSource = actualSource.replace("\r\n", "\n");
 			assertEquals(expectedSource, actualSource);
 		}
 	}

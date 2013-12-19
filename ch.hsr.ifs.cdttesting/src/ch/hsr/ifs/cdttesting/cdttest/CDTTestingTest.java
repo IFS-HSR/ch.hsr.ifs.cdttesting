@@ -193,6 +193,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	@After
 	@Override
 	public void tearDown() throws Exception {
+		FileHelper.clean();
 		super.tearDown();
 	}
 

@@ -58,11 +58,7 @@ import org.eclipse.ui.PlatformUI;
 import ch.hsr.ifs.cdttesting.helpers.ExternalResourceHelper;
 import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
 
-/**
- * @author aniefer
- */
 abstract public class CDTProjectTest extends TestCase {
-	protected static final NullProgressMonitor NULL_PROGRESS_MONITOR = new NullProgressMonitor();
 	protected IWorkspace workspace;
 	protected IProject project;
 	protected ICProject cproject;
@@ -147,7 +143,7 @@ abstract public class CDTProjectTest extends TestCase {
 
 	public void cleanupProject() throws Exception {
 		try {
-			project.delete(true, false, NULL_PROGRESS_MONITOR);
+			project.delete(true, true, new NullProgressMonitor());
 		} catch (Throwable e) {
 			/* boo */
 		} finally {
@@ -166,7 +162,7 @@ abstract public class CDTProjectTest extends TestCase {
 			if (members[i].getName().equals(".settings"))
 				continue;
 			try {
-				members[i].delete(false, NULL_PROGRESS_MONITOR);
+				members[i].delete(false, new NullProgressMonitor());
 			} catch (Throwable e) {
 				/* boo */
 			}
@@ -212,19 +208,19 @@ abstract public class CDTProjectTest extends TestCase {
 
 	private void setUpIndex() throws CoreException {
 		disposeCDTAstCache();
-		project.refreshLocal(IResource.DEPTH_INFINITE, NULL_PROGRESS_MONITOR);
-		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
+		project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, new NullProgressMonitor());
 		// reindexing will happen automatically after call of setIndexerId
 		CCorePlugin.getIndexManager().setIndexerId(cproject, IPDOMManager.ID_FAST_INDEXER);
 		for (ICProject curProj : referencedProjects) {
 			CCorePlugin.getIndexManager().setIndexerId(curProj, IPDOMManager.ID_FAST_INDEXER);
 		}
-		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, NULL_PROGRESS_MONITOR);
+		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, new NullProgressMonitor());
 
-		boolean joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, NULL_PROGRESS_MONITOR);
+		boolean joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, new NullProgressMonitor());
 		if (!joined) {
 			System.err.println("Join on indexer failed. " + getName() + "might fail.");
-			joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, NULL_PROGRESS_MONITOR);
+			joined = CCorePlugin.getIndexManager().joinIndexer(IIndexManager.FOREVER, new NullProgressMonitor());
 			if (!joined) {
 				System.err.println("Second join on indexer failed.");
 			}
@@ -284,7 +280,7 @@ abstract public class CDTProjectTest extends TestCase {
 				ICProject referencedProj = referencedProjects.get(i - externalProjectOffset);
 				newPathEntries[allPathEntries.length + i] = CoreModel.newIncludeEntry(null, referencedProj.getPath().makeRelative(), null);
 			}
-			cproject.setRawPathEntries(newPathEntries, NULL_PROGRESS_MONITOR);
+			cproject.setRawPathEntries(newPathEntries, new NullProgressMonitor());
 		} catch (CModelException e) {
 			e.printStackTrace();
 		}
@@ -297,15 +293,15 @@ abstract public class CDTProjectTest extends TestCase {
 			IPath folderPath = file.getProjectRelativePath().removeLastSegments(i);
 			IFolder folder = project.getFolder(folderPath);
 			if (!folder.exists()) {
-				folder.create(false, true, NULL_PROGRESS_MONITOR);
+				folder.create(false, true, new NullProgressMonitor());
 			}
 		}
 		InputStream stream = new ByteArrayInputStream(contents.getBytes());
 		if (file.exists()) {
 			System.err.println("Overwriding existing file which should not yet exist: " + fileName);
-			file.setContents(stream, true, false, NULL_PROGRESS_MONITOR);
+			file.setContents(stream, true, false, new NullProgressMonitor());
 		} else
-			file.create(stream, true, NULL_PROGRESS_MONITOR);
+			file.create(stream, true, new NullProgressMonitor());
 
 		fileManager.addFile(file);
 		checkFileContent(file.getLocation(), contents);
@@ -358,7 +354,7 @@ abstract public class CDTProjectTest extends TestCase {
 	private void deleteReferencedProjects() {
 		for (ICProject curProj : referencedProjects) {
 			try {
-				curProj.getProject().delete(true, false, NULL_PROGRESS_MONITOR);
+				curProj.getProject().delete(true, false, new NullProgressMonitor());
 			} catch (CoreException e) {
 				// ignore
 			}
