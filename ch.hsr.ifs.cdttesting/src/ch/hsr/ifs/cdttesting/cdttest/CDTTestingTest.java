@@ -1,12 +1,14 @@
 package ch.hsr.ifs.cdttesting.cdttest;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
 import org.eclipse.cdt.internal.ui.editor.CEditor;
 import org.eclipse.cdt.internal.ui.util.ExternalEditorInput;
 import org.eclipse.cdt.ui.testplugin.Accessor;
@@ -15,6 +17,8 @@ import org.eclipse.core.commands.NotEnabledException;
 import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextOperationTarget;
@@ -311,11 +315,11 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		hs.executeCommand(commandId, null);
 	}
 
-	protected void insertUserTyping(String text, int position) throws MalformedTreeException, BadLocationException {
+	protected void insertUserTyping(String text, int position) throws MalformedTreeException, BadLocationException, IOException {
 		insertUserTyping(text, position, 0);
 	}
 
-	protected void insertUserTyping(String text) throws MalformedTreeException, BadLocationException {
+	protected void insertUserTyping(String text) throws MalformedTreeException, BadLocationException, IOException {
 		TextSelection selection = getCurrentEditorTextSelection();
 		if (selection != null) {
 			insertUserTyping(text, selection.getOffset(), selection.getLength());
@@ -339,9 +343,10 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		return JFaceTextUtil.getOffsetForCursorLocation(viewer);
 	}
 
-	protected void insertUserTyping(String text, int startPosition, int length) throws MalformedTreeException, BadLocationException {
+	protected void insertUserTyping(String text, int startPosition, int length) throws MalformedTreeException, BadLocationException, IOException {
 		IDocument document = getDocument(getActiveIFile());
-		//TODO: should adapt position so this also works on windows (extract from includator testing-infrastructure)
+		String path = makeProjectAbsolutePath(activeFileName);
+		startPosition = adaptExpectedOffsetOfCurrentDocument(path, startPosition);
 		new ReplaceEdit(startPosition, length, text.replaceAll("\\n", NL)).apply(document);
 	}
 
@@ -361,5 +366,75 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		event.keyCode = 0;
 		event.stateMask = 0;
 		accessor.invoke("handleKeyDown", new Object[] { event });
+	}
+
+	protected int adaptExpectedOffset(String absoluteFilePath, int offset) throws IOException {
+		if (NL.length() < 2) {
+			return offset;
+		}
+		String expectedNewLine = "\n";
+		String expectedSource = getTestSourceAbsolutePath(absoluteFilePath).replace(NL, expectedNewLine);
+		return offset + getOffsetAdaptionDelta(offset, expectedSource, expectedNewLine);
+	}
+
+	protected int adaptExpectedOffsetOfCurrentDocument(String fileLocation, int expectedOffset) throws IOException {
+		if (NL.length() < 2) {
+			return expectedOffset;
+		}
+		String expectedNewLine = "\n";
+		String expectedSource = getCurrentSourceAbsolutePath(fileLocation).replace(NL, expectedNewLine);
+		return expectedOffset + getOffsetAdaptionDelta(expectedOffset, expectedSource, expectedNewLine);
+	}
+
+	protected int adaptActualOffset(IASTFileLocation fileLocation) throws IOException {
+		return adaptActualOffset(fileLocation.getFileName(), fileLocation.getNodeOffset());
+	}
+
+	protected int adaptActualOffset(String fileName, int offset) throws IOException {
+		if (NL.length() < 2) {
+			return offset;
+		}
+		return offset - getOffsetAdaptionDelta(offset, getCurrentSourceAbsolutePath(fileName), NL);
+	}
+
+	private int getOffsetAdaptionDelta(int offset, String source, String nl) throws IOException {
+		int amountNewLines = countUpTo(source, nl, offset);
+		int delta = (NL.length() - 1) * amountNewLines;
+		return delta;
+	}
+
+	protected Object adaptActualLength(String fileName, int length, int offset) throws IOException {
+		if (NL.length() < 2) {
+			return length;
+		}
+		return length - getLengthAdaptionDelta(length, offset, getTestSourceAbsolutePath(fileName), NL);
+	}
+
+	private int getLengthAdaptionDelta(int length, int offset, String source, String nl) {
+		int amountNewLines = countFromTo(source, nl, offset, offset + length);
+		int delta = (NL.length() - 1) * amountNewLines;
+		return delta;
+	}
+
+	private int countFromTo(String hayStack, String needle, int startAt, int stopAt) {
+		int curOffset = startAt;
+		int matches = 0;
+		while ((curOffset = hayStack.indexOf(needle, curOffset)) < stopAt) {
+			if (curOffset == -1) {
+				break;
+			}
+			curOffset += needle.length();
+			matches++;
+		}
+		return matches;
+	}
+
+	private int countUpTo(String hayStack, String needle, int stopAt) {
+		return countFromTo(hayStack, needle, 0, stopAt);
+	}
+
+	private String getTestSourceAbsolutePath(String absoluteFilePath) throws IOException {
+		IPath prjectRelativePath = new Path(absoluteFilePath).makeRelativeTo(project.getLocation());
+		return getTestSource(prjectRelativePath.toOSString());
 	}
 }
