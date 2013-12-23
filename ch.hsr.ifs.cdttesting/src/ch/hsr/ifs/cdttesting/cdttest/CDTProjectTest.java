@@ -351,6 +351,10 @@ abstract public class CDTProjectTest extends TestCase {
 		return ResourcesPlugin.getWorkspace().getRoot().getLocation().append(relativePath).toOSString();
 	}
 
+	protected String makeOSPath(String path) {
+		return new Path(path).toOSString();
+	}
+
 	private void deleteReferencedProjects() {
 		for (ICProject curProj : referencedProjects) {
 			try {
