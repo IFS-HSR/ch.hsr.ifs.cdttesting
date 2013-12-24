@@ -316,6 +316,8 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	}
 
 	protected void insertUserTyping(String text, int position) throws MalformedTreeException, BadLocationException, IOException {
+		String path = makeProjectAbsolutePath(activeFileName);
+		position = adaptExpectedOffsetOfCurrentDocument(path, position);
 		insertUserTyping(text, position, 0);
 	}
 
@@ -345,8 +347,6 @@ public class CDTTestingTest extends CDTSourceFileTest {
 
 	protected void insertUserTyping(String text, int startPosition, int length) throws MalformedTreeException, BadLocationException, IOException {
 		IDocument document = getDocument(getActiveIFile());
-		String path = makeProjectAbsolutePath(activeFileName);
-		startPosition = adaptExpectedOffsetOfCurrentDocument(path, startPosition);
 		new ReplaceEdit(startPosition, length, text.replaceAll("\\n", NL)).apply(document);
 	}
 
