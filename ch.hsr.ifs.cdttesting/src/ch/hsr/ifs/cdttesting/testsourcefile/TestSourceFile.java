@@ -70,13 +70,14 @@ public class TestSourceFile {
 
 	public void addLineToSource(String code) {
 		Matcher start = createMatcherFromString(selectionStartLineRegex, code);
+		int nlLength = firstInsert ? 0 : NL.length();
 		if (start.matches()) {
-			selectionStart = start.start(2) + source.length();
+			selectionStart = start.start(2) + nlLength + source.length();
 			code = code.replaceAll(selectionStartRegex, REPLACEMENT);
 		}
 		Matcher end = createMatcherFromString(selectionEndLineRegex, code);
 		if (end.matches()) {
-			selectionEnd = end.start(2) + source.length();
+			selectionEnd = end.start(2) + nlLength + source.length();
 			code = code.replaceAll(selectionEndRegex, REPLACEMENT);
 		}
 		append(source, code);
