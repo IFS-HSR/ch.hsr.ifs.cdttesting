@@ -32,6 +32,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.IHandlerService;
@@ -53,6 +54,7 @@ import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 public class CDTTestingTest extends CDTSourceFileTest {
 
 	public static final String NL = System.getProperty("line.separator");
+	private static final String INTROVIEW_ID = "org.eclipse.ui.internal.introview";
 
 	public CDTTestingTest() {
 		ExternalResourceHelper.copyPluginResourcesToTestingWorkspace(getClass());
@@ -243,6 +245,18 @@ public class CDTTestingTest extends CDTSourceFileTest {
 				IDE.openEditor(getActivePage(), file);
 				setSelectionIfAvailable(activeFileName);
 				runEventLoop();
+			}
+		}.runSyncOnUIThread();
+	}
+
+	public static void closeWelcomeScreen() throws Exception {
+		new UIThreadSyncRunnable() {
+
+			@Override
+			protected void runSave() throws Exception {
+				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+				IViewReference viewRef = page.findViewReference(INTROVIEW_ID);
+				page.hideView(viewRef);
 			}
 		}.runSyncOnUIThread();
 	}

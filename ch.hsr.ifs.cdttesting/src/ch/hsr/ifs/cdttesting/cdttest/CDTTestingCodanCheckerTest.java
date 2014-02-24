@@ -87,12 +87,12 @@ public abstract class CDTTestingCodanCheckerTest extends CDTTestingTest {
 		assertEquals(expectedLine, marker.getAttribute("lineNumber", -1));
 	}
 
-	protected void assertProblemMarkerPositions(Integer... expectedMarkerLinse) throws CoreException {
-		assertProblemMarkerPositions(IProblemReporter.GENERIC_CODE_ANALYSIS_MARKER_TYPE, expectedMarkerLinse);
+	protected void assertProblemMarkerPositions(Integer... expectedMarkerLines) throws CoreException {
+		assertProblemMarkerPositions(IProblemReporter.GENERIC_CODE_ANALYSIS_MARKER_TYPE, expectedMarkerLines);
 	}
 
-	protected void assertProblemMarkerPositions(String expectedMarkerId, Integer... expectedMarkerLinse) throws CoreException {
-		List<Integer> expectedList = new ArrayList<>(Arrays.asList(expectedMarkerLinse));
+	protected void assertProblemMarkerPositions(String expectedMarkerId, Integer... expectedMarkerLines) throws CoreException {
+		List<Integer> expectedList = new ArrayList<>(Arrays.asList(expectedMarkerLines));
 		IMarker[] markers = findMarkers(expectedMarkerId);
 		for (IMarker curMarker : markers) {
 			int markerLine = curMarker.getAttribute("lineNumber", -1);
