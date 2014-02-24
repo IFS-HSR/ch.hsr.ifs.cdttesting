@@ -20,7 +20,7 @@ public class ExampleRefactoringTest extends CDTTestingRefactoringTest {
 	public void runTest() throws Throwable {
 		openActiveFileInEditor();
 		assertRefactoringSuccess();
-		assertTrue(testRefactoring.wasAstRunnableCalled());
+		assertTrue(testRefactoring.wasRefactoringSuccessful());
 		// calling the following instead of assertRefactoringSuccess() will/would fail this test (because the TestRefactoring does not fail/throws exception etc.)
 		// assertRefactoringFailure();
 	}
