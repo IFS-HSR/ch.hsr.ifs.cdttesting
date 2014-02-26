@@ -1,4 +1,4 @@
-package ch.hsr.ifs.cdttesting.example.examplerefactoringtest;
+package ch.hsr.ifs.cdttesting.example.examplerefactoringtest.refactorings;
 
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.model.ICElement;

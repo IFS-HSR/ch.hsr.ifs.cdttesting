@@ -4,6 +4,7 @@ import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.junit.Test;
 
 import ch.hsr.ifs.cdttesting.cdttest.CDTTestingRefactoringTest;
+import ch.hsr.ifs.cdttesting.example.examplerefactoringtest.refactorings.TestRefactoring;
 
 public class ExampleRefactoringTest extends CDTTestingRefactoringTest {
 
