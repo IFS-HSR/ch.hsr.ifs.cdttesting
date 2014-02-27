@@ -2,7 +2,10 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension point="ch.hsr.ifs.cdttesting.testingPlugin">
-	   <testResouresLocation sourceLocation="/resources/ch.hsr.ifs.cdttesting.example.exampleTestFolder/" activatorClass="ch.hsr.ifs.cdttesting.example.MyTestPlugin"/>
+	   <testResouresLocation
+	         sourceLocation="/resources/ch.hsr.ifs.cdttesting.example.exampleTestFolder/"
+	         activatorClass="ch.hsr.ifs.cdttesting.example.MyTestPlugin"
+	         externalSourceLocation="/ch.hsr.ifs.cdttesting.example.externalTestResource/"/>
    </extension>
    
    

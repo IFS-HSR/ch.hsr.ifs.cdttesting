@@ -31,6 +31,8 @@ public class RtsFileInfo {
 	private static final String XML_ACTIVATOR_CLASS = "activatorClass";
 	private static final String XML_SOURCE_LOCATION = "sourceLocation";
 	private static final String RTS_FILE_EXTENSION = ".rts";
+	private static final String XML_EXTERNAL_SOURCE_LOCATION = "externalSourceLocation";
+	private static final String XML_EXTERNAL_SOURCE_LOCATION_DEFAULT = "externalTestResource/";
 	private String completeRTSPath;
 	private BufferedReader rtsFileReader;
 	private IConfigurationElement activeExtension;
@@ -66,7 +68,7 @@ public class RtsFileInfo {
 	private boolean initRtsFilePathWithName(String name) throws CoreException {
 		for (IConfigurationElement curElement : getExtensions()) {
 			activeExtension = curElement;
-			String testResourcePrefix = curElement.getAttribute(XML_SOURCE_LOCATION);
+			String testResourcePrefix = activeExtension.getAttribute(XML_SOURCE_LOCATION);
 			StringBuilder completeRTSPathBuilder = new StringBuilder(testResourcePrefix);
 			completeRTSPathBuilder.append(name.substring(getTestPackagePrefix().length()).replace(".", "/")).append(RTS_FILE_EXTENSION);
 			InputStream resourceAsStream = getActivatorClass().getResourceAsStream(completeRTSPathBuilder.toString());
@@ -114,5 +116,10 @@ public class RtsFileInfo {
 
 	public Bundle getBundle() {
 		return Platform.getBundle(activeExtension.getContributor().getName());
+	}
+
+	public String getexternalTextResourcePath() {
+		String result = activeExtension.getAttribute(XML_EXTERNAL_SOURCE_LOCATION);
+		return result != null ? result : XML_EXTERNAL_SOURCE_LOCATION_DEFAULT;
 	}
 }

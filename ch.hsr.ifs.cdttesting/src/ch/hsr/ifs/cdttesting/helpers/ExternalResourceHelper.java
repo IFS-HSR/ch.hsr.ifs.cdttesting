@@ -30,8 +30,7 @@ import ch.hsr.ifs.cdttesting.rts.junit4.RtsFileInfo;
 public class ExternalResourceHelper {
 
 	private static boolean isLoaded = false;
-	private static final String EXTERNAL_TEST_RESOURCE = "externalTestResource/"; // do not use system separator since also on windows a "/" is used
-																					// in manifest.
+	private static String externalTextResourceAbsolutePath;
 	public static final String NL = System.getProperty("line.separator");
 	public static final char PATH_SEGMENT_SEPARATOR = File.separatorChar;
 
@@ -41,12 +40,13 @@ public class ExternalResourceHelper {
 				RtsFileInfo testInfo = new RtsFileInfo(testClass);
 				URI rootUri = ResourcesPlugin.getWorkspace().getRoot().getLocationURI();
 				IPath rootPath = new Path(rootUri.getPath());
-				String baseFolderPath = getTargetFilePath(EXTERNAL_TEST_RESOURCE, rootPath);
-				deleteFolder(baseFolderPath);
-				createFolder(baseFolderPath);
+				String externalTextResourceRelativePath = testInfo.getexternalTextResourcePath();
+				externalTextResourceAbsolutePath = getTargetFilePath(externalTextResourceRelativePath, rootPath);
+				deleteFolder(externalTextResourceAbsolutePath);
+				createFolder(externalTextResourceAbsolutePath);
 				try {
-					Enumeration<?> externalFilesEnumeration = testInfo.getBundle().findEntries(EXTERNAL_TEST_RESOURCE, "*", true);
-					createFiles(rootPath, externalFilesEnumeration);
+					Enumeration<?> externalFilesEnumeration = testInfo.getBundle().findEntries(externalTextResourceRelativePath, "*", true);
+					createFiles(rootPath, externalFilesEnumeration, externalTextResourceAbsolutePath);
 				} finally {
 					testInfo.closeReaderStream();
 				}
@@ -61,9 +61,9 @@ public class ExternalResourceHelper {
 		}
 	}
 
-	private static void createFiles(IPath rootPath, Enumeration<?> externalFilesEnumeration) {
+	private static void createFiles(IPath rootPath, Enumeration<?> externalFilesEnumeration, String externalTextResourceAbsolutePath) {
 		if (externalFilesEnumeration == null) {
-			System.err.println("missing resource '" + EXTERNAL_TEST_RESOURCE + "'");
+			System.err.println("missing resource '" + externalTextResourceAbsolutePath + "'");
 			return;
 		}
 		while (externalFilesEnumeration.hasMoreElements()) {
@@ -144,11 +144,7 @@ public class ExternalResourceHelper {
 	}
 
 	public static String makeExternalResourceAbsolutePath(String relativePath) {
-		URI rootUri = ResourcesPlugin.getWorkspace().getRoot().getLocationURI();
-		IPath rootPath = new Path(rootUri.getPath());
-		String baseFolderPathStr = getTargetFilePath(EXTERNAL_TEST_RESOURCE, rootPath);
-		IPath baseFolderPath = new Path(baseFolderPathStr);
-		return getTargetFilePath(relativePath, baseFolderPath);
+		return getTargetFilePath(relativePath, new Path(externalTextResourceAbsolutePath));
 	}
 
 }

@@ -237,16 +237,23 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	}
 
 	protected void openActiveFileInEditor() throws Exception {
-		final IFile file = project.getFile(activeFileName);
+		openFileInEditor(activeFileName);
+	}
+
+	protected void openFileInEditor(final IFile file) throws Exception {
 		new UIThreadSyncRunnable() {
 
 			@Override
 			protected void runSave() throws Exception {
 				IDE.openEditor(getActivePage(), file);
-				setSelectionIfAvailable(activeFileName);
+				setSelectionIfAvailable(file);
 				runEventLoop();
 			}
 		}.runSyncOnUIThread();
+	}
+
+	protected void openFileInEditor(final String fileName) throws Exception {
+		openFileInEditor(project.getFile(fileName));
 	}
 
 	public static void closeWelcomeScreen() throws Exception {
@@ -261,12 +268,12 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		}.runSyncOnUIThread();
 	}
 
-	protected void setSelectionIfAvailable(String fileName) {
-		TestSourceFile file = fileMap.get(fileName);
-		if (file != null && file.getSelection() != null) {
+	protected void setSelectionIfAvailable(IFile file) {
+		TestSourceFile testSourceFile = fileMap.get(file.getProjectRelativePath().toString());
+		if (testSourceFile != null && testSourceFile.getSelection() != null) {
 			ISelectionProvider selectionProvider = getActiveEditorSelectionProvider();
 			if (selectionProvider != null) {
-				selectionProvider.setSelection(file.getSelection());
+				selectionProvider.setSelection(testSourceFile.getSelection());
 			} else {
 				fail("no active editor found.");
 			}
