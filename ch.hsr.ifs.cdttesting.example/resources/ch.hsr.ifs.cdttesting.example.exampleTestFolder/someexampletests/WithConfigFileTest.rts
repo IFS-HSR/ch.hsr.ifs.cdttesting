@@ -1,0 +1,8 @@
+//!Test that shows how the .config file works
+//@.config
+someKey=someValue
+someOtherKey=7
+yetAnotherKey=true
+//@XY.cpp
+//not important
+int main() {  }

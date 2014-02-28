@@ -22,6 +22,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	ExternalIncludeDependencyTestFrameworkTest.class,
 	CProjectTest.class,
 	TwoIndexFileForOneFileTest.class,
+	WithConfigFileTest.class,
 	//@formatter:on	
 })
 public class SomeExampleTestsSuite {
