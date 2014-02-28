@@ -40,13 +40,33 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 	protected void simulateUserInput() {
 	}
 
-	protected void assertRefactoringSuccess() throws Exception {
+	protected void runRefactoringAndAssertSuccess() throws Exception {
 		executeRefactoring(true);
 		compareFiles();
 	}
 
-	protected void assertRefactoringFailure() throws Exception {
+	protected void runRefactoringAndAssertFailure() throws Exception {
 		executeRefactoring(false);
+	}
+
+	/**
+	 * Deprecated due to bad method name.
+	 * 
+	 * @deprecated use {@link #runRefactoringAndAssertSuccess() runRefactoringAndAssertSuccess} instead.
+	 */
+	@Deprecated
+	protected void assertRefactoringSuccess() throws Exception {
+		runRefactoringAndAssertSuccess();
+	}
+
+	/**
+	 * Deprecated due to bad method name.
+	 * 
+	 * @deprecated use {@link #runRefactoringAndAssertFailure() runRefactoringAndAssertFailure} instead.
+	 */
+	@Deprecated
+	protected void assertRefactoringFailure() throws Exception {
+		runRefactoringAndAssertFailure();
 	}
 
 	private void executeRefactoring(boolean expectedSuccess) throws Exception {

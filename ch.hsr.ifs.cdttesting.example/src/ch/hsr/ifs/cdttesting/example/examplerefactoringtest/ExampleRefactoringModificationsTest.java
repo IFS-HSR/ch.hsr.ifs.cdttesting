@@ -18,6 +18,6 @@ public class ExampleRefactoringModificationsTest extends CDTTestingRefactoringTe
 	@Test
 	public void runTest() throws Throwable {
 		openActiveFileInEditor();
-		assertRefactoringSuccess();
+		runRefactoringAndAssertSuccess();
 	}
 }
