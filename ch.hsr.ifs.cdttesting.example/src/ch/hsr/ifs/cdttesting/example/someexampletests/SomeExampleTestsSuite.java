@@ -20,6 +20,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	ReferencedProjectTest.class,
 	CheckNoUnresolvedInclusionsTest.class,
 	ExternalIncludeDependencyTestFrameworkTest.class,
+	ExternalIncludeDependencyTestFrameworkTestSubDir.class,
 	CProjectTest.class,
 	TwoIndexFileForOneFileTest.class,
 	WithConfigFileTest.class,

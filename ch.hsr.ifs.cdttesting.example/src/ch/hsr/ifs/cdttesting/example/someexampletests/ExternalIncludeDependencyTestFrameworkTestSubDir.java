@@ -16,12 +16,12 @@ import org.junit.Test;
 
 import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
 
-public class ExternalIncludeDependencyTestFrameworkTest extends CDTTestingTest {
+public class ExternalIncludeDependencyTestFrameworkTestSubDir extends CDTTestingTest {
 
 	@Override
 	@Before
 	public void setUp() throws Exception {
-		addIncludeDirPath("externalFrameworkTest");
+		addIncludeDirPath("externalFrameworkTestSubDir");
 		super.setUp();
 	}
 
@@ -32,8 +32,8 @@ public class ExternalIncludeDependencyTestFrameworkTest extends CDTTestingTest {
 		assertEquals(1, includeRefs.length);
 
 		IIncludeReference externalFrameworkTestRef = includeRefs[0];
-		String expectedExternalFrameworkTestFolderPath = makeExternalResourceAbsolutePath("externalFrameworkTest");
-		assertFolderExists(expectedExternalFrameworkTestFolderPath);
+		String expectedExternalFrameworkTestFolderPath = makeExternalResourceAbsolutePath("externalFrameworkTestSubDir");
+		assertFolderExists(expectedExternalFrameworkTestFolderPath + "/sub");
 		assertEquals(expectedExternalFrameworkTestFolderPath, externalFrameworkTestRef.getPath().toOSString());
 	}
 

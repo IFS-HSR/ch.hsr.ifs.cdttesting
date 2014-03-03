@@ -1,0 +1,7 @@
+//!ExternalIncludeDependencyTestFrameworkTest
+//@A.cpp
+#include "sub/QWER2.h"
+int main() {
+	QWER2 qwer2;
+	return 0;
+}

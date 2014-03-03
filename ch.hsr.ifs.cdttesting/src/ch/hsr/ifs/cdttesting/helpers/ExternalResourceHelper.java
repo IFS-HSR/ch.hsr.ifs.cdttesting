@@ -103,6 +103,7 @@ public class ExternalResourceHelper {
 	private static void createFile(URL url, String targetFilePath) {
 		File file = new File(targetFilePath);
 		try {
+			createFolder(file.getParentFile());
 			if (!file.createNewFile()) {
 				System.err.println("Failed to create file " + targetFilePath + " while setting up additional test resources.");
 				return;
@@ -133,9 +134,12 @@ public class ExternalResourceHelper {
 	}
 
 	private static void createFolder(String targetFilePath) {
-		File file = new File(targetFilePath);
-		if (!file.mkdir()) {
-			System.err.println("Failed to create folder " + targetFilePath + " while setting up additional test resources.");
+		createFolder(new File(targetFilePath));
+	}
+
+	private static void createFolder(File file) {
+		if (!file.exists() && !file.mkdirs()) {
+			System.err.println("Failed to create folder " + file.getAbsolutePath() + " while setting up additional test resources.");
 		}
 	}
 
