@@ -8,6 +8,6 @@
     <version>3.2.1-SNAPSHOT</version>
   </parent>
   <groupId>ch.hsr.ifs.cdttesting</groupId>
-  <artifactId>ch.hsr.ifs.cdttesting.feature</artifactId>
-  <packaging>eclipse-feature</packaging>
+  <artifactId>ch.hsr.ifs.cdttesting.showoffset</artifactId>
+  <packaging>eclipse-plugin</packaging>
 </project>
