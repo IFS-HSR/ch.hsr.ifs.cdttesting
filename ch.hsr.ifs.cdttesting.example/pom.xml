@@ -5,7 +5,7 @@
   <parent>
     <artifactId>cdttesting</artifactId>
     <groupId>ch.hsr.ifs.cdttesting</groupId>
-    <version>3.2.1-SNAPSHOT</version>
+    <version>3.2.2-SNAPSHOT</version>
   </parent>
   <groupId>ch.hsr.ifs.cdttesting</groupId>
   <artifactId>ch.hsr.ifs.cdttesting.example</artifactId>
