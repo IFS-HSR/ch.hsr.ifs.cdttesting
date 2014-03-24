@@ -36,7 +36,19 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 
 	/**
 	 * Subclasses can override to simulate user input.
+	 * 
+	 * @param context
 	 */
+	protected void simulateUserInput(RefactoringContext context) {
+		simulateUserInput(); // call deprecated method if not overwritten by user
+	}
+
+	/**
+	 * Subclasses can override to simulate user input.
+	 * 
+	 * @deprecated use {@link #simulateUserInput(RefactoringContext)} instead.
+	 */
+	@Deprecated
 	protected void simulateUserInput() {
 	}
 
@@ -96,7 +108,7 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 			}
 
 			if (withUserInput)
-				simulateUserInput();
+				simulateUserInput(context);
 			RefactoringStatus finalStatus = refactoring.checkFinalConditions(new NullProgressMonitor());
 			if (expectedFinalWarnings != 0) {
 				assertStatusWarning(finalStatus, expectedFinalWarnings);
