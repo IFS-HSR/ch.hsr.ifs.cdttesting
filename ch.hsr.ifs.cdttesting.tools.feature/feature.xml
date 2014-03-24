@@ -1,25 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="ch.hsr.ifs.cdttesting.feature"
-      label="IFS CDT-Testing Feature"
+      id="ch.hsr.ifs.cdttesting.tools.feature"
+      label="IFS CDT-Testing Tools Feature"
       version="3.2.1.qualifier"
       provider-name="IFS">
 
    <description url="https://github.com/IFS-HSR/ch.hsr.ifs.cdttesting">
-      This Plugin provides Junit4 testing classes that can be used
-to test Eclipse CDT C/C++ code based functionality. This includes
-correct CDT-index setup, external include path support and referenced
-projects.
-Also, RTS tests cannot, as with normal RTS tests, only be used
-to run a whole suite, but one can now re-run a single (e.g. failing
-test).
-This features also contains the CDT plugin org.eclipse.cdt.tests.
-This is the case because CDTs own features do not contain it,
-since it is only required when running tests. When doing CDT
-plugin-develompemnt however, is is required and had in the past
-to be (1) directly imported into the workspace form CDT repositories
-or (2) added as plugin via local dependency.
-Add this feature to your .target file.
+      Use this feature along with the IFS CDT-Testing Feature. This feature provides syntax highlighting for .rts and .awts (C++ code for testing) files and also an outline for these. Also usefull is the show-ofset plug-in helping to determine offests of given nodes in .rts file or in C/C++ Editors.
+
+Install this feature directly into your PDE Eclipse.
    </description>
 
    <copyright>
@@ -101,100 +90,18 @@ Everyone is permitted to copy and distribute copies of this Agreement, but in or
 This Agreement is governed by the laws of the State of New York and the intellectual property laws of the United States of America. No party to this Agreement will bring a legal action under this Agreement more than one year after the cause of action arose. Each party waives its rights to a jury trial in any resulting litigation.
    </license>
 
-   <url>
-      <update label="IFS CDT-Testing Update Site" url="http://dev.ifs.hsr.ch/updatesites/cdttesting"/>
-   </url>
-
-   <requires>
-      <import plugin="org.eclipse.ui"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.junit"/>
-      <import plugin="org.eclipse.core.resources" version="3.7.100" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.jface.text" version="3.7.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.core.tests" version="5.3.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.core" version="5.4.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.ui" version="5.5.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.ltk.core.refactoring"/>
-      <import plugin="org.eclipse.ui.workbench.texteditor"/>
-      <import plugin="org.eclipse.ui.editors"/>
-      <import plugin="org.eclipse.cdt.codan.core"/>
-      <import plugin="org.eclipse.ui.ide"/>
-      <import plugin="org.eclipse.core.filesystem"/>
-      <import plugin="org.eclipse.ltk.core.refactoring" version="3.4.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.swt"/>
-      <import plugin="org.eclipse.ui.views"/>
-      <import plugin="org.eclipse.help"/>
-      <import plugin="org.eclipse.search"/>
-      <import plugin="org.eclipse.compare"/>
-      <import plugin="org.eclipse.ui.console"/>
-      <import plugin="org.eclipse.core.expressions"/>
-      <import plugin="com.ibm.icu"/>
-      <import plugin="org.eclipse.core.filesystem" version="1.2.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.codan.checkers" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.codan.core" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.codan.core.cxx" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.jface" version="3.6.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.jface.text" version="3.6.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.codan.checkers.ui" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.codan.ui" version="1.1.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.ui.ide" version="3.6.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.codan.ui.cxx" version="2.0.0" match="greaterOrEqual"/>
-   </requires>
-
    <plugin
-         id="ch.hsr.ifs.cdttesting"
+         id="ch.hsr.ifs.cdttesting.showoffset"
          download-size="0"
          install-size="0"
          version="3.2.1.qualifier"
          unpack="false"/>
 
    <plugin
-         id="ch.hsr.ifs.cdttesting.source"
+         id="name.graf.emanuel.testfileeditor"
          download-size="0"
          install-size="0"
          version="3.2.1.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.cdt.core.tests"
-         download-size="0"
-         install-size="0"
-         version="5.4.0.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.cdt.core.tests.source"
-         download-size="0"
-         install-size="0"
-         version="5.4.0.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.cdt.ui.tests"
-         download-size="0"
-         install-size="0"
-         version="5.4.0.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.cdt.ui.tests.source"
-         download-size="0"
-         install-size="0"
-         version="5.4.0.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.cdt.codan.core.test"
-         download-size="0"
-         install-size="0"
-         version="3.2.0.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.cdt.codan.core.test.source"
-         download-size="0"
-         install-size="0"
-         version="3.2.0.qualifier"
          unpack="false"/>
 
 </feature>

@@ -25,7 +25,9 @@
     <module>workspace_kepler/org.eclipse.cdt/codan/org.eclipse.cdt.codan.core.test</module>
     <module>ch.hsr.ifs.cdttesting.example.feature</module>
     <module>ch.hsr.ifs.cdttesting.showoffset</module>
+    <module>name.graf.emanuel.testfileeditor</module>
     <module>ch.hsr.ifs.cdttesting.feature</module>
+    <module>ch.hsr.ifs.cdttesting.tools.feature</module>
     <module>ch.hsr.ifs.cdttesting.updatesite</module>
   </modules>
   <build>

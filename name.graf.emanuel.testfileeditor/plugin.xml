@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="C++ Test File Editor"
+            extensions="txt,rts,awts"
+            icon="icons/test_file.gif"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            class="name.graf.emanuel.testfileeditor.editors.TestFileEditor"
+            id="name.graf.emanuel.cdttestfileeditor.editors.CdtTestFileEditor">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="name.graf.emanuel.testfileeditor.ui.TestFilePreferences"
+            id="name.graf.emanuel.cdttestfileeditor.ui.TestFilePreferences"
+            name="C++ Test File Editor Preferences"/>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="name.graf.emanuel.testfileeditor.ui.PreferenceInitializer"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.documentProviders">
+      <provider
+            class="org.eclipse.ui.editors.text.TextFileDocumentProvider"
+            id="org.eclipse.ui.editors.text.StorageDocumentProvider"
+            inputTypes="org.eclipse.ui.IStorageEditorInput"/>
+   </extension>
+   <extension
+         id="TestFileDocumentSetupParticipant"
+         point="org.eclipse.core.filebuffers.documentSetup">
+      <participant
+            class="name.graf.emanuel.testfileeditor.editors.TestFileDocumentSetupParticipant"
+            extensions="txt"/>
+   </extension>
+
+</plugin>
