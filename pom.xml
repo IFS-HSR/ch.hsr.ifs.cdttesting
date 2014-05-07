@@ -17,7 +17,7 @@
 		<layout>p2</layout>
 	</repository>
 	<repository>
-		<id>cdt 8.3 build repository<id>
+		<id>cdt 8.3 build repository</id>
 		<url>https://hudson.eclipse.org/cdt/job/cdt-8.3/lastSuccessfulBuild/artifact/releng/org.eclipse.cdt.testing.repo/target/repository/</url>
 		<layout>p2</layout>
 	</repository>
