@@ -26,6 +26,7 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 	/** Expected counts of errors, warnings and info messages */
 	protected int expectedInitialErrors;
 	protected int expectedInitialWarnings;
+	protected int expectedFinalErrors;
 	protected int expectedFinalWarnings;
 	protected int expectedFinalInfos;
 
@@ -110,7 +111,9 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 			if (withUserInput)
 				simulateUserInput(context);
 			RefactoringStatus finalStatus = refactoring.checkFinalConditions(new NullProgressMonitor());
-			if (expectedFinalWarnings != 0) {
+			if (expectedFinalErrors != 0) {
+				assertStatusError(finalStatus, expectedFinalErrors);
+			} else if (expectedFinalWarnings != 0) {
 				assertStatusWarning(finalStatus, expectedFinalWarnings);
 			} else if (expectedFinalInfos != 0) {
 				assertStatusInfo(finalStatus, expectedFinalInfos);
