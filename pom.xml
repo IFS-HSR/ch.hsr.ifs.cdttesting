@@ -18,7 +18,7 @@
 	</repository>
 	<repository>
 		<id>cdt kepler test plugins</id>
-		<url>https://www.cevelop.com/cdt-test-plugins/kepler</url>
+		<url>http://www.cevelop.com/cdt-test-plugins/kepler</url>
 		<layout>p2</layout>
 	</repository>
   </repositories>
