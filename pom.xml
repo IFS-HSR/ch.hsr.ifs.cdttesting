@@ -12,7 +12,7 @@
   </properties>
   <repositories>
 	<repository>
-		<id>juno-release</id>
+		<id>kepler-release</id>
 		<url>http://download.eclipse.org/releases/${eclipse-version}/</url>
 		<layout>p2</layout>
 	</repository>
@@ -20,9 +20,9 @@
   <modules>
     <module>ch.hsr.ifs.cdttesting</module>
     <module>ch.hsr.ifs.cdttesting.example</module>
-    <module>workspace_kepler/org.eclipse.cdt/core/org.eclipse.cdt.core.tests</module>
+<!--    <module>workspace_kepler/org.eclipse.cdt/core/org.eclipse.cdt.core.tests</module>
     <module>workspace_kepler/org.eclipse.cdt/core/org.eclipse.cdt.ui.tests</module>
-    <module>workspace_kepler/org.eclipse.cdt/codan/org.eclipse.cdt.codan.core.test</module>
+    <module>workspace_kepler/org.eclipse.cdt/codan/org.eclipse.cdt.codan.core.test</module>-->
     <module>ch.hsr.ifs.cdttesting.example.feature</module>
     <module>ch.hsr.ifs.cdttesting.showoffset</module>
     <module>name.graf.emanuel.testfileeditor</module>
