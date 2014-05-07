@@ -149,21 +149,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
          unpack="false"/>
 
    <plugin
-         id="ch.hsr.ifs.cdttesting.source"
-         download-size="0"
-         install-size="0"
-         version="3.2.2.qualifier"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.cdt.core.tests"
-         download-size="0"
-         install-size="0"
-         version="5.4.0.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.cdt.core.tests.source"
          download-size="0"
          install-size="0"
          version="5.4.0.qualifier"
@@ -177,21 +163,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
          unpack="false"/>
 
    <plugin
-         id="org.eclipse.cdt.ui.tests.source"
-         download-size="0"
-         install-size="0"
-         version="5.4.0.qualifier"
-         unpack="false"/>
-
-   <plugin
          id="org.eclipse.cdt.codan.core.test"
-         download-size="0"
-         install-size="0"
-         version="3.2.0.qualifier"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.cdt.codan.core.test.source"
          download-size="0"
          install-size="0"
          version="3.2.0.qualifier"
