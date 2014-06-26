@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="cdttesting" sequenceNumber="6">
+<?pde version="3.8"?><target name="cdttesting" sequenceNumber="8">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.platform.sdk" version="4.3.2.M20140221-1700"/>
-<unit id="org.eclipse.sdk.ide" version="4.3.2.M20140221-1700"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.3"/>
+<unit id="org.eclipse.sdk.ide" version="4.4.0.I20140606-1215"/>
+<unit id="org.eclipse.platform.sdk" version="4.4.0.I20140606-1215"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.4"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.cdt.sdk.feature.group" version="8.3.0.201402142303"/>
-<repository location="http://download.eclipse.org/releases/kepler"/>
+<unit id="org.eclipse.cdt.sdk.feature.group" version="8.4.0.201406111759"/>
+<repository location="http://download.eclipse.org/releases/luna"/>
 </location>
 </locations>
 </target>
