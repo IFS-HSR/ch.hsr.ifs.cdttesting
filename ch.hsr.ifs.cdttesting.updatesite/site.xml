@@ -6,5 +6,8 @@
    <feature url="features/ch.hsr.ifs.cdttesting.tools.feature_4.0.0.qualifier.jar" id="ch.hsr.ifs.cdttesting.tools.feature" version="4.0.0.qualifier">
       <category name="ch.hsr.ifs.cdttesting.category"/>
    </feature>
+   <feature url="features/ch.hsr.ifs.cdttesting.example.feature_4.0.0.qualifier.jar" id="ch.hsr.ifs.cdttesting.example.feature" version="4.0.0.qualifier">
+      <category name="ch.hsr.ifs.cdttesting.category"/>
+   </feature>
    <category-def name="ch.hsr.ifs.cdttesting.category" label="Testing Features"/>
 </site>
