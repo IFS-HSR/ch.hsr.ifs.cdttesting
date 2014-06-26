@@ -94,14 +94,14 @@ This Agreement is governed by the laws of the State of New York and the intellec
          id="ch.hsr.ifs.cdttesting.showoffset"
          download-size="0"
          install-size="0"
-         version="3.2.2.qualifier"
+         version="4.0.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="name.graf.emanuel.testfileeditor"
          download-size="0"
          install-size="0"
-         version="3.2.2.qualifier"
+         version="4.0.0.qualifier"
          unpack="false"/>
 
 </feature>
