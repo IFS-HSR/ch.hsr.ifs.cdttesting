@@ -8,7 +8,7 @@
   <packaging>pom</packaging>
   <properties>
 	<eclipse-version>luna</eclipse-version>
-	<tycho-version>luna</tycho-version>
+	<tycho-version>0.20.0</tycho-version>
   </properties>
   <repositories>
 	<repository>
