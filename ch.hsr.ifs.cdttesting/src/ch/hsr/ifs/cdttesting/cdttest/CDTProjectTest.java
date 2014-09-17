@@ -40,6 +40,7 @@ import org.eclipse.cdt.core.settings.model.ICProjectDescription;
 import org.eclipse.cdt.core.testplugin.CProjectHelper;
 import org.eclipse.cdt.core.testplugin.FileManager;
 import org.eclipse.cdt.core.testplugin.TestScannerProvider;
+import org.eclipse.cdt.core.testplugin.util.BaseTestCase;
 import org.eclipse.cdt.ui.CUIPlugin;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -224,6 +225,11 @@ abstract public class CDTProjectTest extends TestCase {
 			if (!joined) {
 				System.err.println("Second join on indexer failed.");
 			}
+		}
+		try {
+			BaseTestCase.waitForIndexer(cproject);
+		} catch (InterruptedException e) {
+			System.err.println("Wait for indexer has been interrupted.");
 		}
 	}
 
