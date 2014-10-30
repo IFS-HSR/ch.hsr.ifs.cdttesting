@@ -2,7 +2,7 @@
 <feature
       id="ch.hsr.ifs.cdttesting.tools.feature"
       label="IFS CDT-Testing Tools Feature"
-      version="8.5.0"
+      version="8.5.0.qualifier"
       provider-name="IFS">
 
    <description url="https://github.com/IFS-HSR/ch.hsr.ifs.cdttesting">
@@ -94,14 +94,14 @@ This Agreement is governed by the laws of the State of New York and the intellec
          id="ch.hsr.ifs.cdttesting.showoffset"
          download-size="0"
          install-size="0"
-         version="8.5.0"
+         version="8.5.0.qualifier"
          unpack="false"/>
 
    <plugin
          id="name.graf.emanuel.testfileeditor"
          download-size="0"
          install-size="0"
-         version="8.5.0"
+         version="8.5.0.qualifier"
          unpack="false"/>
 
 </feature>
