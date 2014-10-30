@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: CDTTesting
 Bundle-SymbolicName: ch.hsr.ifs.cdttesting;singleton:=true
-Bundle-Version: 4.0.0.qualifier
+Bundle-Version: 8.5.0.qualifier
 Bundle-Activator: ch.hsr.ifs.cdttesting.TestingPlugin
 Bundle-Vendor: IFS
 Require-Bundle: org.eclipse.ui,
