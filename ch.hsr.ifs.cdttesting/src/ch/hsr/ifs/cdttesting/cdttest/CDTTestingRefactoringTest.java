@@ -82,7 +82,7 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 		runRefactoringAndAssertFailure();
 	}
 
-	private void executeRefactoring(boolean expectedSuccess) throws Exception {
+	protected void executeRefactoring(boolean expectedSuccess) throws Exception {
 		Refactoring refactoring = createRefactoring();
 		RefactoringContext context;
 		if (refactoring instanceof CRefactoring) {
