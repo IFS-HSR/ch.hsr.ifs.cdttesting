@@ -20,7 +20,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jface,
  org.eclipse.osgi,
  org.eclipse.osgi.services;bundle-version="3.3.100",
- ch.hsr.ifs.pasta.tree
+ ch.hsr.ifs.pasta.tree;bundle-version="8.5.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: 

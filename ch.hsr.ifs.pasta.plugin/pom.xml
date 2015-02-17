@@ -11,4 +11,5 @@
 
 	<artifactId>ch.hsr.ifs.pasta.plugin</artifactId>
 	<packaging>eclipse-plugin</packaging>
+	<groupId>ch.hsr.ifs.cdttesting</groupId>
 </project> 
