@@ -5,14 +5,10 @@ Bundle-SymbolicName: ch.hsr.ifs.cdttesting;singleton:=true
 Bundle-Version: 8.5.0.qualifier
 Bundle-Activator: ch.hsr.ifs.cdttesting.TestingPlugin
 Bundle-Vendor: IFS
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- org.junit,
- org.eclipse.cdt.core.tests;bundle-version="5.4.0",
- org.eclipse.cdt.core;bundle-version="5.4.0",
+Require-Bundle: 
+ org.eclipse.cdt.ui;bundle-version="5.8.1",
  org.eclipse.core.resources;bundle-version="3.7.100",
  org.eclipse.jface.text;bundle-version="3.7.0",
- org.eclipse.cdt.ui;bundle-version="5.5.0",
  org.eclipse.ltk.core.refactoring,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.editors,
@@ -20,9 +16,13 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.cdt.codan.ui.cxx;bundle-version="3.2.0",
  org.eclipse.text,
- org.eclipse.cdt.ui.tests
+ org.eclipse.cdt;bundle-version="8.5.0",
+ org.eclipse.ui;bundle-version="3.106.0",
+ org.eclipse.core.runtime;bundle-version="3.10.0",
+ org.eclipse.cdt.core;bundle-version="5.8.0",
+ org.junit,
+ org.eclipse.cdt.core.tests;bundle-version="5.4.0",
+ org.eclipse.cdt.ui.tests;bundle-version="5.4.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
-Export-Package: ch.hsr.ifs.cdttesting,ch.hsr.ifs.cdttesting.cdttest,ch
- .hsr.ifs.cdttesting.helpers,ch.hsr.ifs.cdttesting.rts.junit4,ch.hsr.i
- fs.cdttesting.testsourcefile
+Export-Package: ch.hsr.ifs.cdttesting,ch.hsr.ifs.cdttesting.cdttest,ch.hsr.ifs.cdttesting.helpers,ch.hsr.ifs.cdttesting.rts.junit4,ch.hsr.ifs.cdttesting.testsourcefile

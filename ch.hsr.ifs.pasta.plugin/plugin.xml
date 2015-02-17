@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.views">
+         <category
+               id="ch.hsr.ifs.pasta"
+               name="Painless AST Analysis" />
+         <view 
+         		icon="icons/sample.gif" 
+                category="ch.hsr.ifs.pasta" 
+                class="ch.hsr.ifs.pasta.ASTView"
+                id="ch.hsr.ifs.pasta.astview" 
+                name="AST View"/>
+         <view
+               category="ch.hsr.ifs.pasta"
+               class="ch.hsr.ifs.pasta.NodeView"
+               icon="icons/sample.gif"
+               id="ch.hsr.ifs.pasta.nodeview"
+               name="Node View" />
+         
+
+   </extension>
+   
+</plugin>

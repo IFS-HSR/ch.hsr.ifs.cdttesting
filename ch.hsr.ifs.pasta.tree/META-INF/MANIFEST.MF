@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tree
+Bundle-SymbolicName: ch.hsr.ifs.pasta.tree
+Bundle-Version: 8.5.0.qualifier
+Bundle-Vendor: IFS Institute for Software
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.eclipse.cdt.ui,
+ org.junit;bundle-version="4.11.0"
+Export-Package: ch.hsr.ifs.pasta.tree

@@ -32,9 +32,12 @@
     <module>ch.hsr.ifs.cdttesting.showoffset</module>
     <module>name.graf.emanuel.testfileeditor</module>
     <module>ch.hsr.ifs.cdttesting.feature</module>
+    <module>ch.hsr.ifs.pasta.plugin</module>
+    <module>ch.hsr.ifs.pasta.tree</module>
+    <module>ch.hsr.ifs.pasta.tree.test</module>
     <module>ch.hsr.ifs.cdttesting.tools.feature</module>
     <module>ch.hsr.ifs.cdttesting.updatesite</module>
-  </modules>
+    </modules>
   <build>
     <plugins>
       <plugin>
