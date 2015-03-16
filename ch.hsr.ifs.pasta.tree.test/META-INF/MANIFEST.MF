@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tree Layout Algorithm Tests
 Bundle-SymbolicName: ch.hsr.ifs.pasta.tree.test
-Bundle-Version: 8.5.0.qualifier
+Bundle-Version: 8.6.0.qualifier
 Bundle-Vendor: IFS Institute for Software
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: ch.hsr.ifs.pasta.tree;bundle-version="1.0.0",

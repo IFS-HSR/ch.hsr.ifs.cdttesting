@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ch.hsr.ifs.cdttesting</groupId>
   <artifactId>cdttesting</artifactId>
-  <version>8.5.0-SNAPSHOT</version>
+  <version>8.6.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <properties>
 	<eclipse-version>luna</eclipse-version>
@@ -37,7 +37,9 @@
     <module>ch.hsr.ifs.pasta.tree.test</module>
     <module>ch.hsr.ifs.cdttesting.tools.feature</module>
     <module>ch.hsr.ifs.cdttesting.updatesite</module>
-    </modules>
+	<module>org.eclipse.cdt.internal.ui.refactoring.changes</module>
+	<module>org.eclipse.cdt.internal.ui.refactoring.changes.feature</module>
+  </modules>
   <build>
     <plugins>
       <plugin>

@@ -8,7 +8,6 @@
     <version>8.6.0-SNAPSHOT</version>
   </parent>
   <groupId>ch.hsr.ifs.cdttesting</groupId>
-  <artifactId>ch.hsr.ifs.pasta.tree</artifactId>
+  <artifactId>org.eclipse.cdt.internal.ui.refactoring.changes</artifactId>
   <packaging>eclipse-plugin</packaging>
-  <version>8.6.0-SNAPSHOT</version>
 </project>
