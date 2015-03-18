@@ -17,7 +17,7 @@
    </license>
 
    <plugin
-         id="org.eclipse.cdt.internal.ui.refactoring.changes"
+         id="ch.hsr.ifs.cdt.compatibility.changes"
          download-size="0"
          install-size="0"
          version="0.0.0"
