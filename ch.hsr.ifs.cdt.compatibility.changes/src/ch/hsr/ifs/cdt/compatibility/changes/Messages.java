@@ -8,7 +8,7 @@
  * Contributors:
  * 	   Sergey Prigogin (Google) - initial API and implementation
  *******************************************************************************/
-package org.eclipse.cdt.internal.ui.refactoring.changes;
+package ch.hsr.ifs.cdt.compatibility.changes;
 
 import org.eclipse.osgi.util.NLS;
 

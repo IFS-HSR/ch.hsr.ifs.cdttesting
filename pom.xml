@@ -37,8 +37,8 @@
     <module>ch.hsr.ifs.pasta.tree.test</module>
     <module>ch.hsr.ifs.cdttesting.tools.feature</module>
     <module>ch.hsr.ifs.cdttesting.updatesite</module>
-	<module>org.eclipse.cdt.internal.ui.refactoring.changes</module>
-	<module>org.eclipse.cdt.internal.ui.refactoring.changes.feature</module>
+	<module>ch.hsr.ifs.cdt.compatibility.changes</module>
+	<module>ch.hsr.ifs.cdt.compatibility.changes.feature</module>
   </modules>
   <build>
     <plugins>

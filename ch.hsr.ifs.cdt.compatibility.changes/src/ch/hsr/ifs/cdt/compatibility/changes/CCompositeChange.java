@@ -9,7 +9,7 @@
  * Contributors: 
  *     Institute for Software (IFS)- initial API and implementation 
  ******************************************************************************/
-package org.eclipse.cdt.internal.ui.refactoring.changes;
+package ch.hsr.ifs.cdt.compatibility.changes;
 
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.ChangeDescriptor;

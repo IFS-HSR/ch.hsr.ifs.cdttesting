@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.eclipse.cdt.internal.ui.refactoring.changes.feature"
+      id="ch.hsr.ifs.cdt.compatibility.changes.feature"
       label="CDT 8.6 Compatibility Plug-ins"
       version="8.6.0.qualifier">
 

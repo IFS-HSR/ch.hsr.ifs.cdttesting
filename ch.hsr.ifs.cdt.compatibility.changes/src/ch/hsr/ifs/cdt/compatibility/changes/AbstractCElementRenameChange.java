@@ -9,7 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Sergey Prigogin (Google)
  *******************************************************************************/
-package org.eclipse.cdt.internal.ui.refactoring.changes;
+package ch.hsr.ifs.cdt.compatibility.changes;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -20,7 +20,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.resource.ResourceChange;
-
 import org.eclipse.cdt.core.model.CoreModel;
 
 public abstract class AbstractCElementRenameChange extends ResourceChange {

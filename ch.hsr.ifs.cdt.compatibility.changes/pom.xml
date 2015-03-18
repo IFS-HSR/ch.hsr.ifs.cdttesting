@@ -8,6 +8,6 @@
     <version>8.6.0-SNAPSHOT</version>
   </parent>
   <groupId>ch.hsr.ifs.cdttesting</groupId>
-  <artifactId>org.eclipse.cdt.internal.ui.refactoring.changes</artifactId>
+  <artifactId>ch.hsr.ifs.cdt.compatibility.changes</artifactId>
   <packaging>eclipse-plugin</packaging>
 </project>

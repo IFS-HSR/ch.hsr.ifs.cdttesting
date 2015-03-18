@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Changes
-Bundle-SymbolicName: org.eclipse.cdt.internal.ui.refactoring.changes
+Bundle-SymbolicName: ch.hsr.ifs.cdt.compatibility.changes
 Bundle-Version: 8.6.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.eclipse.core.resources;bundle-version="3.9.1",
@@ -11,4 +11,4 @@ Require-Bundle: org.eclipse.core.resources;bundle-version="3.9.1",
  org.eclipse.cdt.core;bundle-version="5.9.1",
  org.eclipse.cdt.ui;bundle-version="5.9.0",
  org.eclipse.ui;bundle-version="3.106.0"
-Export-Package: org.eclipse.cdt.internal.ui.refactoring.changes
+Export-Package: ch.hsr.ifs.cdt.compatibility.changes

@@ -10,7 +10,7 @@
  *     Institute for Software - initial API and implementation
  *     Sergey Prigogin (Google)
  *******************************************************************************/
-package org.eclipse.cdt.internal.ui.refactoring.changes;
+package ch.hsr.ifs.cdt.compatibility.changes;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
