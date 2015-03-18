@@ -9,6 +9,9 @@
    <feature url="features/ch.hsr.ifs.cdttesting.example.feature_8.6.0.qualifier.jar" id="ch.hsr.ifs.cdttesting.example.feature" version="8.6.0.qualifier">
       <category name="ch.hsr.ifs.cdttesting.category"/>
    </feature>
+   <feature url="features/ch.hsr.ifs.cdt.compatibility.changes.feature_8.6.0.qualifier.jar" id="ch.hsr.ifs.cdt.compatibility.changes.feature" version="8.6.0.qualifier">
+      <category name="ch.hsr.ifs.compatibility"/>
+   </feature>
    <category-def name="ch.hsr.ifs.cdttesting.category" label="Testing Features"/>
    <category-def name="ch.hsr.ifs.compatibility" label="Compatibility Plug-ins for CDT 8.6"/>
 </site>
