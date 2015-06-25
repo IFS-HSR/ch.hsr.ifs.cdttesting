@@ -5,7 +5,7 @@
   <parent>
     <artifactId>cdttesting</artifactId>
     <groupId>ch.hsr.ifs.cdttesting</groupId>
-    <version>8.6.0-SNAPSHOT</version>
+    <version>8.7.0-SNAPSHOT</version>
   </parent>
   <groupId>ch.hsr.ifs.cdttesting</groupId>
   <artifactId>ch.hsr.ifs.cdttesting.updatesite</artifactId>
