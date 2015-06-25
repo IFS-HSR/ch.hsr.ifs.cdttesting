@@ -24,7 +24,7 @@
 	</repository>
 	<repository>
 		<id>cdt mars test plugins</id>
-		<url>https://www.cevelop.com/cdt-test-plugins/${eclipse-version}</url>
+		<url>http://www.cevelop.com/cdt-test-plugins/${eclipse-version}</url>
 		<layout>p2</layout>
 	</repository>
   </repositories>
