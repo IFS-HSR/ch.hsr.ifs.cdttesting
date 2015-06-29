@@ -78,8 +78,13 @@ public class NodeWidget extends Composite {
     }
 
 	private void displayFields(TreeItem parent, Object node) {
-        List<Field> fields = new ArrayList<>(Arrays.asList(node.getClass().getFields()));
-        fields.addAll(Arrays.asList(node.getClass().getDeclaredFields()));
+        Class<? extends Object> theClass = node.getClass();
+		addFieldsOfClass(theClass, parent, node);
+    }
+
+	private void addFieldsOfClass(Class<? extends Object> theClass, TreeItem parent, Object node) {
+		List<Field> fields = new ArrayList<>(Arrays.asList(theClass.getFields()));
+        fields.addAll(Arrays.asList(theClass.getDeclaredFields()));
         for (Field field : fields) {
             makeAccessible(field);
             Object fieldValue = getValue(field, node);
@@ -87,7 +92,13 @@ public class NodeWidget extends Composite {
                 createTreeItem(parent, field.getName() + ";" + getValue(field, node));
             }
         }
-    }
+        Class<?> superclass = theClass.getSuperclass();
+        TreeItem superfields= createTreeItem(parent,superclass.getSimpleName()+";");
+		if (superclass != Object.class){
+        	addFieldsOfClass(theClass.getSuperclass(), superfields, node);
+        }
+		superfields.setExpanded(true);
+	}
 
     private void displayTypeHierarchy(TreeItem parent, Object o) {
         collectSuperclasses(parent, o.getClass());
