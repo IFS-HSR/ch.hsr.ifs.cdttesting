@@ -1,5 +1,6 @@
 package ch.hsr.ifs.pasta;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -15,7 +16,6 @@ import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.dom.ast.IBinding;
 import org.eclipse.cdt.core.index.IIndex;
 import org.eclipse.cdt.core.index.IIndexName;
-import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTNameBase;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -45,7 +45,7 @@ public class NodeWidget extends Composite {
         nameCol.setWidth(200);
         TreeColumn valueCol = new TreeColumn(tree, SWT.LEFT);
         valueCol.setText("Value");
-        valueCol.setWidth(200);
+        valueCol.setWidth(800);
         tree.setVisible(true);
     }
 
@@ -86,18 +86,44 @@ public class NodeWidget extends Composite {
 		List<Field> fields = new ArrayList<>(Arrays.asList(theClass.getFields()));
         fields.addAll(Arrays.asList(theClass.getDeclaredFields()));
         for (Field field : fields) {
-            makeAccessible(field);
-            Object fieldValue = getValue(field, node);
-            if (!(fieldValue instanceof CPPASTNameBase)) { // workaround for CPPASTNameBase.toString() NPE
-                createTreeItem(parent, field.getName() + ";" + getValue(field, node));
-            }
+        	makeAccessible(field);
+        	if (!java.lang.reflect.Modifier.isStatic(field.getModifiers())) { // PS, don't want static fields
+        		createFieldValueEntries(parent, field.getName(), getValue(field, node));
+        	} // do not display static
         }
         Class<?> superclass = theClass.getSuperclass();
-        TreeItem superfields= createTreeItem(parent,superclass.getSimpleName()+";");
 		if (superclass != Object.class){
+			TreeItem superfields= createTreeItem(parent,superclass.getSimpleName()+";");
         	addFieldsOfClass(theClass.getSuperclass(), superfields, node);
+			superfields.setExpanded(true);
         }
-		superfields.setExpanded(true);
+	}
+
+	public void createFieldValueEntries(TreeItem parent, final String fieldName, Object fieldValue) {
+		if (fieldValue!=null && fieldValue.getClass().isArray()){
+			int len = Array.getLength(fieldValue);
+			TreeItem arrayitem = createTreeItem(parent, fieldName +"["+len+"]"+ ";" + fieldValue);
+			for (int i=0; i < len; ++i){
+				Object entryvalue = Array.get(fieldValue, i);
+				final String nameForArrayField = fieldName+"["+i+"]";
+				createFieldValueEntries(arrayitem,nameForArrayField, entryvalue);
+			}
+			
+		} else {
+			createFieldEntrySafe(parent, fieldName, fieldValue);
+		}
+	}
+
+	public void createFieldEntrySafe(TreeItem parent, String nameForField,  Object fieldValue) {
+		// workaround for CPPASTNameBase.toString() NPE
+		String value="unknown";
+		try{
+			value = fieldValue.toString();
+		} catch(Throwable t){
+			PastaPlugin.log(t);
+			value = "tostring throws: "+t;
+		}
+		createTreeItem(parent, nameForField + ";" + value);
 	}
 
     private void displayTypeHierarchy(TreeItem parent, Object o) {
@@ -131,6 +157,13 @@ public class NodeWidget extends Composite {
                 createTreeItem(parentItem, method.getName() + ";" + method.getReturnType().getSimpleName());
             }
         }
+        Class<?> superclass = clazz.getSuperclass();
+        if (superclass != Object.class){
+        	TreeItem supermethods= createTreeItem(parentItem,superclass.getSimpleName()+";");
+        	collectMethods(supermethods,superclass);
+        	supermethods.setExpanded(true);
+        }
+
     }
     
     private void displayImplicitNames(IASTNode node) {
