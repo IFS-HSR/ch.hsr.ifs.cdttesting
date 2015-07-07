@@ -56,7 +56,7 @@ public class NodeWidget extends Composite {
         displayImplicitNames(node);
         TreeItem typeHierarchy = createTreeItem(tree, "Type Hierarchy;");
         displayTypeHierarchy(typeHierarchy, node);
-        TreeItem fields = createTreeItem(tree, "Fields;");
+        TreeItem fields = createTreeItem(tree, "Fields;@"+Integer.toString(node.hashCode(),16));
         displayFields(fields, node);
         TreeItem methods = createTreeItem(tree, "Methods;");
         displayMethods(methods, node);
@@ -68,7 +68,7 @@ public class NodeWidget extends Composite {
     }
 
     private void displayName(IASTNode node) {
-        createTreeItem(tree, node.getClass().getSimpleName() + ";");
+        createTreeItem(tree, node.getClass().getSimpleName() + ";"+safeToString(node));
     }
 
     private void clearTree() {
@@ -116,14 +116,20 @@ public class NodeWidget extends Composite {
 
 	public void createFieldEntrySafe(TreeItem parent, String nameForField,  Object fieldValue) {
 		// workaround for CPPASTNameBase.toString() NPE
-		String value="unknown";
+		String value = safeToString(fieldValue);
+		createTreeItem(parent, nameForField + ";" + value);
+	}
+
+	public String safeToString(Object fieldValue) {
+		String value="null";
+		if (fieldValue != null)
 		try{
 			value = fieldValue.toString();
 		} catch(Throwable t){
 			PastaPlugin.log(t);
 			value = "tostring throws: "+t;
 		}
-		createTreeItem(parent, nameForField + ";" + value);
+		return value;
 	}
 
     private void displayTypeHierarchy(TreeItem parent, Object o) {
