@@ -41,6 +41,7 @@
     <module>ch.hsr.ifs.pasta.plugin</module>
     <module>ch.hsr.ifs.pasta.tree</module>
     <module>ch.hsr.ifs.pasta.tree.test</module>
+    <module>ch.hsr.ifs.pasta.feature</module>
     <module>ch.hsr.ifs.cdttesting.tools.feature</module>
     <module>ch.hsr.ifs.cdttesting.updatesite</module>
 <!--	<module>ch.hsr.ifs.cdt.compatibility.changes</module>
