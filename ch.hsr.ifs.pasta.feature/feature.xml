@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="ch.hsr.ifs.pasta.feature"
-      label="painless AST analysis Feature"
+      label="pASTa Feature"
       version="8.7.0.qualifier"
       provider-name="IFS">
 
