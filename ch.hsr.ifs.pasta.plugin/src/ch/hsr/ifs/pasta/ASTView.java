@@ -1,6 +1,5 @@
 package ch.hsr.ifs.pasta;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;

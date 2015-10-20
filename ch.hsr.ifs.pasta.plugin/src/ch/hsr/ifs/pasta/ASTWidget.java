@@ -1,20 +1,10 @@
 package ch.hsr.ifs.pasta;
 
-
-
-
 import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
-import org.eclipse.cdt.core.dom.ast.IASTNodeLocation;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorIncludeStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
-import org.eclipse.cdt.core.model.ITranslationUnit;
 import org.eclipse.cdt.ui.CUIPlugin;
-import org.eclipse.core.internal.resources.File;
-import org.eclipse.core.internal.resources.Workspace;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -30,8 +20,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.part.FileEditorInput;
 
 import ch.hsr.ifs.pasta.tree.Node;
 import ch.hsr.ifs.pasta.tree.NodeVisitor;
@@ -87,6 +75,9 @@ public class ASTWidget extends ScrolledComposite {
         clear();
         root = constructTree(ast, canvas);
         root.adjust(1f, 20f);
+        setOrigin(0, 0);
+        treeWidth = 0;
+        treeHeight = 0;
         updateNodePositions(root);
         root.data().getFirst().setVisible(true);
         canvas.redraw();
