@@ -103,6 +103,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
 
    <url>
       <update label="IFS CDT-Testing Update Site" url="http://dev.ifs.hsr.ch/updatesites/cdttesting"/>
+      <discovery label="CDT Test Plug-ins" url="https://www.cevelop.com/cdt-test-plugins/mars"/>
    </url>
 
    <requires>
