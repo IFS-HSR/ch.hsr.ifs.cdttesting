@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tree
 Bundle-SymbolicName: ch.hsr.ifs.pasta.tree
-Bundle-Version: 8.7.0.qualifier
+Bundle-Version: 8.8.0.qualifier
 Bundle-Vendor: IFS Institute for Software
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: ch.hsr.ifs.pasta.tree

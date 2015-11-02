@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
 	<modelVersion>4.0.0</modelVersion>
-	<version>8.7.0-SNAPSHOT</version>
+	<version>8.8.0-SNAPSHOT</version>
   <parent>
     <artifactId>cdttesting</artifactId>
     <groupId>ch.hsr.ifs.cdttesting</groupId>
-    <version>8.7.0-SNAPSHOT</version>
+    <version>8.8.0-SNAPSHOT</version>
   </parent>
 	<groupId>ch.hsr.ifs.cdttesting</groupId>
 	<artifactId>ch.hsr.ifs.pasta.tree.test</artifactId>
