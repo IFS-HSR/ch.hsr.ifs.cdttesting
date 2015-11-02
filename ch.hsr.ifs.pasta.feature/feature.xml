@@ -2,7 +2,7 @@
 <feature
       id="ch.hsr.ifs.pasta.feature"
       label="pASTa Feature"
-      version="8.7.0.qualifier"
+      version="8.8.0.qualifier"
       provider-name="IFS">
 
    <description url="https://github.com/IFS-HSR/ch.hsr.ifs.cdttesting">
