@@ -8,5 +8,4 @@ Extends CDT RTS testing with the functionality to
 * allow testing against other referenced projects and 
 * allow testing of C (non-C++) projects. 
 
-To use, add http://dev.ifs.hsr.ch/updatesites/cdttesting/kepler (Eclipse Juno CDT 8.2) to your target platform (.target file).
-(the last info might needed to be adjusted)
+To use, add https://www.cevelop.com/cdt-testing/mars/ (Eclipse CDT 8.8) to your target platform (.target file).
