@@ -13,6 +13,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
@@ -40,8 +41,9 @@ public class ASTWidget extends ScrolledComposite {
     }
 
     private void init() {
-        this.setBackground(this.getDisplay().getSystemColor(SWT.COLOR_WHITE));
-        canvas = new Canvas(this, SWT.NO_BACKGROUND);
+        this.setBackground(getColorWhite());
+        canvas = new Canvas(this, SWT.BACKGROUND);
+        canvas.setBackground(getColorWhite());
 
         this.setContent(canvas);
         this.setExpandHorizontal(true);
@@ -71,6 +73,10 @@ public class ASTWidget extends ScrolledComposite {
         });
     }
 
+    private Color getColorWhite() {
+        return getDisplay().getSystemColor(SWT.COLOR_WHITE);
+    }
+
     public void drawAST(IASTTranslationUnit ast) {
         clear();
         root = constructTree(ast, canvas);
@@ -89,6 +95,7 @@ public class ASTWidget extends ScrolledComposite {
     }
 
     private void clear() {
+    	root = null;
         for (Control child : canvas.getChildren()) {
             child.dispose();
         }
