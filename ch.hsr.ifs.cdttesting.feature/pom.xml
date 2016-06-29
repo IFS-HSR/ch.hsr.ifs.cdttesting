@@ -5,7 +5,8 @@
   <parent>
     <artifactId>cdttesting</artifactId>
     <groupId>ch.hsr.ifs.cdttesting</groupId>
-    <version>8.8.0-SNAPSHOT</version>
+    <version>9.0.0-SNAPSHOT</version>
+	<relativePath>../ch.hsr.ifs.cdttesting.parent</relativePath>
   </parent>
   <groupId>ch.hsr.ifs.cdttesting</groupId>
   <artifactId>ch.hsr.ifs.cdttesting.feature</artifactId>
