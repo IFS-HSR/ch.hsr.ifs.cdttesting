@@ -9,7 +9,7 @@
   <properties>
 	<eclipse-version>neon</eclipse-version>
 	<tycho-version>0.25.0</tycho-version>
-	<target-file>cdttesting-neon</target-file>
+<!--	<target-file>cdttesting-neon</target-file>-->
   </properties>
   <repositories>
 	<repository>

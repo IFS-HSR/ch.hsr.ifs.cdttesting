@@ -6,7 +6,7 @@
     <artifactId>cdttesting</artifactId>
     <groupId>ch.hsr.ifs.cdttesting</groupId>
     <version>9.0.0-SNAPSHOT</version>
-	<relativePath>../ch.hsr.ifs.cdttesting.parent</relativePath>
+	<relativePath>../ch.hsr.ifs.cdttesting.parent/pom.xml</relativePath>
   </parent>
 	<groupId>ch.hsr.ifs.cdttesting</groupId>
 	<artifactId>ch.hsr.ifs.pasta.tree.test</artifactId>
