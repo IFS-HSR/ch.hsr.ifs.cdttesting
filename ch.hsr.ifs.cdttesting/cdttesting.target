@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="cdttesting" sequenceNumber="23">
+<?pde version="3.8"?><target name="cdttesting" sequenceNumber="27">
 <locations>
 <location includeAllPlatforms="true" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.sdk.ide" version="4.5.1.M20150904-0015"/>
-<unit id="org.eclipse.platform.sdk" version="4.5.1.M20150904-0015"/>
-<repository location="http://download.eclipse.org/eclipse/updates/4.5"/>
+<unit id="org.eclipse.cdt.testing.feature.group" version="9.0.0.201606281706"/>
+<repository location="https://hudson.eclipse.org/cdt/job/cdt-9.0/lastSuccessfulBuild/artifact/releng/org.eclipse.cdt.testing.repo/target/repository/"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.cdt.sdk.feature.group" version="8.8.0.201509131935"/>
-<unit id="org.eclipse.emf.sdk.feature.group" version="2.11.1.v20150806-0404"/>
+<unit id="org.eclipse.emf.sdk.feature.group" version="2.11.2.v20160208-0841"/>
+<unit id="org.eclipse.cdt.sdk.feature.group" version="8.8.1.201602051005"/>
 <repository location="http://download.eclipse.org/releases/mars"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="com.cevelop.cdttestplugins.feature.feature.group" version="8.8.0.201511021525"/>
-<repository location="http://www.cevelop.com/cdt-test-plugins/mars"/>
+<unit id="org.eclipse.platform.sdk" version="4.6.0.I20160606-1100"/>
+<unit id="org.eclipse.sdk.ide" version="4.6.0.I20160606-1100"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.6"/>
 </location>
 </locations>
 </target>

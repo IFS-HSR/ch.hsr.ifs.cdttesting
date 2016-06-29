@@ -4,6 +4,6 @@ Bundle-Name: Tree Layout Algorithm Tests
 Bundle-SymbolicName: ch.hsr.ifs.pasta.tree.test
 Bundle-Version: 8.8.0.qualifier
 Bundle-Vendor: IFS Institute for Software
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: ch.hsr.ifs.pasta.tree;bundle-version="1.0.0",
  org.junit

@@ -2,7 +2,7 @@
 <feature
       id="ch.hsr.ifs.cdttesting.feature"
       label="IFS CDT-Testing Feature"
-      version="8.8.0.qualifier"
+      version="9.0.0.qualifier"
       provider-name="IFS">
 
    <description url="https://github.com/IFS-HSR/ch.hsr.ifs.cdttesting">
@@ -102,7 +102,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
    </license>
 
    <url>
-      <update label="IFS CDT-Testing Update Site" url="http://dev.ifs.hsr.ch/updatesites/cdttesting"/>
+      <update label="IFS CDT-Testing Update Site" url="https://cevelop.com/cdt-testing/neon"/>
       <discovery label="CDT Test Plug-ins" url="https://www.cevelop.com/cdt-test-plugins/mars"/>
    </url>
 

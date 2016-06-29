@@ -97,7 +97,7 @@ This Agreement is governed by the laws of the State of New York and the intellec
    </license>
 
    <url>
-      <update label="IFS CDT-Testing Update Site" url="http://dev.ifs.hsr.ch/updatesites/cdttesting"/>
+      <update label="IFS CDT-Testing Update Site" url="https://cevelop.com/cdt-testing/neon"/>
    </url>
 
    <requires>
@@ -120,14 +120,14 @@ This Agreement is governed by the laws of the State of New York and the intellec
          id="ch.hsr.ifs.cdttesting.example"
          download-size="0"
          install-size="0"
-         version="8.8.0.qualifier"
+         version="0.0.0"
          unpack="false"/>
 
    <plugin
          id="ch.hsr.ifs.cdttesting.example.source"
          download-size="0"
          install-size="0"
-         version="8.8.0"
+         version="0.0.0"
          unpack="false"/>
 
 </feature>
