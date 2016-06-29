@@ -50,7 +50,8 @@
   </modules>
   <build>
 	<plugins>
-  		<!--<plugin> -- this section cannot be used due to a resolution bug in tycho, eventually failing to resolve specific swt dependencies
+		<!--  the following plugin section cannot be used due to a resolution bug in tycho, eventually failing to resolve specific swt dependencies -->
+  		<!--<plugin>
 			<groupId>org.eclipse.tycho</groupId> 
 			<artifactId>target-platform-configuration</artifactId> 
 			<version>${tycho-version}</version> 
