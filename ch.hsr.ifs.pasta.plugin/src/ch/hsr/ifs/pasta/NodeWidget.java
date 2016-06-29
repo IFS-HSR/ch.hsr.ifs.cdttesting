@@ -16,6 +16,7 @@ import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.dom.ast.IBinding;
 import org.eclipse.cdt.core.index.IIndex;
 import org.eclipse.cdt.core.index.IIndexName;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -23,7 +24,6 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 
-@SuppressWarnings("restriction")
 public class NodeWidget extends Composite {
 
     private Tree tree;
@@ -63,7 +63,43 @@ public class NodeWidget extends Composite {
         expandFirstLevel();
     }
 
-    private void displayMethods(TreeItem parent, Object node) {
+    private void displayTypeIfPresent(TreeItem parent, IBinding binding) {
+        try {
+        	Method getTypeMethod = getGetTypeMethod(binding);
+            if (getTypeMethod != null) {
+                TreeItem parentOfType = createTreeItem(parent, "Type;");
+                Object type = getTypeMethod.invoke(binding);
+				createTreeItem(parentOfType, "toString();" + type);
+		        TreeItem typeHierarchy = createTreeItem(parentOfType, "Type Hierarchy;");
+            	displayTypeHierarchy(typeHierarchy, type);
+            }
+        } catch (Exception e) {
+            PastaPlugin.log(e);
+        }		
+	}
+
+    private Method[] getMethods(Object node) {
+    	if (node == null) {
+			return new Method[0];
+		}
+		Class<?> clazz = node.getClass();
+		if (clazz == null) {
+            return new Method[0];
+        }
+		return clazz.getMethods();
+    }
+    
+	private Method getGetTypeMethod(Object o) {
+		Method[] methods = getMethods(o);
+        for (Method method : methods) {
+        	if (Modifier.isPublic(method.getModifiers()) && method.getName().equals("getType")) {
+        		return method;
+        	}
+        }
+		return null;
+	}
+
+	private void displayMethods(TreeItem parent, Object node) {
         collectMethods(parent, node.getClass());
     }
 
@@ -108,7 +144,6 @@ public class NodeWidget extends Composite {
 				final String nameForArrayField = fieldName+"["+i+"]";
 				createFieldValueEntries(arrayitem,nameForArrayField, entryvalue);
 			}
-			
 		} else {
 			createFieldEntrySafe(parent, fieldName, fieldValue);
 		}
@@ -117,6 +152,9 @@ public class NodeWidget extends Composite {
 	public void createFieldEntrySafe(TreeItem parent, String nameForField,  Object fieldValue) {
 		// workaround for CPPASTNameBase.toString() NPE
 		String value = safeToString(fieldValue);
+		if (fieldValue != null) {
+			value += " : " +fieldValue.getClass().getSimpleName();
+		}
 		createTreeItem(parent, nameForField + ";" + value);
 	}
 
@@ -177,7 +215,13 @@ public class NodeWidget extends Composite {
             IASTImplicitName[] implicitNames = ((IASTImplicitNameOwner) node).getImplicitNames();
             TreeItem parent = createTreeItem(tree, "Implicit Names;"+implicitNames.length);
             for (IASTImplicitName implicitName : implicitNames) {
-                createTreeItem(parent, implicitName.resolveBinding().getName()+";");
+            	try {
+	            	TreeItem implicitNameItem = createTreeItem(parent, implicitName.resolveBinding().getName()+";");
+	        		TreeItem bindingsParent = createTreeItem(implicitNameItem, "Bindings;");
+	                displayBindings(bindingsParent, node, implicitName.resolveBinding());
+	            } catch (Exception e) {
+	                PastaPlugin.log(e);
+	            }
             }
         }
     }
@@ -185,33 +229,39 @@ public class NodeWidget extends Composite {
     private void displayBindings(IASTNode node) {
         try {
             if (node instanceof IASTName) {
-                IASTTranslationUnit ast = node.getTranslationUnit();
-                TreeItem parent = createTreeItem(tree, "Bindings;");
-                IBinding binding = ((IASTName) node).resolveBinding();
-                IIndex index = node.getTranslationUnit().getIndex();
-                for (IIndexName decl : index.findDeclarations(binding)) {
-                    createTreeItem(parent, "declaration;" + decl.getEnclosingDefinition());
-                }
-                for (IIndexName def : index.findDefinitions(binding)) {
-                    createTreeItem(parent, "definition;" + ast.getNodeSelector(null).findEnclosingNode(def.getNodeOffset(), def.getNodeLength()));
-                }
-                for (IIndexName ref : index.findReferences(binding)) {
-                    createTreeItem(parent, "reference;" +  ast.getNodeSelector(null).findEnclosingNode(ref.getNodeOffset(), ref.getNodeLength()));
-                }
-
-                TreeItem typeHierarchy = createTreeItem(parent, "Type Hierarchy;");
-                displayTypeHierarchy(typeHierarchy, binding);
-                
-                TreeItem fields = createTreeItem(parent, "Fields;");
-                displayFields(fields, binding);
-                
-                TreeItem methods = createTreeItem(parent, "Methods;");
-                displayMethods(methods, binding);
+            	IBinding binding = ((IASTName) node).resolveBinding();
+        		TreeItem parent = createTreeItem(tree, "Bindings;");
+            	displayBindings(parent, node, binding);
             }
         } catch (Exception e) {
             PastaPlugin.log(e);
         }
     }
+
+	private void displayBindings(TreeItem parent, IASTNode node, IBinding binding) throws CoreException {
+		IASTTranslationUnit ast = node.getTranslationUnit();
+		IIndex index = node.getTranslationUnit().getIndex();
+		for (IIndexName decl : index.findDeclarations(binding)) {
+		    createTreeItem(parent, "declaration;" + decl.getEnclosingDefinition());
+		}
+		for (IIndexName def : index.findDefinitions(binding)) {
+		    createTreeItem(parent, "definition;" + ast.getNodeSelector(null).findEnclosingNode(def.getNodeOffset(), def.getNodeLength()));
+		}
+		for (IIndexName ref : index.findReferences(binding)) {
+		    createTreeItem(parent, "reference;" +  ast.getNodeSelector(null).findEnclosingNode(ref.getNodeOffset(), ref.getNodeLength()));
+		}
+
+		displayTypeIfPresent(parent, binding);
+		
+		TreeItem typeHierarchy = createTreeItem(parent, "Type Hierarchy;");
+		displayTypeHierarchy(typeHierarchy, binding);
+		
+		TreeItem fields = createTreeItem(parent, "Fields;");
+		displayFields(fields, binding);
+		
+		TreeItem methods = createTreeItem(parent, "Methods;");
+		displayMethods(methods, binding);
+	}
 
     private void makeAccessible(Field field) {
         try {
