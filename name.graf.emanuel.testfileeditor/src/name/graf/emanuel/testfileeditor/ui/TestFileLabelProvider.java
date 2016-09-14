@@ -24,16 +24,13 @@ public class TestFileLabelProvider extends LabelProvider
         URL fileUrl = null;
         URL classNameUrl = null;
         URL selectionUrl = null;
-        try {
-            testFileUrl = new URL(Activator.getDefault().getDescriptor().getInstallURL(), "icons/test_file.gif");
-            testUrl = new URL(Activator.getDefault().getDescriptor().getInstallURL(), "icons/test.gif");
-            langUrl = new URL(Activator.getDefault().getDescriptor().getInstallURL(), "icons/lang.gif");
-            expUrl = new URL(Activator.getDefault().getDescriptor().getInstallURL(), "icons/exp.gif");
-            fileUrl = new URL(Activator.getDefault().getDescriptor().getInstallURL(), "icons/file.gif");
-            classNameUrl = new URL(Activator.getDefault().getDescriptor().getInstallURL(), "icons/classname.gif");
-            selectionUrl = new URL(Activator.getDefault().getDescriptor().getInstallURL(), "icons/sel.gif");
-        }
-        catch (MalformedURLException ex) {}
+        testFileUrl = Activator.getDefault().getBundle().getEntry("icons/test_file.gif");
+        testUrl = Activator.getDefault().getBundle().getEntry("icons/test.gif");
+        langUrl = Activator.getDefault().getBundle().getEntry("icons/lang.gif");
+        expUrl = Activator.getDefault().getBundle().getEntry("icons/exp.gif");
+        fileUrl = Activator.getDefault().getBundle().getEntry("icons/file.gif");
+        classNameUrl = Activator.getDefault().getBundle().getEntry("icons/classname.gif");
+        selectionUrl = Activator.getDefault().getBundle().getEntry("icons/sel.gif");
         TestFileLabelProvider.testFile = ImageDescriptor.createFromURL(testFileUrl).createImage();
         TestFileLabelProvider.test = ImageDescriptor.createFromURL(testUrl).createImage();
         TestFileLabelProvider.lang = ImageDescriptor.createFromURL(langUrl).createImage();
