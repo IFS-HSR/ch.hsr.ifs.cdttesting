@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="cdttesting" sequenceNumber="28">
+<?pde version="3.8"?><target name="cdttesting" sequenceNumber="31">
 <locations>
 <location includeAllPlatforms="true" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.cdt.testing.feature.group" version="9.0.0.201606281706"/>
-<repository location="https://hudson.eclipse.org/cdt/job/cdt-9.0/lastSuccessfulBuild/artifact/releng/org.eclipse.cdt.testing.repo/target/repository/"/>
-</location>
-<location includeAllPlatforms="true" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.platform.sdk" version="4.6.0.I20160606-1100"/>
-<unit id="org.eclipse.sdk.ide" version="4.6.0.I20160606-1100"/>
+<unit id="org.eclipse.platform.sdk" version="4.6.1.M20160907-1200"/>
+<unit id="org.eclipse.sdk.ide" version="4.6.1.M20160907-1200"/>
 <repository location="http://download.eclipse.org/eclipse/updates/4.6"/>
 </location>
 <location includeAllPlatforms="true" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.cdt.sdk.feature.group" version="9.0.0.201606062011"/>
+<unit id="org.eclipse.cdt.sdk.feature.group" version="9.1.0.201609121658"/>
 <unit id="org.eclipse.emf.sdk.feature.group" version="2.12.0.v20160526-0356"/>
 <repository location="http://download.eclipse.org/releases/neon"/>
+</location>
+<location includeAllPlatforms="true" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.cdt.testing.source.feature.group" version="9.1.0.201609280157"/>
+<unit id="org.eclipse.cdt.testing.feature.group" version="9.1.0.201609280157"/>
+<repository location="https://hudson.eclipse.org/cdt/job/cdt-9.1/lastSuccessfulBuild/artifact/releng/org.eclipse.cdt.testing.repo/target/repository/"/>
 </location>
 </locations>
 </target>
