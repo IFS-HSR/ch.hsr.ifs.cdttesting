@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: cdttesting Showoffset
 Bundle-SymbolicName: ch.hsr.ifs.cdttesting.showoffset;singleton:=true
-Bundle-Version: 9.0.0.qualifier
+Bundle-Version: 9.1.0.qualifier
 Bundle-Activator: ch.hsr.ifs.cdttesting.showoffset.ShowOffsetPlugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
