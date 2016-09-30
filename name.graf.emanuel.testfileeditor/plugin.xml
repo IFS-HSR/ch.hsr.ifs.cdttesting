@@ -10,7 +10,7 @@
             icon="icons/test_file.gif"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             class="name.graf.emanuel.testfileeditor.editors.TestFileEditor"
-            id="name.graf.emanuel.testfileeditor.editors.CdtTestFileEditor">
+            id="name.graf.emanuel.testfileeditor.editors.TestFileEditor">
       </editor>
    </extension>
    <extension
@@ -37,6 +37,26 @@
       <participant
             class="name.graf.emanuel.testfileeditor.editors.TestFileDocumentSetupParticipant"
             extensions="txt"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.rulerColumns">
+      <column
+            class="name.graf.emanuel.testfileeditor.ui.TestFileRuler"
+            enabled="true"
+            global="true"
+            id="name.graf.emanuel.testfileeditor.TestFileRulerColumn"
+            includeInMenu="true"
+            name="C++ Test-File sub-file-relative ruler">
+         <placement
+               gravity="1.0">
+         </placement>
+         <targetEditor
+               id="name.graf.emanuel.testfileeditor.editors.TestFileEditor">
+         </targetEditor>
+         <targetClass
+               class="name.graf.emanuel.testfileeditor.editors.TestFileEditor">
+         </targetClass>
+      </column>
    </extension>
 
 </plugin>
