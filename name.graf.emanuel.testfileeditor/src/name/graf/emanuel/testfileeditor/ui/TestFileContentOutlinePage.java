@@ -24,18 +24,18 @@ public class TestFileContentOutlinePage extends ContentOutlinePage
     private final TestFileEditor editor;
     private IEditorInput input;
     private InteliTreeViewer myTreeViewer;
-    
+
     public TestFileContentOutlinePage(final IDocumentProvider documentProvider, final TestFileEditor editor) {
         super();
         this.provider = documentProvider;
         this.editor = editor;
     }
-    
+
     public void setInput(final IEditorInput input) {
         this.input = input;
         this.update();
     }
-    
+
     public void update() {
         new UIJob("UpdateOutline") {
             @Override
@@ -55,7 +55,7 @@ public class TestFileContentOutlinePage extends ContentOutlinePage
             }
         }.schedule();
     }
-    
+
     @Override
 	public void selectionChanged(final SelectionChangedEvent event) {
         super.selectionChanged(event);
@@ -78,12 +78,12 @@ public class TestFileContentOutlinePage extends ContentOutlinePage
             this.editor.resetHighlightRange();
         }
     }
-    
+
     @Override
 	protected TreeViewer getTreeViewer() {
         return this.myTreeViewer;
     }
-    
+
     @Override
 	public Control getControl() {
         if (this.myTreeViewer == null) {
@@ -91,7 +91,7 @@ public class TestFileContentOutlinePage extends ContentOutlinePage
         }
         return this.myTreeViewer.getControl();
     }
-    
+
     @Override
 	public ISelection getSelection() {
         if (this.myTreeViewer == null) {
@@ -99,29 +99,30 @@ public class TestFileContentOutlinePage extends ContentOutlinePage
         }
         return this.myTreeViewer.getSelection();
     }
-    
+
     @Override
 	public void setFocus() {
         this.myTreeViewer.getControl().setFocus();
     }
-    
+
     @Override
 	public void setSelection(final ISelection selection) {
         if (this.myTreeViewer != null) {
             this.myTreeViewer.setSelection(selection);
         }
     }
-    
+
     @Override
 	public void createControl(final Composite parent) {
-        (this.myTreeViewer = new InteliTreeViewer(parent, 770)).addSelectionChangedListener(this);
-        final TreeViewer viewer = this.getTreeViewer();
-        viewer.setContentProvider(new TestFileTreeNodeContentProvider(this.provider, this.input));
-        viewer.setLabelProvider(new TestFileLabelProvider());
-        viewer.addSelectionChangedListener(this);
+        myTreeViewer = new InteliTreeViewer(parent, 770);
+        myTreeViewer.setContentProvider(new TestFileTreeNodeContentProvider(this.provider, this.input));
+        myTreeViewer.setLabelProvider(new TestFileLabelProvider());
+        myTreeViewer.addSelectionChangedListener(this);
+
         if (this.input != null) {
-            viewer.setInput(this.input);
+            myTreeViewer.setInput(this.input);
         }
-		viewer.expandAll();
+
+		myTreeViewer.expandAll();
     }
 }
