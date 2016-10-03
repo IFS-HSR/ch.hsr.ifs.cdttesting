@@ -14,4 +14,17 @@ public class PreferenceConstants
     public static final String P_FILE_NAME = "fileName";
     public static final String P_SELECTION_START = "selectionStart";
     public static final String P_SELECTION_END = "selectionEnd";
+
+    public static final String D_TEST_NAME_START = "//!";
+    public static final String D_TEST_NAME_END = "\\n";
+    public static final String D_LANG_START = "//%";
+    public static final String D_LANG_END = "\\n";
+    public static final String D_EXPECTED_START = "//=";
+    public static final String D_EXPECTED_END = "\\n";
+    public static final String D_COMMENT_START = "/*";
+    public static final String D_COMMENT_END = "*/";
+    public static final String D_CLASS_NAME = "//#";
+    public static final String D_FILE_NAME = "//@";
+    public static final String D_SELECTION_START = "//$";
+    public static final String D_SELECTION_END = "$//";
 }

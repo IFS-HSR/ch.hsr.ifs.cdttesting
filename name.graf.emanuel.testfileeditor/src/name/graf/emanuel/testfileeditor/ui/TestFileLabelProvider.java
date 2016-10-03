@@ -1,45 +1,27 @@
 package name.graf.emanuel.testfileeditor.ui;
 
-import org.eclipse.jface.viewers.*;
-import org.eclipse.swt.graphics.*;
-import name.graf.emanuel.testfileeditor.*;
-import java.net.*;
-import org.eclipse.jface.resource.*;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.swt.graphics.Image;
 
-public class TestFileLabelProvider extends LabelProvider
-{
-    private static Image testFile;
-    private static Image test;
-    private static Image lang;
-    private static Image exp;
-    private static Image file;
-    private static Image className;
-    private static Image selection;
-    
-    static {
-        URL testFileUrl = null;
-        URL testUrl = null;
-        URL langUrl = null;
-        URL expUrl = null;
-        URL fileUrl = null;
-        URL classNameUrl = null;
-        URL selectionUrl = null;
-        testFileUrl = Activator.getDefault().getBundle().getEntry("icons/test_file.gif");
-        testUrl = Activator.getDefault().getBundle().getEntry("icons/test.gif");
-        langUrl = Activator.getDefault().getBundle().getEntry("icons/lang.gif");
-        expUrl = Activator.getDefault().getBundle().getEntry("icons/exp.gif");
-        fileUrl = Activator.getDefault().getBundle().getEntry("icons/file.gif");
-        classNameUrl = Activator.getDefault().getBundle().getEntry("icons/classname.gif");
-        selectionUrl = Activator.getDefault().getBundle().getEntry("icons/sel.gif");
-        TestFileLabelProvider.testFile = ImageDescriptor.createFromURL(testFileUrl).createImage();
-        TestFileLabelProvider.test = ImageDescriptor.createFromURL(testUrl).createImage();
-        TestFileLabelProvider.lang = ImageDescriptor.createFromURL(langUrl).createImage();
-        TestFileLabelProvider.exp = ImageDescriptor.createFromURL(expUrl).createImage();
-        TestFileLabelProvider.file = ImageDescriptor.createFromURL(fileUrl).createImage();
-        TestFileLabelProvider.className = ImageDescriptor.createFromURL(classNameUrl).createImage();
-        TestFileLabelProvider.selection = ImageDescriptor.createFromURL(selectionUrl).createImage();
-    }
-    
+import name.graf.emanuel.testfileeditor.Activator;
+
+public class TestFileLabelProvider extends LabelProvider {
+    private static final Image testFile = ImageDescriptor
+            .createFromURL(Activator.getDefault().getBundle().getEntry("icons/test_file.gif")).createImage();
+    private static final Image test = ImageDescriptor
+            .createFromURL(Activator.getDefault().getBundle().getEntry("icons/test.gif")).createImage();
+    private static final Image lang = ImageDescriptor
+            .createFromURL(Activator.getDefault().getBundle().getEntry("icons/lang.gif")).createImage();
+    private static final Image exp = ImageDescriptor
+            .createFromURL(Activator.getDefault().getBundle().getEntry("icons/exp.gif")).createImage();
+    private static final Image file = ImageDescriptor
+            .createFromURL(Activator.getDefault().getBundle().getEntry("icons/file.gif")).createImage();
+    private static final Image className = ImageDescriptor
+            .createFromURL(Activator.getDefault().getBundle().getEntry("icons/classname.gif")).createImage();
+    private static final Image selection = ImageDescriptor
+            .createFromURL(Activator.getDefault().getBundle().getEntry("icons/sel.gif")).createImage();
+
     public Image getImage(final Object element) {
         if (element instanceof TestFile) {
             return TestFileLabelProvider.testFile;

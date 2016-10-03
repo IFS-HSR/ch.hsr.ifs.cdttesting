@@ -2,7 +2,8 @@ package name.graf.emanuel.testfileeditor.ui;
 
 import name.graf.emanuel.testfileeditor.Activator;
 
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.DefaultPositionUpdater;
@@ -16,7 +17,6 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 
 public class TestFileTreeNodeContentProvider extends TreeNodeContentProvider
 {
-    protected static final String TEST = "__java_segments";
     protected IPositionUpdater fPositionUpdater;
     private final IDocumentProvider provider;
     private TestFile file;
@@ -33,19 +33,19 @@ public class TestFileTreeNodeContentProvider extends TreeNodeContentProvider
     
     public TestFileTreeNodeContentProvider(final IDocumentProvider provider, final IEditorInput input) {
         super();
-        this.fPositionUpdater = new DefaultPositionUpdater("__java_segments");
+        this.fPositionUpdater = new DefaultPositionUpdater(Activator.TEST_FILE_PARTITIONING);
         this.state = ParseState.UNDEF;
         this.provider = provider;
         this.input = input;
         this.file = new TestFile(input.getName());
-        final Preferences pref = Activator.getDefault().getPluginPreferences();
-        this.testTag = pref.getString("nameStart");
-        this.langTag = pref.getString("langStart");
-        this.expTag = pref.getString("expecStart");
-        this.fileTag = pref.getString("fileName");
-        this.classNameTag = pref.getString("className");
-        this.selStartTag = pref.getString("selectionStart");
-        this.selEndTag = pref.getString("selectionEnd");
+        IEclipsePreferences pref = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+        this.testTag = pref.get(PreferenceConstants.P_TEST_NAME_START, PreferenceConstants.D_TEST_NAME_START);
+        this.langTag = pref.get(PreferenceConstants.P_LANG_START, PreferenceConstants.D_LANG_START);
+        this.expTag = pref.get(PreferenceConstants.P_EXPECTED_START, PreferenceConstants.D_EXPECTED_START);
+        this.fileTag = pref.get(PreferenceConstants.P_FILE_NAME, PreferenceConstants.D_FILE_NAME);
+        this.classNameTag = pref.get(PreferenceConstants.P_CLASS_NAME, PreferenceConstants.D_CLASS_NAME);
+        this.selStartTag = pref.get(PreferenceConstants.P_SELECTION_START, PreferenceConstants.D_SELECTION_START);
+        this.selEndTag = pref.get(PreferenceConstants.P_SELECTION_END, PreferenceConstants.D_SELECTION_END);
     }
     
     protected void parse(final IDocument document) {
@@ -60,7 +60,7 @@ public class TestFileTreeNodeContentProvider extends TreeNodeContentProvider
                 final String text = document.get(offset, length);
                 if (text.startsWith(this.testTag)) {
                     final Position p = new Position(offset, length);
-                    document.addPosition("__java_segments", p);
+                    document.addPosition(Activator.TEST_FILE_PARTITIONING, p);
                     final Test testNode = actTest = new Test(text.substring(this.testTag.length()).trim(), p, this.file);
                     this.file.addTest(testNode);
                     this.state = ParseState.IN_TEST;
@@ -68,7 +68,7 @@ public class TestFileTreeNodeContentProvider extends TreeNodeContentProvider
                 else if (text.startsWith(this.langTag)) {
                     if (actTest != null) {
                         final Position p = new Position(offset, length);
-                        document.addPosition("__java_segments", p);
+                        document.addPosition(Activator.TEST_FILE_PARTITIONING, p);
                         final LanguageDef lang = new LanguageDef(text.substring(this.langTag.length()).trim(), p, actTest);
                         actTest.setLang(lang);
                     }
@@ -81,7 +81,7 @@ public class TestFileTreeNodeContentProvider extends TreeNodeContentProvider
                         case 1: {
                             if (actTest != null) {
                                 final Position p = new Position(offset, length);
-                                document.addPosition("__java_segments", p);
+                                document.addPosition(Activator.TEST_FILE_PARTITIONING, p);
                                 final ExpectedNode exp = new ExpectedNode(actTest, text.substring(this.expTag.length()).trim(), p);
                                 actTest.setExpected(exp);
                                 break;
@@ -91,7 +91,7 @@ public class TestFileTreeNodeContentProvider extends TreeNodeContentProvider
                         case 2: {
                             if (actFile != null) {
                                 final Position p = new Position(offset, length);
-                                document.addPosition("__java_segments", p);
+                                document.addPosition(Activator.TEST_FILE_PARTITIONING, p);
                                 final ExpectedNode exp = new ExpectedNode(actTest, text.substring(this.expTag.length()).trim(), p);
                                 actFile.setExpected(exp);
                                 break;
@@ -106,7 +106,7 @@ public class TestFileTreeNodeContentProvider extends TreeNodeContentProvider
                             this.createSelection(document, actFile, selStart, offset);
                         }
                         final Position p = new Position(offset, length);
-                        document.addPosition("__java_segments", p);
+                        document.addPosition(Activator.TEST_FILE_PARTITIONING, p);
                         final FileDefNode fileDef = new FileDefNode(text.substring(this.fileTag.length()).trim(), p, actTest);
                         actTest.addFile(fileDef);
                         this.state = ParseState.IN_FILE;
@@ -148,7 +148,7 @@ public class TestFileTreeNodeContentProvider extends TreeNodeContentProvider
             final IDocument document = this.provider.getDocument(oldInput);
             if (document != null) {
                 try {
-                    document.removePositionCategory("__java_segments");
+                    document.removePositionCategory(Activator.TEST_FILE_PARTITIONING);
                 }
                 catch (BadPositionCategoryException ex) {}
                 document.removePositionUpdater(this.fPositionUpdater);
@@ -158,7 +158,7 @@ public class TestFileTreeNodeContentProvider extends TreeNodeContentProvider
         if (newInput != null) {
             final IDocument document = this.provider.getDocument(newInput);
             if (document != null) {
-                document.addPositionCategory("__java_segments");
+                document.addPositionCategory(Activator.TEST_FILE_PARTITIONING);
                 document.addPositionUpdater(this.fPositionUpdater);
                 this.parse(document);
             }
