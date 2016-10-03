@@ -6,7 +6,8 @@ import org.eclipse.core.runtime.*;
 
 public class TestFileReconcilingStrategy implements IReconcilingStrategy, IReconcilingStrategyExtension
 {
-    private IDocument document;
+    @SuppressWarnings("unused")
+	private IDocument document;
     private TestFileEditor editor;
     
     public TestFileEditor getEditor() {

@@ -33,7 +33,8 @@ public class TestFileEditor extends TextEditor
     public void createPartControl(final Composite parent) {
         super.createPartControl(parent);
         final ProjectionViewer viewer = (ProjectionViewer)this.getSourceViewer();
-        (this.projectionSupport = new ProjectionSupport(viewer, this.getAnnotationAccess(), this.getSharedColors())).install();
+        this.projectionSupport = new ProjectionSupport(viewer, this.getAnnotationAccess(), this.getSharedColors());
+        this.projectionSupport.install();
         viewer.doOperation(19);
         this.annotationModel = viewer.getProjectionAnnotationModel();
     }
@@ -52,18 +53,20 @@ public class TestFileEditor extends TextEditor
             newAnnotations.put((Annotation)annotation, positions.get(i));
             annotations[i] = (Annotation)annotation;
         }
-        this.annotationModel.modifyAnnotations(this.oldAnnotations, (Map)newAnnotations, (Annotation[])null);
+        this.annotationModel.modifyAnnotations(this.oldAnnotations, newAnnotations, (Annotation[])null);
         this.oldAnnotations = annotations;
     }
     
-    public Object getAdapter(final Class adapter) {
+    @SuppressWarnings("unchecked")
+	@Override
+    public <T> T getAdapter(final Class<T> adapter) {
         if (IContentOutlinePage.class.equals(adapter)) {
             if (this.fOutlinePage == null) {
                 this.fOutlinePage = new TestFileContentOutlinePage(this.getDocumentProvider(), this);
                 if (this.getEditorInput() == null) {}
                 this.fOutlinePage.setInput(this.getEditorInput());
             }
-            return this.fOutlinePage;
+            return adapter.isInstance(this.fOutlinePage) ? (T)this.fOutlinePage : null;
         }
         return super.getAdapter(adapter);
     }
