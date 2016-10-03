@@ -10,14 +10,14 @@
             icon="icons/test_file.gif"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             class="name.graf.emanuel.testfileeditor.editors.TestFileEditor"
-            id="name.graf.emanuel.cdttestfileeditor.editors.CdtTestFileEditor">
+            id="name.graf.emanuel.testfileeditor.editors.CdtTestFileEditor">
       </editor>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
             class="name.graf.emanuel.testfileeditor.ui.TestFilePreferences"
-            id="name.graf.emanuel.cdttestfileeditor.ui.TestFilePreferences"
+            id="name.graf.emanuel.testfileeditor.ui.TestFilePreferences"
             name="C++ Test File Editor Preferences"/>
    </extension>
    <extension

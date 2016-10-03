@@ -1,5 +1,6 @@
 package name.graf.emanuel.testfileeditor.ui;
 
+import name.graf.emanuel.testfileeditor.Activator;
 import name.graf.emanuel.testfileeditor.editors.TestFileEditor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -50,7 +51,7 @@ public class TestFileContentOutlinePage extends ContentOutlinePage
                         control.setRedraw(true);
                     }
                 }
-                return new Status(0, "name.graf.emanue.cdttestfileeditor", 0, "ok", (Throwable)null);
+                return new Status(0, Activator.PLUGIN_ID, 0, "ok", (Throwable)null);
             }
         }.schedule();
     }
