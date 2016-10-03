@@ -29,7 +29,6 @@ import junit.framework.TestCase;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.dom.IPDOMManager;
-import org.eclipse.cdt.core.index.IIndex;
 import org.eclipse.cdt.core.index.IIndexManager;
 import org.eclipse.cdt.core.model.CModelException;
 import org.eclipse.cdt.core.model.CoreModel;
@@ -99,7 +98,6 @@ abstract public class CDTProjectTest extends TestCase {
 		addIncludePathDirs();
 		preSetupIndex();
 		setUpIndex();
-		checkTestStatus();
 	}
 
 	protected abstract void setupFiles() throws Exception;
@@ -168,24 +166,6 @@ abstract public class CDTProjectTest extends TestCase {
 				/* boo */
 			}
 		}
-	}
-
-	private boolean checkTestStatus() throws CoreException {
-		IIndex index = CCorePlugin.getIndexManager().getIndex(cproject);
-		boolean hasFiles = false;
-		try {
-			index.acquireReadLock();
-			hasFiles = index.getAllFiles().length != 0;
-			if (!hasFiles) {
-				System.err.println("Test " + getName() + " is not properly setup and will most likely fail!");
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			fail();
-		} finally {
-			index.releaseReadLock();
-		}
-		return hasFiles;
 	}
 
 	protected void preSetupIndex() {
