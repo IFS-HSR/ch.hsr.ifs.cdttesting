@@ -36,6 +36,12 @@ public class TestFileRuler extends LineNumberRulerColumn implements IContributed
     private RulerColumnDescriptor columnDescriptor;
     private ITextViewer textWidget;
     private Map<Integer, Integer> modelLineToRulerLineMap = new HashMap<>();
+    private int maxDigits = 0;
+
+    @Override
+    protected int computeNumberOfDigits() {
+        return maxDigits + 1;
+    }
 
     @Override
     public void columnCreated() {
@@ -69,7 +75,7 @@ public class TestFileRuler extends LineNumberRulerColumn implements IContributed
 
     private RGB getColor(String key) {
         IPreferenceStore preferenceStore = EditorsUI.getPreferenceStore();
-        if(preferenceStore.contains(key)) {
+        if (preferenceStore.contains(key)) {
             return PreferenceConverter.getColor(preferenceStore, key);
         }
 
@@ -123,6 +129,8 @@ public class TestFileRuler extends LineNumberRulerColumn implements IContributed
                             } else {
                                 endLineNumbers.add(realLine);
                             }
+                        } else if (testNode instanceof ExpectedNode) {
+                            startLineNumbers.add(realLine);
                         } else {
                             endLineNumbers.add(realLine);
                         }
@@ -133,6 +141,7 @@ public class TestFileRuler extends LineNumberRulerColumn implements IContributed
             }
 
             modelLineToRulerLineMap.clear();
+            int largestNumber = 0;
             int lines = document.getNumberOfLines() + 1;
             boolean inFile = false;
             int rulerLine = 1;
@@ -144,10 +153,14 @@ public class TestFileRuler extends LineNumberRulerColumn implements IContributed
                 } else if (endLineNumbers.contains(line)) {
                     inFile = false;
                 } else if (inFile) {
+                    if (rulerLine > largestNumber) {
+                        largestNumber = rulerLine;
+                    }
                     modelLineToRulerLineMap.put(line - 1, rulerLine++);
                 }
             }
 
+            maxDigits = Integer.toString(largestNumber).length();
             redraw();
         }
     }
