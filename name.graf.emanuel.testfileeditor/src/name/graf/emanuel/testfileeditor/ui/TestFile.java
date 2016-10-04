@@ -183,13 +183,13 @@ public class TestFile extends Observable {
                             lineOffset - currentSelectionStart);
                     document.addPosition(POSITION_SELECTION, tagPosition);
                     currentFile.setSelection(new SelectionNode(tagPosition, currentFile));
-                    currentState = ParseState.FILE;
                 }
                 final Position tagPosition = new Position(lineOffset, lineLength);
                 document.addPosition(POSITION_FILE, tagPosition);
                 currentFile = new FileDefNode(lineContent.substring(TAG_FILE.length()).trim(), tagPosition,
                         currentTest);
                 currentTest.addFile(currentFile);
+                currentState = ParseState.FILE;
             } else if (lineContent.startsWith(TAG_CLASS) && currentState == ParseState.TEST) {
                 final Position tagPosition = new Position(lineOffset, lineLength);
                 document.addPosition(POSITION_CLASS, tagPosition);
