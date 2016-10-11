@@ -3,6 +3,7 @@
 	<name>name.graf.emanuel.testfileeditor</name>
 	<comment></comment>
 	<projects>
+		<project>ch.hsr.ifs.cdttesting</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

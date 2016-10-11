@@ -162,7 +162,7 @@ public class JumpToRTS implements IViewActionDelegate {
                 }
             } else if (treeElement instanceof TestSuiteElement) {
                 TestSuiteElement testSuite = (TestSuiteElement) treeElement;
-                if(!(testSuite.getParent() instanceof TestRoot)) {
+                if (!testSuite.getClassName().contains(".")) {
                     className = testSuite.getParent().getClassName();
                 } else {
                     className = testSuite.getTestName();
