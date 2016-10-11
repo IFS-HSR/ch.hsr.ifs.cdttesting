@@ -32,6 +32,7 @@ public class ASTWidget extends ScrolledComposite {
 	private int treeHeight;
 	private int treeWidth;
 	private int nodeHeight = 20;
+	private final int gapSize = 20;
 	private NodeSelectionListener listener;
 
 	public ASTWidget(final Composite parent) {
@@ -72,7 +73,7 @@ public class ASTWidget extends ScrolledComposite {
 	public void drawAST(final IASTTranslationUnit ast) {
 		clear();
 		root = constructTree(ast, canvas);
-		root.adjust(1f, 20f);
+		root.adjust(1f, nodeHeight);
 		setOrigin(0, 0);
 		treeWidth = 0;
 		treeHeight = 0;
@@ -123,7 +124,7 @@ public class ASTWidget extends ScrolledComposite {
 			node.data().getFirst().setVisible(false);
 		}
 		treeWidth = (int) (getXCoord(node) + node.width() > treeWidth ? getXCoord(node) + node.width() : treeWidth);
-		treeHeight = (getYCoord(node) > treeHeight + nodeHeight ? getYCoord(node) + nodeHeight : treeHeight);
+		treeHeight = (getYCoord(node) > treeHeight ? getYCoord(node) + nodeHeight : treeHeight);
 		node.data().getFirst().setBounds(getXCoord(node), getYCoord(node), (int) (node.width()), nodeHeight);
 		for (final Node<Pair<Button, IASTNode>> child : node.getChildren()) {
 			updateNodePositions(child);
@@ -131,7 +132,7 @@ public class ASTWidget extends ScrolledComposite {
 	}
 
 	private int getYCoord(final Node<?> node) {
-		return (int) (node.y() * 60f);
+		return (int) (node.y() * (nodeHeight + gapSize));
 	}
 
 	private int getXCoord(final Node<?> node) {
@@ -181,7 +182,7 @@ public class ASTWidget extends ScrolledComposite {
 		final Font font = new Font(parent.getDisplay(), fontData);
 
 		button.setFont(font);
-		button.setText(text);
+		button.setText(text.replaceAll("\\{[\\S\\s]*\\}", "{ ... }"));
 		button.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 
 		button.setVisible(false);
@@ -216,7 +217,7 @@ public class ASTWidget extends ScrolledComposite {
 				treeWidth = 0;
 				treeHeight = 0;
 				if (!node.isTreatedAsLeaf()) {
-					root.adjust(1f, 20f);
+					root.adjust(1f, nodeHeight);
 				}
 				updateNodePositions(root);
 				canvas.redraw();
