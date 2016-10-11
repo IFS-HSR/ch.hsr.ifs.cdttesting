@@ -58,9 +58,11 @@ public class JumpToRTS implements IViewActionDelegate {
 
     private String getPathViaAnnotation(IType classType) throws JavaModelException {
         IAnnotation runFor = classType.getAnnotation("RunFor");
-        IMemberValuePair[] values = runFor.getMemberValuePairs();
-        if(values.length == 1) {
-            return (String) values[0].getValue();
+        if (runFor.exists()) {
+            IMemberValuePair[] values = runFor.getMemberValuePairs();
+            if (values.length == 1) {
+                return (String) values[0].getValue();
+            }
         }
 
         return null;
