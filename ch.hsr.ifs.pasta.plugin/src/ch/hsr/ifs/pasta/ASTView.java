@@ -25,72 +25,60 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
-public class ASTView extends ViewPart
-  {
+public class ASTView extends ViewPart {
 
-  @Override
-  public void createPartControl(final Composite parent)
-    {
-    final ASTWidget treeView = new ASTWidget(parent);
-    getViewSite().getActionBars().getToolBarManager().add(new Action() {
-    @Override
-    public void run()
-      {
-      treeView.drawAST(getAST());
-      }
+	@Override
+	public void createPartControl(final Composite parent) {
+		final ASTWidget treeView = new ASTWidget(parent);
+		getViewSite().getActionBars().getToolBarManager().add(new Action() {
+			@Override
+			public void run() {
+				treeView.drawAST(getAST());
+			}
 
-    @Override
-    public ImageDescriptor getImageDescriptor()
-      {
-      final Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-      final URL url = FileLocator.find(bundle, new Path("icons/refresh.gif"), null);
-      return ImageDescriptor.createFromURL(url);
-      }
+			@Override
+			public ImageDescriptor getImageDescriptor() {
+				final Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+				final URL url = FileLocator.find(bundle, new Path("icons/refresh.gif"), null);
+				return ImageDescriptor.createFromURL(url);
+			}
 
-    @Override
-    public String getText()
-      {
-      return "refresh";
-      }
-    });
-    treeView.drawAST(getAST());
-    treeView.setListener(node ->
-      {
-      final Map<String, Object> map = new HashMap<>();
-      map.put("ASTNODE", node);
-      doPostEvent("ASTNODE", map);
-      });
-    }
+			@Override
+			public String getText() {
+				return "refresh";
+			}
+		});
+		treeView.drawAST(getAST());
+		treeView.setListener(node -> {
+			final Map<String, Object> map = new HashMap<>();
+			map.put("ASTNODE", node);
+			doPostEvent("ASTNODE", map);
+		});
+	}
 
-  private IASTTranslationUnit getAST()
-    {
-    try
-      {
-      final IEditorInput editorInput = CUIPlugin.getActivePage().getActiveEditor().getEditorInput();
-      final IWorkingCopy workingCopy = CUIPlugin.getDefault().getWorkingCopyManager().getWorkingCopy(editorInput);
-      final IIndex index = CCorePlugin.getIndexManager().getIndex(workingCopy.getCProject());
-      return workingCopy.getAST(index, ITranslationUnit.AST_SKIP_ALL_HEADERS);
-      }
-    catch (final CoreException e)
-      {
-      throw new RuntimeException(e);
-      }
-    }
+	private IASTTranslationUnit getAST() {
+		try {
+			final IEditorInput editorInput = CUIPlugin.getActivePage().getActiveEditor().getEditorInput();
+			final IWorkingCopy workingCopy = CUIPlugin.getDefault().getWorkingCopyManager().getWorkingCopy(editorInput);
+			final IIndex index = CCorePlugin.getIndexManager().getIndex(workingCopy.getCProject());
+			return workingCopy.getAST(index, ITranslationUnit.AST_SKIP_ALL_HEADERS);
+		} catch (final CoreException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-  private void doPostEvent(final String topic, final Map<String, Object> map)
-    {
-    final Event event = new Event(topic, map);
-    final BundleContext ctx = FrameworkUtil.getBundle(ASTView.class).getBundleContext();
-    final ServiceReference ref = ctx.getServiceReference(EventAdmin.class.getName());
-    if (ref != null)
-      {
-      final EventAdmin admin = (EventAdmin) ctx.getService(ref);
-      admin.sendEvent(event);
-      ctx.ungetService(ref);
-      }
-    }
+	private void doPostEvent(final String topic, final Map<String, Object> map) {
+		final Event event = new Event(topic, map);
+		final BundleContext ctx = FrameworkUtil.getBundle(ASTView.class).getBundleContext();
+		final ServiceReference ref = ctx.getServiceReference(EventAdmin.class.getName());
+		if (ref != null) {
+			final EventAdmin admin = (EventAdmin) ctx.getService(ref);
+			admin.sendEvent(event);
+			ctx.ungetService(ref);
+		}
+	}
 
-  @Override
-  public void setFocus()
-    {}
-  }
+	@Override
+	public void setFocus() {
+	}
+}
