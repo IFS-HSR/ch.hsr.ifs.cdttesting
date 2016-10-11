@@ -58,5 +58,18 @@
          </targetClass>
       </column>
    </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <viewerContribution
+            id="name.graf.emanuel.junit.contribution"
+            targetID="org.eclipse.jdt.junit.ResultView">
+         <action
+               class="name.graf.emanuel.testfileeditor.actions.JumpToRTS"
+               id="name.graf.emanuel.testfileeditor.actions.JumpToRtsAction"
+               label="Jump to RTS"
+               menubarPath="org.eclipse.jdt.junit.ResultView">
+         </action>
+      </viewerContribution>
+   </extension>
 
 </plugin>
