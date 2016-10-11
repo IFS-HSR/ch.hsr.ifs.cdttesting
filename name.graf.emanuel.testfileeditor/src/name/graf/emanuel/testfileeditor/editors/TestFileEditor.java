@@ -1,5 +1,6 @@
 package name.graf.emanuel.testfileeditor.editors;
 
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.*;
 import name.graf.emanuel.testfileeditor.ui.*;
 import org.eclipse.ui.texteditor.*;
@@ -10,75 +11,114 @@ import org.eclipse.jface.text.source.projection.*;
 import java.util.*;
 import org.eclipse.ui.views.contentoutline.*;
 
-public class TestFileEditor extends TextEditor
-{
+public class TestFileEditor extends TextEditor {
     private ColorManager colorManager;
     private TestFileContentOutlinePage fOutlinePage;
     private ProjectionSupport projectionSupport;
     private ProjectionAnnotationModel annotationModel;
     private Annotation[] oldAnnotations;
-    
+    private TestFile file;
+
     public TestFileEditor() {
         super();
         this.colorManager = new ColorManager();
-        this.setSourceViewerConfiguration((SourceViewerConfiguration)new TestFileConfiguration(this.colorManager, this));
-        this.setDocumentProvider((IDocumentProvider)new TestFileDocumentProvider());
+        this.setSourceViewerConfiguration(
+                new TestFileConfiguration(this.colorManager, this));
+        this.setDocumentProvider(new TestFileDocumentProvider());
     }
-    
+
+    @Override
     public void dispose() {
         this.colorManager.dispose();
         super.dispose();
     }
-    
+
+    @Override
     public void createPartControl(final Composite parent) {
         super.createPartControl(parent);
-        final ProjectionViewer viewer = (ProjectionViewer)this.getSourceViewer();
-        (this.projectionSupport = new ProjectionSupport(viewer, this.getAnnotationAccess(), this.getSharedColors())).install();
+        final ProjectionViewer viewer = (ProjectionViewer) this.getSourceViewer();
+        this.projectionSupport = new ProjectionSupport(viewer, this.getAnnotationAccess(), this.getSharedColors());
+        this.projectionSupport.install();
         viewer.doOperation(19);
         this.annotationModel = viewer.getProjectionAnnotationModel();
     }
-    
+
+    @Override
     protected ISourceViewer createSourceViewer(final Composite parent, final IVerticalRuler ruler, final int styles) {
-        final ISourceViewer viewer = (ISourceViewer)new ProjectionViewer(parent, ruler, this.getOverviewRuler(), this.isOverviewRulerVisible(), styles);
+        final ISourceViewer viewer = new ProjectionViewer(parent, ruler, this.getOverviewRuler(),
+                this.isOverviewRulerVisible(), styles);
         this.getSourceViewerDecorationSupport(viewer);
+        IEditorInput input = getEditorInput();
+        IDocument document = getDocumentProvider().getDocument(input);
+        file = new TestFile(input.getName());
+        file.setDocument(document);
+
+        document.addDocumentListener(new IDocumentListener() {
+
+            @Override
+            public void documentChanged(DocumentEvent event) {
+                file.setDocument(event.getDocument());
+            }
+
+            @Override
+            public void documentAboutToBeChanged(DocumentEvent event) {
+            }
+        });
+
         return viewer;
     }
-    
+
     public void updateFoldingStructure(final Vector<Position> positions) {
         final Annotation[] annotations = new Annotation[positions.size()];
         final HashMap<Annotation, Position> newAnnotations = new HashMap<Annotation, Position>();
         for (int i = 0; i < positions.size(); ++i) {
             final ProjectionAnnotation annotation = new ProjectionAnnotation();
-            newAnnotations.put((Annotation)annotation, positions.get(i));
-            annotations[i] = (Annotation)annotation;
+            newAnnotations.put(annotation, positions.get(i));
+            annotations[i] = annotation;
         }
-        this.annotationModel.modifyAnnotations(this.oldAnnotations, (Map)newAnnotations, (Annotation[])null);
+        this.annotationModel.modifyAnnotations(this.oldAnnotations, newAnnotations, (Annotation[]) null);
         this.oldAnnotations = annotations;
     }
-    
-    public Object getAdapter(final Class adapter) {
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getAdapter(final Class<T> adapter) {
         if (IContentOutlinePage.class.equals(adapter)) {
             if (this.fOutlinePage == null) {
                 this.fOutlinePage = new TestFileContentOutlinePage(this.getDocumentProvider(), this);
-                if (this.getEditorInput() == null) {}
+                if (this.getEditorInput() == null) {
+                }
                 this.fOutlinePage.setInput(this.getEditorInput());
             }
-            return this.fOutlinePage;
+            return (T) this.fOutlinePage;
+        } else if (TestFile.class.equals(adapter)) {
+            return (T) file;
         }
         return super.getAdapter(adapter);
     }
-    
+
+    @Override
     protected void editorSaved() {
         if (this.fOutlinePage != null) {
             this.fOutlinePage.update();
         }
+
+        if (file != null) {
+            IDocumentProvider provider = this.getDocumentProvider();
+            IEditorInput input = this.getEditorInput();
+            file.setDocument(provider.getDocument(input));
+        }
+
         super.editorSaved();
     }
-    
+
+
+
     public TestFileContentOutlinePage getOutline() {
         return this.fOutlinePage;
     }
-    
+
+    @Override
     protected void handleCursorPositionChanged() {
         super.handleCursorPositionChanged();
     }

@@ -46,6 +46,6 @@ public class ClassNameNode implements ITestFileNode
         while ((tempIndex = this.name.indexOf(46, tempIndex + 1)) != -1) {
             startClassName = tempIndex;
         }
-        return this.name.substring(startClassName + 1);
+        return startClassName > 0 ? this.name.substring(startClassName + 1) : "";
     }
 }
