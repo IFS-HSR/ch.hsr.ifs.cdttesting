@@ -1,8 +1,11 @@
-package name.graf.emanuel.testfileeditor.actions;
+package name.graf.emanuel.testfileeditor.handler;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.commands.AbstractHandler;
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
@@ -19,21 +22,18 @@ import org.eclipse.jdt.internal.junit.model.TestCaseElement;
 import org.eclipse.jdt.internal.junit.model.TestElement;
 import org.eclipse.jdt.internal.junit.model.TestSuiteElement;
 import org.eclipse.jdt.internal.junit.ui.TestRunnerViewPart;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorDescriptor;
-import org.eclipse.ui.IViewActionDelegate;
-import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
+import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.texteditor.IDocumentProvider;
@@ -43,16 +43,29 @@ import name.graf.emanuel.testfileeditor.ui.Test;
 import name.graf.emanuel.testfileeditor.ui.TestFile;
 
 @SuppressWarnings("restriction")
-public class JumpToRTS implements IViewActionDelegate {
+public class JumpToRTS extends AbstractHandler {
 
     private static final Pattern TEST_NAME_PATTERN = Pattern.compile(".*\\[(.*)\\].*");
-    private Shell shell;
+
     private String className;
     private IJavaProject project;
+
+    private Shell shell;
+
     private String testName;
 
-    public JumpToRTS() {
-        super();
+    @Override
+    public Object execute(ExecutionEvent event) throws ExecutionException {
+        IStructuredSelection selection = HandlerUtil.getCurrentStructuredSelection(event);
+
+        if (selection instanceof TreeSelection) {
+            shell = HandlerUtil.getActiveShell(event);
+            getProject(event);
+            getTestInfo((TestElement) selection.getFirstElement());
+            jump();
+        }
+
+        return null;
     }
 
     private String getPathViaAnnotation(IType classType) throws JavaModelException {
@@ -86,6 +99,11 @@ public class JumpToRTS implements IViewActionDelegate {
         return null;
     }
 
+    private void getProject(ExecutionEvent event) {
+        TestRunnerViewPart view = (TestRunnerViewPart) HandlerUtil.getActivePart(event);
+        project = view.getLaunchedProject();
+    }
+
     private String getTestFileName(IType classType) throws CoreException {
         if (!(classType instanceof SourceType)) {
             return null;
@@ -95,14 +113,26 @@ public class JumpToRTS implements IViewActionDelegate {
         return filePath != null ? filePath : getPathViaExtension(classType);
     }
 
-    @Override
-    public void init(IViewPart view) {
-        TestRunnerViewPart testRunnerView = (TestRunnerViewPart) view;
-        project = testRunnerView.getLaunchedProject();
+    private void getTestInfo(TestElement entry) {
+        if (entry instanceof TestCaseElement) {
+            className = entry.getClassName();
+            TestCaseElement testCase = (TestCaseElement) entry;
+            Matcher matcher = TEST_NAME_PATTERN.matcher(testCase.getTestMethodName());
+            if (matcher.matches()) {
+                testName = matcher.group(1);
+            }
+        } else if (entry instanceof TestSuiteElement) {
+            TestSuiteElement testSuite = (TestSuiteElement) entry;
+            if (!testSuite.getClassName().contains(".")) {
+                className = testSuite.getParent().getClassName();
+            } else {
+                className = testSuite.getTestName();
+            }
+            testName = testSuite.getTestName();
+        }
     }
 
-    @Override
-    public void run(IAction action) {
+    private void jump() {
         if (className != null) {
             IType cls = null;
             try {
@@ -144,35 +174,6 @@ public class JumpToRTS implements IViewActionDelegate {
                 MessageDialog.openError(shell, "Jump to RTS", "Failed to find associated RTS file.");
             }
         }
-    }
-
-    @Override
-    public void selectionChanged(IAction action, ISelection selection) {
-        if (selection instanceof TreeSelection) {
-            TreeSelection treeSelection = (TreeSelection) selection;
-            TestElement treeElement = (TestElement) treeSelection.getFirstElement();
-
-            if (treeElement instanceof TestCaseElement) {
-                className = treeElement.getClassName();
-                TestCaseElement testCase = (TestCaseElement) treeElement;
-                Matcher matcher = TEST_NAME_PATTERN.matcher(testCase.getTestMethodName());
-                if (matcher.matches()) {
-                    testName = matcher.group(1);
-                }
-            } else if (treeElement instanceof TestSuiteElement) {
-                TestSuiteElement testSuite = (TestSuiteElement) treeElement;
-                if (!testSuite.getClassName().contains(".")) {
-                    className = testSuite.getParent().getClassName();
-                } else {
-                    className = testSuite.getTestName();
-                }
-                testName = testSuite.getTestName();
-            }
-        }
-    }
-
-    public void setActivePart(IAction action, IWorkbenchPart targetPart) {
-        shell = targetPart.getSite().getShell();
     }
 
 }
