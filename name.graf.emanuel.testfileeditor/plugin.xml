@@ -14,17 +14,6 @@
       </editor>
    </extension>
    <extension
-         point="org.eclipse.ui.preferencePages">
-      <page
-            class="name.graf.emanuel.testfileeditor.ui.TestFilePreferences"
-            id="name.graf.emanuel.testfileeditor.ui.TestFilePreferences"
-            name="C++ Test File Editor Preferences"/>
-   </extension>
-   <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer class="name.graf.emanuel.testfileeditor.ui.PreferenceInitializer"/>
-   </extension>
-   <extension
          point="org.eclipse.ui.editors.documentProviders">
       <provider
             class="org.eclipse.ui.editors.text.TextFileDocumentProvider"

@@ -1,7 +1,8 @@
 package name.graf.emanuel.testfileeditor.editors;
 
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.InstanceScope;
+import static name.graf.emanuel.testfileeditor.TestfileLanguage.*;
+import static name.graf.emanuel.testfileeditor.ui.TestFile.*;
+
 import org.eclipse.jface.text.rules.EndOfLineRule;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IToken;
@@ -9,54 +10,31 @@ import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.Token;
 
-import name.graf.emanuel.testfileeditor.Activator;
-import name.graf.emanuel.testfileeditor.ui.PreferenceConstants;
-
 public class TestFilePartitionScanner extends RuleBasedPartitionScanner {
-	public static final String COMMENT = "__test_file_comment";
-	public static final String TEST_NAME = "__test_name";
-	public static final String LANG_DEF = "__lang_def";
-	public static final String EXPECTED = "__expected";
-	public static final String CLASS_NAME = "__class_name";
-	public static final String SELECTION = "__selection";
-	public static final String FILE_NAME = "__file_name";
-	public static final String[] TEST_FILE_PARTITION_TYPES;
+    
+    private final IToken clazz = new Token(PARTITION_TEST_CLASS);
+    private final IToken comment = new Token(PARTITION_TEST_COMMENT);
+    private final IToken expected = new Token(PARTITION_TEST_EXPECTED);
+    private final IToken file = new Token(PARTITION_TEST_FILE);
+    private final IToken language = new Token(PARTITION_TEST_LANGUAGE);
+    private final IToken name = new Token(PARTITION_TEST_NAME);
+    private final IToken selection = new Token(PARTITION_TEST_SELECTION);
 
-	static {
-		TEST_FILE_PARTITION_TYPES = new String[] { COMMENT, TEST_NAME, LANG_DEF, EXPECTED };
-	}
+    public TestFilePartitionScanner() {
+        super();
 
-	public TestFilePartitionScanner() {
-		super();
-		final IToken comment = new Token(COMMENT);
-		final IToken testName = new Token(TEST_NAME);
-		final IToken langDef = new Token(LANG_DEF);
-		final IToken expected = new Token(EXPECTED);
-		final IToken selection = new Token(SELECTION);
-		final IToken className = new Token(CLASS_NAME);
-		final IToken fileName = new Token(FILE_NAME);
+        //@formatter:off
+        final IPredicateRule[] rules = new IPredicateRule[] {
+                new EndOfLineRule(TOKEN_TEST_CLASS, clazz),
+                new MultiLineRule(TOKEN_TEST_COMMENT_OPEN, TOKEN_TEST_COMMENT_CLOSE, comment),
+                new EndOfLineRule(TOKEN_TEST_EXPECTED, expected),
+                new EndOfLineRule(TOKEN_TEST_FILE, file),
+                new EndOfLineRule(TOKEN_TEST_LANGUAGE, language),
+                new EndOfLineRule(TOKEN_TEST_NAME, name),
+                new MultiLineRule(TOKEN_TEST_SELECTION_OPEN, TOKEN_TEST_SELECTION_CLOSE, selection)
+        };
+        //@formattor:on
 
-		final IPredicateRule[] rules = new IPredicateRule[7];
-
-		IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
-		rules[0] = new MultiLineRule(
-				preferences.get(PreferenceConstants.P_COMMENT_START, PreferenceConstants.D_COMMENT_START),
-				preferences.get(PreferenceConstants.P_COMMENT_END, PreferenceConstants.D_COMMENT_END),
-				comment);
-		rules[1] = new EndOfLineRule(
-				preferences.get(PreferenceConstants.P_TEST_NAME_START, PreferenceConstants.D_TEST_NAME_START),
-				testName);
-		rules[2] = new EndOfLineRule(
-				preferences.get(PreferenceConstants.P_LANG_START, PreferenceConstants.D_LANG_START), langDef);
-		rules[3] = new EndOfLineRule(
-				preferences.get(PreferenceConstants.P_EXPECTED_START, PreferenceConstants.D_EXPECTED_START), expected);
-		rules[4] = new MultiLineRule(
-				preferences.get(PreferenceConstants.P_SELECTION_START, PreferenceConstants.D_SELECTION_START),
-				preferences.get(PreferenceConstants.P_SELECTION_END, PreferenceConstants.D_SELECTION_END), selection);
-		rules[5] = new EndOfLineRule(
-				preferences.get(PreferenceConstants.P_CLASS_NAME, PreferenceConstants.D_CLASS_NAME), className);
-		rules[6] = new EndOfLineRule(preferences.get(PreferenceConstants.P_FILE_NAME, PreferenceConstants.D_FILE_NAME),
-				fileName);
-		this.setPredicateRules(rules);
-	}
+        this.setPredicateRules(rules);
+    }
 }

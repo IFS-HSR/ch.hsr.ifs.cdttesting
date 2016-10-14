@@ -1,17 +1,23 @@
 package name.graf.emanuel.testfileeditor.editors;
 
-import org.eclipse.core.filebuffers.*;
-import name.graf.emanuel.testfileeditor.*;
-import org.eclipse.jface.text.rules.*;
-import org.eclipse.jface.text.*;
+import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
+import org.eclipse.jface.text.IDocumentPartitioner;
+import org.eclipse.jface.text.rules.FastPartitioner;
 
-public class TestFileDocumentSetupParticipant implements IDocumentSetupParticipant
-{
+import name.graf.emanuel.testfileeditor.Activator;
+import name.graf.emanuel.testfileeditor.ui.TestFile;
+
+public class TestFileDocumentSetupParticipant implements IDocumentSetupParticipant {
+    @Override
     public void setup(final IDocument document) {
         if (document instanceof IDocumentExtension3) {
-            final IDocumentExtension3 extension3 = (IDocumentExtension3)document;
-            final IDocumentPartitioner partitioner = (IDocumentPartitioner)new FastPartitioner((IPartitionTokenScanner)Activator.getDefault().getTestFilePartitionScanner(), TestFilePartitionScanner.TEST_FILE_PARTITION_TYPES);
-            extension3.setDocumentPartitioner("__test_file_partitioning", partitioner);
+            final IDocumentExtension3 extension3 = (IDocumentExtension3) document;
+            final IDocumentPartitioner partitioner = new FastPartitioner(
+                    Activator.getDefault().getTestFilePartitionScanner(),
+                    TestFile.PARTITION_TYPES);
+            extension3.setDocumentPartitioner("__rts_partitioning", partitioner);
             partitioner.connect(document);
         }
     }

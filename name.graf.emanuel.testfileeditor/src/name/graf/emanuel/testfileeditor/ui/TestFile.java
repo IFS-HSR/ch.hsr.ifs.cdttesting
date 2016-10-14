@@ -1,79 +1,39 @@
 package name.graf.emanuel.testfileeditor.ui;
 
+import static name.graf.emanuel.testfileeditor.TestfileLanguage.*;
+
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Observable;
 
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
-
-import name.graf.emanuel.testfileeditor.Activator;
 
 public class TestFile extends Observable {
     private final String name;
     private final ArrayList<Test> tests;
     private IDocument document;
 
-    private final IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(Activator.PLUGIN_ID);
+    public static final String PARTITION_TEST_CLASS = "__rts_class";
+    public static final String PARTITION_TEST_COMMENT = "__rts_comment";
+    public static final String PARTITION_TEST_EXPECTED = "__rts_expected";
+    public static final String PARTITION_TEST_FILE = "__rts_file";
+    public static final String PARTITION_TEST_LANGUAGE = "__rts_language";
+    public static final String PARTITION_TEST_NAME = "__rts_name";
+    public static final String PARTITION_TEST_SELECTION = "__rts_selection";
 
     //@formatter:off
-    private final String TAG_TEST = preferences.get(
-            PreferenceConstants.P_TEST_NAME_START,
-            PreferenceConstants.D_TEST_NAME_START
-            );
-
-    private final String TAG_LANGUAGE = preferences.get(
-            PreferenceConstants.P_LANG_START,
-            PreferenceConstants.D_LANG_START
-            );
-
-    private final String TAG_EXPECTED = preferences.get(
-            PreferenceConstants.P_EXPECTED_START,
-            PreferenceConstants.D_EXPECTED_START
-            );
-
-    private final String TAG_FILE = preferences.get(
-            PreferenceConstants.P_FILE_NAME,
-            PreferenceConstants.D_FILE_NAME
-            );
-
-    private final String TAG_CLASS = preferences.get(
-            PreferenceConstants.P_CLASS_NAME,
-            PreferenceConstants.D_CLASS_NAME
-            );
-
-    private final String TAG_SELECTION_START = preferences.get(
-            PreferenceConstants.P_SELECTION_START,
-            PreferenceConstants.D_SELECTION_START
-            );
-
-    private final String TAG_SELECTION_END = preferences.get(
-            PreferenceConstants.P_SELECTION_END,
-            PreferenceConstants.D_SELECTION_END
-            );
+    public static final String[] PARTITION_TYPES = new String[] {
+            PARTITION_TEST_CLASS,
+            PARTITION_TEST_COMMENT,
+            PARTITION_TEST_EXPECTED,
+            PARTITION_TEST_FILE,
+            PARTITION_TEST_LANGUAGE,
+            PARTITION_TEST_NAME,
+            PARTITION_TEST_SELECTION
+    };
     //@formatter:on
-
-    public static final String POSITION_TEST = "__cdttest_test";
-    public static final String POSITION_LANGUAGE = "__cdttest_language";
-    public static final String POSITION_SELECTION = "__cdttest_selection";
-    public static final String POSITION_EXPECTED = "__cdttest_expected";
-    public static final String POSITION_FILE = "__cdttest_file";
-    public static final String POSITION_CLASS = "__cdttest_class";
-
-    private static final List<String> POSITION_CATEGORIES = new ArrayList<>(6);
-
-    static {
-        POSITION_CATEGORIES.add(POSITION_TEST);
-        POSITION_CATEGORIES.add(POSITION_LANGUAGE);
-        POSITION_CATEGORIES.add(POSITION_SELECTION);
-        POSITION_CATEGORIES.add(POSITION_EXPECTED);
-        POSITION_CATEGORIES.add(POSITION_FILE);
-        POSITION_CATEGORIES.add(POSITION_CLASS);
-    }
 
     public TestFile(final String name) {
         this.name = name;
@@ -103,14 +63,14 @@ public class TestFile extends Observable {
     public void setDocument(final IDocument document) {
         try {
             if (this.document != null) {
-                for (String category : POSITION_CATEGORIES) {
+                for (String category : PARTITION_TYPES) {
                     this.document.removePositionCategory(category);
                 }
             }
 
             this.document = document;
             if (this.document != null) {
-                for (String category : POSITION_CATEGORIES) {
+                for (String category : PARTITION_TYPES) {
                     this.document.addPositionCategory(category);
                 }
                 parse();
@@ -138,22 +98,22 @@ public class TestFile extends Observable {
             final int lineLength = document.getLineLength(currentLine);
             final String lineContent = document.get(lineOffset, lineLength);
 
-            if (lineContent.startsWith(TAG_TEST)) {
+            if (lineContent.startsWith(TOKEN_TEST_NAME)) {
                 final Position tagPosition = new Position(lineOffset, lineLength);
-                document.addPosition(POSITION_TEST, tagPosition);
-                currentTest = new Test(lineContent.substring(TAG_TEST.length()).trim(), tagPosition, this);
+                document.addPosition(PARTITION_TEST_NAME, tagPosition);
+                currentTest = new Test(lineContent.substring(TOKEN_TEST_NAME.length()).trim(), tagPosition, this);
                 tests.add(currentTest);
                 currentState = ParseState.TEST;
-            } else if (lineContent.startsWith(TAG_LANGUAGE) && currentTest != null) {
+            } else if (lineContent.startsWith(TOKEN_TEST_LANGUAGE) && currentTest != null) {
                 final Position tagPosition = new Position(lineOffset, lineLength);
-                document.addPosition(POSITION_LANGUAGE, tagPosition);
+                document.addPosition(PARTITION_TEST_LANGUAGE, tagPosition);
                 currentTest.setLang(
-                        new LanguageDef(lineContent.substring(TAG_LANGUAGE.length()).trim(), tagPosition, currentTest));
-            } else if (lineContent.startsWith(TAG_EXPECTED)) {
+                        new LanguageDef(lineContent.substring(TOKEN_TEST_LANGUAGE.length()).trim(), tagPosition, currentTest));
+            } else if (lineContent.startsWith(TOKEN_TEST_EXPECTED)) {
                 if (currentState == ParseState.SELECTION) {
                     final Position tagPosition = new Position(currentSelectionStart,
                             lineOffset - currentSelectionStart);
-                    document.addPosition(POSITION_EXPECTED, tagPosition);
+                    document.addPosition(PARTITION_TEST_EXPECTED, tagPosition);
                     currentFile.setSelection(new SelectionNode(tagPosition, currentFile));
                     currentState = ParseState.FILE;
                 }
@@ -162,47 +122,47 @@ public class TestFile extends Observable {
                 case FILE:
                     if (currentTest != null) {
                         final Position tagPosition = new Position(lineOffset, lineLength);
-                        document.addPosition(POSITION_EXPECTED, tagPosition);
+                        document.addPosition(PARTITION_TEST_EXPECTED, tagPosition);
                         currentTest.setExpected(new ExpectedNode(currentTest,
-                                lineContent.substring(TAG_EXPECTED.length()).trim(), tagPosition));
+                                lineContent.substring(TOKEN_TEST_EXPECTED.length()).trim(), tagPosition));
                     }
                     break;
                 case SELECTION:
                     if (currentFile != null) {
                         final Position tagPosition = new Position(lineOffset, lineLength);
-                        document.addPosition(POSITION_SELECTION, tagPosition);
+                        document.addPosition(PARTITION_TEST_SELECTION, tagPosition);
                         currentFile.setExpected(new ExpectedNode(currentTest,
-                                lineContent.substring(TAG_EXPECTED.length()).trim(), tagPosition));
+                                lineContent.substring(TOKEN_TEST_EXPECTED.length()).trim(), tagPosition));
                     }
                     break;
                 default:
                 }
-            } else if (lineContent.startsWith(TAG_FILE) && currentTest != null) {
+            } else if (lineContent.startsWith(TOKEN_TEST_FILE) && currentTest != null) {
                 if (currentState == ParseState.SELECTION) {
                     final Position tagPosition = new Position(currentSelectionStart,
                             lineOffset - currentSelectionStart);
-                    document.addPosition(POSITION_SELECTION, tagPosition);
+                    document.addPosition(PARTITION_TEST_SELECTION, tagPosition);
                     currentFile.setSelection(new SelectionNode(tagPosition, currentFile));
                 }
                 final Position tagPosition = new Position(lineOffset, lineLength);
-                document.addPosition(POSITION_FILE, tagPosition);
-                currentFile = new FileDefNode(lineContent.substring(TAG_FILE.length()).trim(), tagPosition,
+                document.addPosition(PARTITION_TEST_FILE, tagPosition);
+                currentFile = new FileDefNode(lineContent.substring(TOKEN_TEST_FILE.length()).trim(), tagPosition,
                         currentTest);
                 currentTest.addFile(currentFile);
                 currentState = ParseState.FILE;
-            } else if (lineContent.startsWith(TAG_CLASS) && currentState == ParseState.TEST) {
+            } else if (lineContent.startsWith(TOKEN_TEST_CLASS) && currentState == ParseState.TEST) {
                 final Position tagPosition = new Position(lineOffset, lineLength);
-                document.addPosition(POSITION_CLASS, tagPosition);
+                document.addPosition(PARTITION_TEST_CLASS, tagPosition);
                 currentTest.setClassname(
-                        new ClassNameNode(lineContent.substring(TAG_CLASS.length()).trim(), tagPosition, currentTest));
-            } else if (lineContent.contains(TAG_SELECTION_START) && currentState == ParseState.FILE) {
+                        new ClassNameNode(lineContent.substring(TOKEN_TEST_CLASS.length()).trim(), tagPosition, currentTest));
+            } else if (lineContent.contains(TOKEN_TEST_SELECTION_OPEN) && currentState == ParseState.FILE) {
                 currentState = ParseState.SELECTION;
-                currentSelectionStart = lineOffset + lineContent.indexOf(TAG_SELECTION_START);
+                currentSelectionStart = lineOffset + lineContent.indexOf(TOKEN_TEST_SELECTION_CLOSE);
             }
-            if (lineContent.contains(TAG_SELECTION_END) && currentState == ParseState.SELECTION) {
+            if (lineContent.contains(TOKEN_TEST_SELECTION_CLOSE) && currentState == ParseState.SELECTION) {
                 final Position tagPosition = new Position(currentSelectionStart,
-                        lineOffset + lineContent.indexOf(TAG_SELECTION_END) - currentSelectionStart);
-                document.addPosition(POSITION_SELECTION, tagPosition);
+                        lineOffset + lineContent.indexOf(TOKEN_TEST_SELECTION_CLOSE) - currentSelectionStart);
+                document.addPosition(PARTITION_TEST_SELECTION, tagPosition);
                 currentFile.setSelection(new SelectionNode(tagPosition, currentFile));
                 currentState = ParseState.FILE;
             }
