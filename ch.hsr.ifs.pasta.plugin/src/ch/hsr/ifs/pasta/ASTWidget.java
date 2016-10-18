@@ -80,7 +80,6 @@ public class ASTWidget extends ScrolledComposite {
 
 		canvas.setCursor(openCursor);
 		canvas.setBackground(getColorWhite());
-		System.out.println(canvas.getBackground() + "\n" + getColorWhite());
 
 		setExpandHorizontal(true);
 		setExpandVertical(true);
