@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.cdt.core.CCorePlugin;
+import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.index.IIndex;
 import org.eclipse.cdt.core.model.ITranslationUnit;
@@ -29,6 +30,7 @@ public class ASTView extends ViewPart {
 
 	@Override
 	public void createPartControl(final Composite parent) {
+
 		final ASTWidget treeView = new ASTWidget(parent);
 		getViewSite().getActionBars().getToolBarManager().add(new Action() {
 			@Override
@@ -49,10 +51,13 @@ public class ASTView extends ViewPart {
 			}
 		});
 		treeView.drawAST(getAST());
-		treeView.setListener(node -> {
-			final Map<String, Object> map = new HashMap<>();
-			map.put("ASTNODE", node);
-			doPostEvent("ASTNODE", map);
+		treeView.setListener(new NodeSelectionListener() {
+			@Override
+			public void nodeSelected(final IASTNode node) {
+				final Map<String, Object> map = new HashMap<>();
+				map.put("ASTNODE", node);
+				doPostEvent("ASTNODE", map);
+			}
 		});
 	}
 
@@ -70,7 +75,7 @@ public class ASTView extends ViewPart {
 	private void doPostEvent(final String topic, final Map<String, Object> map) {
 		final Event event = new Event(topic, map);
 		final BundleContext ctx = FrameworkUtil.getBundle(ASTView.class).getBundleContext();
-		final ServiceReference ref = ctx.getServiceReference(EventAdmin.class.getName());
+		final ServiceReference<?> ref = ctx.getServiceReference(EventAdmin.class.getName());
 		if (ref != null) {
 			final EventAdmin admin = (EventAdmin) ctx.getService(ref);
 			admin.sendEvent(event);

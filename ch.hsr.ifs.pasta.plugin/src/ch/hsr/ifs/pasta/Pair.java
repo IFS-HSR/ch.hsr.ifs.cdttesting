@@ -9,9 +9,11 @@ public class Pair<P, Q> {
 		this.first = first;
 		this.second = second;
 	}
+
 	public P getFirst() {
 		return first;
 	}
+
 	public Q getSecond() {
 		return second;
 	}

@@ -1,219 +1,221 @@
 package ch.hsr.ifs.pasta.tree;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import ch.hsr.ifs.pasta.tree.NodeVisitor.AfterVisitBehaviour;
 
-public class Node<T>  {
+public class Node<T> {
 
-    private final T data;
-    private final List<Node<T>> children;
+	private final T data;
+	private final List<Node<T>> children;
 
-    private Node<T> parent;
-    private Node<T> ancestor;
-    private Node<T> thread;
-    private float x;
-    private float y;
-    private float mod;
-    private int number;
-    private float change;
-    private float shift;
-    private float width;
-    private boolean treatAsLeaf;
+	private Node<T> parent;
+	private Node<T> ancestor;
+	private Node<T> thread;
+	private float x;
+	private float y;
+	private float mod;
+	private int number;
+	private float change;
+	private float shift;
+	private float width;
+	private boolean treatAsLeaf;
 
-    public Node(T data) {
-        this(new ArrayList<Node<T>>(), data);
-    }
+	public Node(final T data) {
+		this(new ArrayList<Node<T>>(), data);
+	}
 
-    public Node(List<Node<T>> children, T data) {
-        this.parent = null;
-        this.thread = null;
-        this.data = data;
-        this.children = children;
-        this.x = 0;
-        this.y = 0;
-        this.mod = 0;
-        this.ancestor = this;
-        this.number = 1;
-        this.width = 1;
-        this.treatAsLeaf = false;
-    }
+	public Node(final List<Node<T>> children, final T data) {
+		this.parent = null;
+		this.thread = null;
+		this.data = data;
+		this.children = children;
+		this.x = 0;
+		this.y = 0;
+		this.mod = 0;
+		this.ancestor = this;
+		this.number = 1;
+		this.width = 1;
+		this.treatAsLeaf = false;
+	}
 
-    public List<Node<T>> children() {
-        return hasChildren() ? children : Collections.<Node<T>>emptyList();
-    }
-    
-    public List<Node<T>> getChildren() {
-        return children;
-    }
+	public List<Node<T>> children() {
+		return hasChildren() ? children : Collections.<Node<T>>emptyList();
+	}
 
-    public Node<T> parent() {
-        return parent;
-    }
-    
-    /**
-     * Traverse the tree post order (children first).
-     * @param visitor
-     */
-    public void visit(NodeVisitor<T> visitor) {
+	public List<Node<T>> getChildren() {
+		return children;
+	}
 
-        AfterVisitBehaviour visit = visitor.visit(this);
-        if (visit == AfterVisitBehaviour.Abort) return;
-    	for (Node<T> child : children) {
-            child.visit(visitor);
-        }
-    }
+	public Node<T> parent() {
+		return parent;
+	}
 
-    public Node<T> leftMostSibling() {
-        return (parent.children().get(0) != this) ? parent.children().get(0) : null;
-    }
+	/**
+	 * Traverse the tree post order (children first).
+	 *
+	 * @param visitor
+	 */
+	public void visit(final NodeVisitor<T> visitor) {
 
-    public Node<T> leftMostChild() {
-        if (thread != null) {
-            return thread;
-        }
-        return hasChildren() ? children.get(0) : null;
-    }
+		final AfterVisitBehaviour visit = visitor.visit(this);
+		if (visit == AfterVisitBehaviour.Abort) {
+			return;
+		}
+		for (final Node<T> child : children) {
+			child.visit(visitor);
+		}
+	}
 
-    private boolean hasChildren() {
-        return !(children.isEmpty()  || treatAsLeaf);
-    }
+	public Node<T> leftMostSibling() {
+		return (parent.children().get(0) != this) ? parent.children().get(0) : null;
+	}
 
-    public Node<T> rightMostChild() {
-        if (thread != null) {
-            return thread;
-        }
-        return hasChildren() ? children.get(children.size() - 1) : null;
-    }
+	public Node<T> leftMostChild() {
+		if (thread != null) {
+			return thread;
+		}
+		return hasChildren() ? children.get(0) : null;
+	}
 
-    public Node<T> leftSibling() {
-        return hasLeftSibling() ? parent.children().get(this.number() - 2) : null;
-    }
+	private boolean hasChildren() {
+		return !(children.isEmpty() || treatAsLeaf);
+	}
 
-    public Node<T> rightSibling() {
-        return hasRightSibling() ? parent.children().get(this.number()) : null;
-    }
+	public Node<T> rightMostChild() {
+		if (thread != null) {
+			return thread;
+		}
+		return hasChildren() ? children.get(children.size() - 1) : null;
+	}
 
-    public boolean hasRightSibling() {
-        return (parent != null && (parent.children().size() > this.number()));
-    }
+	public Node<T> leftSibling() {
+		return hasLeftSibling() ? parent.children().get(this.number() - 2) : null;
+	}
 
-    public boolean hasLeftSibling() {
-        return (parent != null && this.number > 1);
-    }
-    
-    public void addChild(Node<T> child) {
-        children.add(child);
-        child.setNumber(children.size());
-        child.setY(this.y() + 1);
-        child.setParent(this);
-    }
+	public Node<T> rightSibling() {
+		return hasRightSibling() ? parent.children().get(this.number()) : null;
+	}
 
-    public float x() {
-        return x;
-    }
+	public boolean hasRightSibling() {
+		return (parent != null && (parent.children().size() > this.number()));
+	}
 
-    protected void setX(float x) {
-        this.x = x;
-    }
+	public boolean hasLeftSibling() {
+		return (parent != null && this.number > 1);
+	}
 
-    public float y() {
-        return y;
-    }
+	public void addChild(final Node<T> child) {
+		children.add(child);
+		child.setNumber(children.size());
+		child.setY(this.y() + 1);
+		child.setParent(this);
+	}
 
-    protected void setY(float y) {
-        this.y = y;
-    }
-    
-    public float width() { 
-        return width;
-    }
+	public float x() {
+		return x;
+	}
 
-    public void setWidth(float width) {
-        this.width = width;
-        
-    }
+	protected void setX(final float x) {
+		this.x = x;
+	}
 
-    public T data() {
-        return data;
-    }
-    
-    public void treatAsLeaf(boolean isLeaf) {
-        this.treatAsLeaf = isLeaf;
-    }
-    
-    public boolean isTreatedAsLeaf() {
-        return treatAsLeaf;
-    }
+	public float y() {
+		return y;
+	}
 
-    protected Node<T> ancestor() {
-        return ancestor;
-    }
+	protected void setY(final float y) {
+		this.y = y;
+	}
 
-    protected void setAncestor(Node<T> ancestor) {
-        this.ancestor = ancestor;
-    }
+	public float width() {
+		return width;
+	}
 
-    protected float mod() {
-        return mod;
-    }
+	public void setWidth(final float width) {
+		this.width = width;
 
-    protected void setMod(float mod) {
-        this.mod = mod;
-    }
+	}
 
-    protected Node<T> thread() {
-        return thread;
-    }
+	public T data() {
+		return data;
+	}
 
-    public void setThread(Node<T> thread) {
-        this.thread = thread;
-    }
+	public void treatAsLeaf(final boolean isLeaf) {
+		this.treatAsLeaf = isLeaf;
+	}
 
-    protected void setNumber(int number) {
-        this.number = number;
-    }
+	public boolean isTreatedAsLeaf() {
+		return treatAsLeaf;
+	}
 
-    public int number() {
-        return number;
-    }
+	protected Node<T> ancestor() {
+		return ancestor;
+	}
 
-    protected float change() {
-        return change;
-    }
+	protected void setAncestor(final Node<T> ancestor) {
+		this.ancestor = ancestor;
+	}
 
-    protected void setChange(float change) {
-        this.change = change;
+	protected float mod() {
+		return mod;
+	}
 
-    }
+	protected void setMod(final float mod) {
+		this.mod = mod;
+	}
 
-    protected float shift() {
-        return shift;
-    }
+	protected Node<T> thread() {
+		return thread;
+	}
 
-    protected void setShift(float shift) {
-        this.shift = shift;
-    }
+	public void setThread(final Node<T> thread) {
+		this.thread = thread;
+	}
 
-    protected void setParent(Node<T> parent) {
-        this.parent = parent;
-    }
- 
-    @Override
-    public String toString() {
-        return data + ": number:" + number + " x:" + x + " y:" + y;
-    }
-    
-    public void adjust() {
-        JBaum.reset(this);
-        JBaum.adjustTree(this , 1f, 1f);
-    }
-    
-    public void adjust(float siblingDistance, float branchDistance) {
-        JBaum.reset(this);
-        JBaum.adjustTree(this, siblingDistance, branchDistance);
-    }
+	protected void setNumber(final int number) {
+		this.number = number;
+	}
+
+	public int number() {
+		return number;
+	}
+
+	protected float change() {
+		return change;
+	}
+
+	protected void setChange(final float change) {
+		this.change = change;
+
+	}
+
+	protected float shift() {
+		return shift;
+	}
+
+	protected void setShift(final float shift) {
+		this.shift = shift;
+	}
+
+	protected void setParent(final Node<T> parent) {
+		this.parent = parent;
+	}
+
+	@Override
+	public String toString() {
+		return data + ": number:" + number + " x:" + x + " y:" + y;
+	}
+
+	public void adjust() {
+		JBaum.reset(this);
+		JBaum.adjustTree(this, 1f, 1f);
+	}
+
+	public void adjust(final float siblingDistance, final float branchDistance) {
+		JBaum.reset(this);
+		JBaum.adjustTree(this, siblingDistance, branchDistance);
+	}
 }

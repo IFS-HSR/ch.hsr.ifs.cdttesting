@@ -6,3 +6,5 @@ Bundle-Version: 9.1.0.qualifier
 Bundle-Vendor: IFS Institute for Software
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: ch.hsr.ifs.pasta.tree
+Import-Package: org.eclipse.cdt.core.dom.ast,
+ org.eclipse.swt.widgets
