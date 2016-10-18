@@ -13,6 +13,7 @@ import org.eclipse.swt.events.DragDetectListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
@@ -64,7 +65,7 @@ public class ASTWidget extends ScrolledComposite {
 		setAlwaysShowScrollBars(true);
 		parent.setBackground(getColorWhite());
 		setBackground(getColorWhite());
-		canvas = new Canvas(this, SWT.NO_BACKGROUND);
+		canvas = new Canvas(this, SWT.BACKGROUND);
 		setContent(canvas);
 
 		final ImageData grabImage = new ImageData(ASTWidget.class.getResourceAsStream("/icons/closedhand.gif"));
@@ -278,15 +279,25 @@ public class ASTWidget extends ScrolledComposite {
 				updateNodePositions(root);
 				refresh();
 			}
+
 		});
 
-		button.addMouseMoveListener(new MouseMoveListener() {
+		button.addMouseTrackListener(new MouseTrackListener() {
 
 			@Override
-			public void mouseMove(final MouseEvent e) {
+			public void mouseHover(final MouseEvent e) {
+			}
+
+			@Override
+			public void mouseExit(final MouseEvent e) {
+			}
+
+			@Override
+			public void mouseEnter(final MouseEvent e) {
 				if (listener != null) {
 					listener.nodeSelected(astNode);
 				}
+
 				IASTFileLocation fileLocation = astNode.getFileLocation();
 				while (fileLocation.getContextInclusionStatement() != null) {
 					final IASTPreprocessorIncludeStatement contextInclusionStatement = fileLocation
@@ -299,6 +310,7 @@ public class ASTWidget extends ScrolledComposite {
 						.setSelection(textSelection);
 			}
 		});
+
 		return node;
 	}
 }
