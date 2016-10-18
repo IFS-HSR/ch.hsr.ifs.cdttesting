@@ -43,15 +43,42 @@ public class ASTWidget extends ScrolledComposite {
 	private int nodeHeight = 20;
 	private final int gapSize = 20;
 	private NodeSelectionListener listener;
-	private Control lastControl = null;
+	private Node<Pair<Button, IASTNode>> lastControl = null;
 	Point dragSource = null;
 	boolean dragFlag = false;
 
-	public void adjustView(final Control control) {
-		final Rectangle rect = control.getBounds();
+	public void adjustView(final Node<Pair<Button, IASTNode>> node) {
+
+		final Rectangle buttonBounds = node.data().getFirst().getBounds();
+
+		final int leftmostIndex;
+		final int bottommostIndex;
+		if (node.leftMostChild() == null) {
+			leftmostIndex = buttonBounds.x;
+			bottommostIndex = buttonBounds.y + buttonBounds.height;
+		} else {
+			final Rectangle bounds = node.leftMostChild().data().getFirst().getBounds();
+			leftmostIndex = Math.min(bounds.x, buttonBounds.x);
+			bottommostIndex = bounds.y + bounds.height;
+		}
+
+		final int rightmostIndex;
+		if (node.rightMostChild() == null) {
+			rightmostIndex = buttonBounds.x + buttonBounds.width;
+		} else {
+			final Rectangle bounds = node.rightMostChild().data().getFirst().getBounds();
+			rightmostIndex = Math.max(bounds.x + bounds.width, buttonBounds.x + buttonBounds.width);
+		}
+
+		int correctedX = getOrigin().x;
+		int correctedY = getOrigin().y;
 		lastControl = null;
-		final int correctedX = rect.x - (getBounds().width / 2 - rect.width / 2);
-		final int correctedY = rect.y - (getBounds().height / 2 - rect.height / 2);
+		if (!(leftmostIndex > getOrigin().x && rightmostIndex < getOrigin().x + getBounds().width)) {
+			correctedX = buttonBounds.x - (getBounds().width / 2 - buttonBounds.width / 2);
+		}
+		if (!(buttonBounds.y > getOrigin().y && bottommostIndex < getOrigin().y + getBounds().height)) {
+			correctedY = buttonBounds.y - (getBounds().height / 2 - buttonBounds.height / 2);
+		}
 		this.setOrigin(correctedX, correctedY);
 	}
 
@@ -259,7 +286,7 @@ public class ASTWidget extends ScrolledComposite {
 
 			@Override
 			public void mouseDown(final MouseEvent e) {
-				lastControl = button;
+				lastControl = node;
 				node.treatAsLeaf(!node.isTreatedAsLeaf());
 				if (!node.isTreatedAsLeaf() && node.getChildren().size() == 0) {
 					for (final IASTNode child : node.data().getSecond().getChildren()) {
