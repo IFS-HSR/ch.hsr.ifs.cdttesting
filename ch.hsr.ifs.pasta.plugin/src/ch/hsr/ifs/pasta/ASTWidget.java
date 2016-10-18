@@ -296,7 +296,6 @@ public class ASTWidget extends ScrolledComposite {
 				if (listener != null) {
 					listener.nodeSelected(astNode);
 				}
-
 				IASTFileLocation fileLocation = astNode.getFileLocation();
 				while (fileLocation.getContextInclusionStatement() != null) {
 					final IASTPreprocessorIncludeStatement contextInclusionStatement = fileLocation
@@ -307,9 +306,9 @@ public class ASTWidget extends ScrolledComposite {
 						fileLocation.getNodeLength());
 				CUIPlugin.getActivePage().getActiveEditor().getEditorSite().getSelectionProvider()
 						.setSelection(textSelection);
+
 			}
 		});
-
 		return node;
 	}
 }

@@ -27,6 +27,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
 public class ASTView extends ViewPart {
+	IASTTranslationUnit localASTCopy;
 
 	@Override
 	public void createPartControl(final Composite parent) {
@@ -35,7 +36,8 @@ public class ASTView extends ViewPart {
 		getViewSite().getActionBars().getToolBarManager().add(new Action() {
 			@Override
 			public void run() {
-				treeView.drawAST(getAST());
+				getAST();
+				treeView.drawAST(localASTCopy);
 			}
 
 			@Override
@@ -50,7 +52,8 @@ public class ASTView extends ViewPart {
 				return "refresh";
 			}
 		});
-		treeView.drawAST(getAST());
+		getAST();
+		treeView.drawAST(localASTCopy);
 		treeView.setListener(new NodeSelectionListener() {
 			@Override
 			public void nodeSelected(final IASTNode node) {
@@ -61,14 +64,23 @@ public class ASTView extends ViewPart {
 		});
 	}
 
-	private IASTTranslationUnit getAST() {
+	private void getAST() {
+		final IEditorInput editorInput = CUIPlugin.getActivePage().getActiveEditor().getEditorInput();
+		final IWorkingCopy workingCopy = CUIPlugin.getDefault().getWorkingCopyManager().getWorkingCopy(editorInput);
+		IIndex index;
 		try {
-			final IEditorInput editorInput = CUIPlugin.getActivePage().getActiveEditor().getEditorInput();
-			final IWorkingCopy workingCopy = CUIPlugin.getDefault().getWorkingCopyManager().getWorkingCopy(editorInput);
-			final IIndex index = CCorePlugin.getIndexManager().getIndex(workingCopy.getCProject());
-			return workingCopy.getAST(index, ITranslationUnit.AST_SKIP_ALL_HEADERS);
+			index = CCorePlugin.getIndexManager().getIndex(workingCopy.getCProject());
 		} catch (final CoreException e) {
 			throw new RuntimeException(e);
+		}
+		try {
+			index.acquireReadLock();
+			localASTCopy = workingCopy.getAST(index, ITranslationUnit.AST_SKIP_ALL_HEADERS)
+					.copy(IASTNode.CopyStyle.withoutLocations);
+		} catch (final CoreException | InterruptedException e) {
+			throw new RuntimeException(e);
+		} finally {
+			index.releaseReadLock();
 		}
 	}
 
