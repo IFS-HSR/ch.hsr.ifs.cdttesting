@@ -15,7 +15,6 @@ import org.eclipse.cdt.core.dom.ast.IASTName;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.dom.ast.IBinding;
-import org.eclipse.cdt.core.index.IIndex;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -50,17 +49,25 @@ public class NodeWidget extends Composite {
 	}
 
 	public void displayNode(final IASTNode node) {
-		clearTree();
-		displayName(node);
-		displayBindings(node);
-		displayImplicitNames(node);
-		final TreeItem typeHierarchy = createTreeItem(tree, "Type Hierarchy;");
-		displayTypeHierarchy(typeHierarchy, node);
-		final TreeItem fields = createTreeItem(tree, "Fields;@" + Integer.toString(node.hashCode(), 16));
-		displayFields(fields, node);
-		final TreeItem methods = createTreeItem(tree, "Methods;");
-		displayMethods(methods, node);
-		expandFirstLevel();
+		try {
+			node.getTranslationUnit().getIndex().acquireReadLock();
+			clearTree();
+			displayName(node);
+			displayBindings(node);
+			displayImplicitNames(node);
+			final TreeItem typeHierarchy = createTreeItem(tree, "Type Hierarchy;");
+			displayTypeHierarchy(typeHierarchy, node);
+			final TreeItem fields = createTreeItem(tree, "Fields;@" + Integer.toString(node.hashCode(), 16));
+			displayFields(fields, node);
+			final TreeItem methods = createTreeItem(tree, "Methods;");
+			displayMethods(methods, node);
+			expandFirstLevel();
+		} catch (final InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			node.getTranslationUnit().getIndex().releaseReadLock();
+		}
 	}
 
 	private void displayTypeIfPresent(final TreeItem parent, final IBinding binding) {
@@ -247,8 +254,6 @@ public class NodeWidget extends Composite {
 	private void displayBindings(final TreeItem parent, final IASTNode node, final IBinding binding)
 			throws CoreException {
 		final IASTTranslationUnit ast = node.getTranslationUnit();
-		final IIndex index = ast.getIndex();
-		ast.getDeclarationsInAST(binding);
 		for (final IASTName decl : ast.getDeclarationsInAST(binding)) {
 			createTreeItem(parent, "declaration;" + decl);
 		}
@@ -258,7 +263,6 @@ public class NodeWidget extends Composite {
 		for (final IASTName ref : ast.getReferences(binding)) {
 			createTreeItem(parent, "reference;" + ref);
 		}
-
 		displayTypeIfPresent(parent, binding);
 
 		final TreeItem typeHierarchy = createTreeItem(parent, "Type Hierarchy;");
@@ -269,6 +273,7 @@ public class NodeWidget extends Composite {
 
 		final TreeItem methods = createTreeItem(parent, "Methods;");
 		displayMethods(methods, binding);
+
 	}
 
 	private void makeAccessible(final Field field) {
