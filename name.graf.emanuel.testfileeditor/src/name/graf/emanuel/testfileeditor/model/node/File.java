@@ -1,16 +1,16 @@
-package name.graf.emanuel.testfileeditor.ui;
+package name.graf.emanuel.testfileeditor.model.node;
 
 import org.eclipse.jface.text.*;
 
-public class FileDefNode implements ITestFileNode
+public class File implements Node
 {
     private String name;
     private Position pos;
     private Test parent;
-    private ExpectedNode exp;
-    private SelectionNode sel;
+    private Expected exp;
+    private Selection sel;
     
-    public FileDefNode(final String name, final Position pos, final Test parent) {
+    public File(final String name, final Position pos, final Test parent) {
         super();
         this.exp = null;
         this.sel = null;
@@ -19,11 +19,11 @@ public class FileDefNode implements ITestFileNode
         this.parent = parent;
     }
     
-    public ITestFileNode[] getChildren() {
+    public Node[] getChildren() {
         final int i = this.howManyChildren();
         if (i > 0) {
             int index = 0;
-            final ITestFileNode[] children = new ITestFileNode[i];
+            final Node[] children = new Node[i];
             if (this.sel != null) {
                 children[index++] = this.sel;
             }
@@ -60,11 +60,11 @@ public class FileDefNode implements ITestFileNode
         return this.hashCode() == obj.hashCode();
     }
     
-    public void setExpected(final ExpectedNode node) {
+    public void setExpected(final Expected node) {
         this.exp = node;
     }
     
-    public void setSelection(final SelectionNode node) {
+    public void setSelection(final Selection node) {
         this.sel = node;
     }
     

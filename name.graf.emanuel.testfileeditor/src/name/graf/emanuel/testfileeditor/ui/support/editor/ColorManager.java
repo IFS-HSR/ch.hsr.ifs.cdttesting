@@ -1,4 +1,4 @@
-package name.graf.emanuel.testfileeditor.editors;
+package name.graf.emanuel.testfileeditor.ui.support.editor;
 
 import java.util.HashMap;
 import java.util.Iterator;

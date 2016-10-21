@@ -1,4 +1,4 @@
-package name.graf.emanuel.testfileeditor.ui;
+package name.graf.emanuel.testfileeditor.ui.support.outline;
 
 import org.eclipse.jface.text.DefaultPositionUpdater;
 import org.eclipse.jface.text.IDocument;
@@ -9,6 +9,9 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
 import name.graf.emanuel.testfileeditor.Activator;
+import name.graf.emanuel.testfileeditor.model.TestFile;
+import name.graf.emanuel.testfileeditor.model.node.Node;
+import name.graf.emanuel.testfileeditor.model.node.Test;
 
 public class TestFileTreeNodeContentProvider extends TreeNodeContentProvider {
     protected IPositionUpdater fPositionUpdater;
@@ -60,8 +63,8 @@ public class TestFileTreeNodeContentProvider extends TreeNodeContentProvider {
 
     @Override
     public boolean hasChildren(final Object element) {
-        if (element instanceof ITestFileNode) {
-            final ITestFileNode node = (ITestFileNode) element;
+        if (element instanceof Node) {
+            final Node node = (Node) element;
             return node.hasChildren();
         }
         final boolean ret = element == this.file || element == this.input;
@@ -70,8 +73,8 @@ public class TestFileTreeNodeContentProvider extends TreeNodeContentProvider {
 
     @Override
     public Object getParent(final Object element) {
-        if (element instanceof ITestFileNode) {
-            final ITestFileNode node = (ITestFileNode) element;
+        if (element instanceof Node) {
+            final Node node = (Node) element;
             return node.getParent();
         }
         if (element == this.file) {
@@ -86,8 +89,8 @@ public class TestFileTreeNodeContentProvider extends TreeNodeContentProvider {
             final Test[] tests = this.file.getTests();
             return tests;
         }
-        if (element instanceof ITestFileNode) {
-            final ITestFileNode node = (ITestFileNode) element;
+        if (element instanceof Node) {
+            final Node node = (Node) element;
             return node.getChildren();
         }
         return new Object[0];

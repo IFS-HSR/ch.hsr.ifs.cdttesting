@@ -1,24 +1,27 @@
-package name.graf.emanuel.testfileeditor.ui;
+package name.graf.emanuel.testfileeditor.model.node;
 
 import org.eclipse.jface.text.*;
+
+import name.graf.emanuel.testfileeditor.model.TestFile;
+
 import java.util.*;
 
-public class Test implements ITestFileNode
+public class Test implements Node
 {
     private String name;
     private Position pos;
     private TestFile parent;
-    private LanguageDef lang;
-    private ExpectedNode exp;
-    private ClassNameNode className;
-    private Vector<FileDefNode> fileDefs;
+    private Language lang;
+    private Expected exp;
+    private Class className;
+    private Vector<File> fileDefs;
     
     public Test(final String name, final Position pos, final TestFile file) {
         super();
         this.lang = null;
         this.exp = null;
         this.className = null;
-        this.fileDefs = new Vector<FileDefNode>();
+        this.fileDefs = new Vector<File>();
         this.name = name;
         this.pos = pos;
         this.parent = file;
@@ -37,9 +40,9 @@ public class Test implements ITestFileNode
         return (int)namenHash + this.pos.offset;
     }
     
-    public ITestFileNode[] getChildren() {
+    public Node[] getChildren() {
         final int length = this.howManyChildren();
-        final ITestFileNode[] children = new ITestFileNode[length];
+        final Node[] children = new Node[length];
         int index = 0;
         if (this.className != null) {
             children[index++] = this.className;
@@ -50,7 +53,7 @@ public class Test implements ITestFileNode
         if (this.exp != null) {
             children[index++] = this.exp;
         }
-        for (final ITestFileNode node : this.fileDefs) {
+        for (final Node node : this.fileDefs) {
             children[index++] = node;
         }
         return children;
@@ -79,19 +82,19 @@ public class Test implements ITestFileNode
         return this.howManyChildren() > 0;
     }
     
-    public void setLang(final LanguageDef lang) {
+    public void setLang(final Language lang) {
         this.lang = lang;
     }
     
-    public void setExpected(final ExpectedNode exp) {
+    public void setExpected(final Expected exp) {
         this.exp = exp;
     }
     
-    public void setClassname(final ClassNameNode className) {
+    public void setClassname(final Class className) {
         this.className = className;
     }
     
-    public void addFile(final FileDefNode file) {
+    public void addFile(final File file) {
         this.fileDefs.add(file);
     }
     

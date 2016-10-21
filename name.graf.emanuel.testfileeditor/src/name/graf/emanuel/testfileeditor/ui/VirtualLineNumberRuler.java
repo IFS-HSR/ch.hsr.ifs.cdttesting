@@ -27,12 +27,16 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.rulers.IContributedRulerColumn;
 import org.eclipse.ui.texteditor.rulers.RulerColumnDescriptor;
 
-import name.graf.emanuel.testfileeditor.editors.TestFileEditor;
+import name.graf.emanuel.testfileeditor.model.TestFile;
+import name.graf.emanuel.testfileeditor.model.node.Expected;
+import name.graf.emanuel.testfileeditor.model.node.File;
+import name.graf.emanuel.testfileeditor.model.node.Node;
+import name.graf.emanuel.testfileeditor.model.node.Test;
 
 @SuppressWarnings("restriction")
-public class TestFileRuler extends LineNumberRulerColumn implements IContributedRulerColumn, Observer {
+public class VirtualLineNumberRuler extends LineNumberRulerColumn implements IContributedRulerColumn, Observer {
 
-    private TestFileEditor textEditor;
+    private Editor textEditor;
     private RulerColumnDescriptor columnDescriptor;
     private ITextViewer textWidget;
     private Map<Integer, Integer> modelLineToRulerLineMap = new HashMap<>();
@@ -99,7 +103,7 @@ public class TestFileRuler extends LineNumberRulerColumn implements IContributed
 
     @Override
     public void setEditor(ITextEditor editor) {
-        textEditor = (TestFileEditor) editor;
+        textEditor = (Editor) editor;
     }
 
     @Override
@@ -114,22 +118,22 @@ public class TestFileRuler extends LineNumberRulerColumn implements IContributed
 
             try {
                 for (Test test : tests) {
-                    ITestFileNode[] files = test.getChildren();
+                    Node[] files = test.getChildren();
                     Position nodePosition = test.getPosition();
                     int realLine = document.getLineOfOffset(nodePosition.offset);
                     endLineNumbers.add(realLine + 1);
-                    for (ITestFileNode testNode : files) {
+                    for (Node testNode : files) {
                         nodePosition = testNode.getPosition();
                         realLine = document.getLineOfOffset(nodePosition.offset) + 1;
 
-                        if (testNode instanceof FileDefNode) {
+                        if (testNode instanceof File) {
                             String name = testNode.toString();
                             if (name.endsWith(".cpp") || name.endsWith(".h") || name.endsWith(".hpp")) {
                                 startLineNumbers.add(realLine);
                             } else {
                                 endLineNumbers.add(realLine);
                             }
-                        } else if (testNode instanceof ExpectedNode) {
+                        } else if (testNode instanceof Expected) {
                             startLineNumbers.add(realLine);
                         } else {
                             endLineNumbers.add(realLine);

@@ -1,4 +1,4 @@
-package name.graf.emanuel.testfileeditor.editors;
+package name.graf.emanuel.testfileeditor.ui.support.editor;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
@@ -6,9 +6,9 @@ import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.ui.editors.text.FileDocumentProvider;
 
-import name.graf.emanuel.testfileeditor.ui.TestFile;
+import name.graf.emanuel.testfileeditor.model.TestFile;
 
-public class TestFileDocumentProvider extends FileDocumentProvider {
+public class DocumentProvider extends FileDocumentProvider {
     @Override
     public void changed(final Object element) {
         super.changed(element);
@@ -18,7 +18,7 @@ public class TestFileDocumentProvider extends FileDocumentProvider {
     protected IDocument createDocument(final Object element) throws CoreException {
         final IDocument document = super.createDocument(element);
         if (document != null) {
-            final IDocumentPartitioner partitioner = new FastPartitioner(new TestFilePartitionScanner(),
+            final IDocumentPartitioner partitioner = new FastPartitioner(new PartitionScanner(),
                     TestFile.PARTITION_TYPES);
             partitioner.connect(document);
             document.setDocumentPartitioner(partitioner);

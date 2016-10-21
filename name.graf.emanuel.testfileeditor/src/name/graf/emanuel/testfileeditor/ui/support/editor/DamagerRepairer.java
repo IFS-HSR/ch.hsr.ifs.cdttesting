@@ -1,4 +1,4 @@
-package name.graf.emanuel.testfileeditor.editors;
+package name.graf.emanuel.testfileeditor.ui.support.editor;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
@@ -12,12 +12,12 @@ import org.eclipse.jface.text.presentation.IPresentationDamager;
 import org.eclipse.jface.text.presentation.IPresentationRepairer;
 import org.eclipse.swt.custom.StyleRange;
 
-public class NonRuleBasedDamagerRepairer implements IPresentationDamager, IPresentationRepairer
+public class DamagerRepairer implements IPresentationDamager, IPresentationRepairer
 {
     protected IDocument fDocument;
     protected TextAttribute fDefaultTextAttribute;
     
-    public NonRuleBasedDamagerRepairer(final TextAttribute defaultTextAttribute) {
+    public DamagerRepairer(final TextAttribute defaultTextAttribute) {
         super();
 		// Assert.isNotNull((Object)defaultTextAttribute);
         this.fDefaultTextAttribute = defaultTextAttribute;

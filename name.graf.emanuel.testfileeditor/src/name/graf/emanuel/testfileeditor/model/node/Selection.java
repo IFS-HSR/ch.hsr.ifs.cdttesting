@@ -1,19 +1,19 @@
-package name.graf.emanuel.testfileeditor.ui;
+package name.graf.emanuel.testfileeditor.model.node;
 
 import org.eclipse.jface.text.*;
 
-public class SelectionNode implements ITestFileNode
+public class Selection implements Node
 {
     private Position pos;
-    private FileDefNode parent;
+    private File parent;
     
-    public SelectionNode(final Position pos, final FileDefNode parent) {
+    public Selection(final Position pos, final File parent) {
         super();
         this.pos = pos;
         this.parent = parent;
     }
     
-    public ITestFileNode[] getChildren() {
+    public Node[] getChildren() {
         return null;
     }
     

@@ -1,7 +1,9 @@
 package name.graf.emanuel.testfileeditor.ui;
 
 import name.graf.emanuel.testfileeditor.Activator;
-import name.graf.emanuel.testfileeditor.editors.TestFileEditor;
+import name.graf.emanuel.testfileeditor.model.node.Node;
+import name.graf.emanuel.testfileeditor.ui.support.outline.TestFileLabelProvider;
+import name.graf.emanuel.testfileeditor.ui.support.outline.TestFileTreeNodeContentProvider;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -18,14 +20,14 @@ import org.eclipse.ui.progress.UIJob;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 
-public class TestFileContentOutlinePage extends ContentOutlinePage
+public class OutlinePage extends ContentOutlinePage
 {
     private final IDocumentProvider provider;
-    private final TestFileEditor editor;
+    private final Editor editor;
     private IEditorInput input;
-    private InteliTreeViewer myTreeViewer;
+    private OutlineTreeViewer myTreeViewer;
 
-    public TestFileContentOutlinePage(final IDocumentProvider documentProvider, final TestFileEditor editor) {
+    public OutlinePage(final IDocumentProvider documentProvider, final Editor editor) {
         super();
         this.provider = documentProvider;
         this.editor = editor;
@@ -40,13 +42,13 @@ public class TestFileContentOutlinePage extends ContentOutlinePage
         new UIJob("UpdateOutline") {
             @Override
 			public IStatus runInUIThread(final IProgressMonitor monitor) {
-                final InteliTreeViewer viewer = (InteliTreeViewer)TestFileContentOutlinePage.this.getTreeViewer();
+                final OutlineTreeViewer viewer = (OutlineTreeViewer)OutlinePage.this.getTreeViewer();
                 if (viewer != null) {
                     viewer.saveExpandedState();
                     final Control control = viewer.getControl();
                     if (control != null && !control.isDisposed()) {
                         control.setRedraw(false);
-                        viewer.setInput(TestFileContentOutlinePage.this.input);
+                        viewer.setInput(OutlinePage.this.input);
                         viewer.loadExpandedState();
                         control.setRedraw(true);
                     }
@@ -63,8 +65,8 @@ public class TestFileContentOutlinePage extends ContentOutlinePage
         if (selection.isEmpty()) {
             this.editor.resetHighlightRange();
         }
-        else if (((IStructuredSelection)selection).getFirstElement() instanceof ITestFileNode) {
-            final ITestFileNode segment = (ITestFileNode)((IStructuredSelection)selection).getFirstElement();
+        else if (((IStructuredSelection)selection).getFirstElement() instanceof Node) {
+            final Node segment = (Node)((IStructuredSelection)selection).getFirstElement();
             final int start = segment.getPosition().getOffset();
             final int length = segment.getPosition().getLength();
             try {
@@ -114,7 +116,7 @@ public class TestFileContentOutlinePage extends ContentOutlinePage
 
     @Override
 	public void createControl(final Composite parent) {
-        myTreeViewer = new InteliTreeViewer(parent, 770);
+        myTreeViewer = new OutlineTreeViewer(parent, 770);
         myTreeViewer.setContentProvider(new TestFileTreeNodeContentProvider(this.provider, this.input));
         myTreeViewer.setLabelProvider(new TestFileLabelProvider());
         myTreeViewer.addSelectionChangedListener(this);

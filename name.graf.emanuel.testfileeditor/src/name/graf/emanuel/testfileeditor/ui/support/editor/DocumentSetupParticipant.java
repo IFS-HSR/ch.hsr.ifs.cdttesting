@@ -1,4 +1,4 @@
-package name.graf.emanuel.testfileeditor.editors;
+package name.graf.emanuel.testfileeditor.ui.support.editor;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
 import org.eclipse.jface.text.IDocument;
@@ -7,9 +7,9 @@ import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.rules.FastPartitioner;
 
 import name.graf.emanuel.testfileeditor.Activator;
-import name.graf.emanuel.testfileeditor.ui.TestFile;
+import name.graf.emanuel.testfileeditor.model.TestFile;
 
-public class TestFileDocumentSetupParticipant implements IDocumentSetupParticipant {
+public class DocumentSetupParticipant implements IDocumentSetupParticipant {
     @Override
     public void setup(final IDocument document) {
         if (document instanceof IDocumentExtension3) {

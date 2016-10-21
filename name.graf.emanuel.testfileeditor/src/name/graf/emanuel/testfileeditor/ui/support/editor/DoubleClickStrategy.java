@@ -1,8 +1,8 @@
-package name.graf.emanuel.testfileeditor.editors;
+package name.graf.emanuel.testfileeditor.ui.support.editor;
 
 import org.eclipse.jface.text.*;
 
-public class TestFileDoubleClickStrategy implements ITextDoubleClickStrategy
+public class DoubleClickStrategy implements ITextDoubleClickStrategy
 {
     protected ITextViewer fText;
     

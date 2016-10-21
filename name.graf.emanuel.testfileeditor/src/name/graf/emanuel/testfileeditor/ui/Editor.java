@@ -1,8 +1,13 @@
-package name.graf.emanuel.testfileeditor.editors;
+package name.graf.emanuel.testfileeditor.ui;
 
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.*;
-import name.graf.emanuel.testfileeditor.ui.*;
+
+import name.graf.emanuel.testfileeditor.model.TestFile;
+import name.graf.emanuel.testfileeditor.ui.support.editor.ColorManager;
+import name.graf.emanuel.testfileeditor.ui.support.editor.Configuration;
+import name.graf.emanuel.testfileeditor.ui.support.editor.DocumentProvider;
+
 import org.eclipse.ui.texteditor.*;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.jface.text.source.*;
@@ -11,20 +16,20 @@ import org.eclipse.jface.text.source.projection.*;
 import java.util.*;
 import org.eclipse.ui.views.contentoutline.*;
 
-public class TestFileEditor extends TextEditor {
+public class Editor extends TextEditor {
     private ColorManager colorManager;
-    private TestFileContentOutlinePage fOutlinePage;
+    private OutlinePage fOutlinePage;
     private ProjectionSupport projectionSupport;
     private ProjectionAnnotationModel annotationModel;
     private Annotation[] oldAnnotations;
     private TestFile file;
 
-    public TestFileEditor() {
+    public Editor() {
         super();
         this.colorManager = new ColorManager();
         this.setSourceViewerConfiguration(
-                new TestFileConfiguration(this.colorManager, this));
-        this.setDocumentProvider(new TestFileDocumentProvider());
+                new Configuration(this.colorManager, this));
+        this.setDocumentProvider(new DocumentProvider());
     }
 
     @Override
@@ -85,7 +90,7 @@ public class TestFileEditor extends TextEditor {
     public <T> T getAdapter(final Class<T> adapter) {
         if (IContentOutlinePage.class.equals(adapter)) {
             if (this.fOutlinePage == null) {
-                this.fOutlinePage = new TestFileContentOutlinePage(this.getDocumentProvider(), this);
+                this.fOutlinePage = new OutlinePage(this.getDocumentProvider(), this);
                 if (this.getEditorInput() == null) {
                 }
                 this.fOutlinePage.setInput(this.getEditorInput());
@@ -114,7 +119,7 @@ public class TestFileEditor extends TextEditor {
 
 
 
-    public TestFileContentOutlinePage getOutline() {
+    public OutlinePage getOutline() {
         return this.fOutlinePage;
     }
 

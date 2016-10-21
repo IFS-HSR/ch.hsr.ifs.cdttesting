@@ -4,21 +4,21 @@ import org.eclipse.jface.viewers.*;
 import java.util.*;
 import org.eclipse.swt.widgets.*;
 
-public class InteliTreeViewer extends TreeViewer
+public class OutlineTreeViewer extends TreeViewer
 {
     private Vector<Integer> expanded;
     
-    public InteliTreeViewer(final Composite parent) {
+    public OutlineTreeViewer(final Composite parent) {
         super(parent);
         this.expanded = new Vector<Integer>();
     }
     
-    public InteliTreeViewer(final Composite parent, final int style) {
+    public OutlineTreeViewer(final Composite parent, final int style) {
         super(parent, style);
         this.expanded = new Vector<Integer>();
     }
     
-    public InteliTreeViewer(final Tree tree) {
+    public OutlineTreeViewer(final Tree tree) {
         super(tree);
         this.expanded = new Vector<Integer>();
     }

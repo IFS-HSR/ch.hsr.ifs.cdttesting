@@ -1,20 +1,23 @@
-package name.graf.emanuel.testfileeditor.editors;
+package name.graf.emanuel.testfileeditor.ui.support.editor;
 
 import org.eclipse.jface.text.*;
 import org.eclipse.jface.text.reconciler.*;
+
+import name.graf.emanuel.testfileeditor.ui.Editor;
+
 import org.eclipse.core.runtime.*;
 
-public class TestFileReconcilingStrategy implements IReconcilingStrategy, IReconcilingStrategyExtension
+public class ReconcilingStrategy implements IReconcilingStrategy, IReconcilingStrategyExtension
 {
     @SuppressWarnings("unused")
 	private IDocument document;
-    private TestFileEditor editor;
+    private Editor editor;
     
-    public TestFileEditor getEditor() {
+    public Editor getEditor() {
         return this.editor;
     }
     
-    public void setEditor(final TestFileEditor editor) {
+    public void setEditor(final Editor editor) {
         this.editor = editor;
     }
     

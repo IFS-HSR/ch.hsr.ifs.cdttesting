@@ -2,9 +2,10 @@ package name.graf.emanuel.testfileeditor;
 
 import org.eclipse.ui.plugin.*;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
-
-import name.graf.emanuel.testfileeditor.editors.*;
 import org.osgi.framework.*;
+
+import name.graf.emanuel.testfileeditor.ui.support.editor.PartitionScanner;
+
 import org.eclipse.swt.widgets.*;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.*;
@@ -15,7 +16,7 @@ public class Activator extends AbstractUIPlugin {
     public static final String PLUGIN_ID = "name.graf.emanuel.testfileeditor";
     public static final String TEST_FILE_PARTITIONING = "__test_file_partitioning";
     private static Activator plugin;
-    private TestFilePartitionScanner scanner;
+    private PartitionScanner scanner;
     private ScopedPreferenceStore preferenceStore;
 
     public Activator() {
@@ -44,9 +45,9 @@ public class Activator extends AbstractUIPlugin {
         return display;
     }
 
-    public TestFilePartitionScanner getTestFilePartitionScanner() {
+    public PartitionScanner getTestFilePartitionScanner() {
         if (this.scanner == null) {
-            this.scanner = new TestFilePartitionScanner();
+            this.scanner = new PartitionScanner();
         }
         return this.scanner;
     }

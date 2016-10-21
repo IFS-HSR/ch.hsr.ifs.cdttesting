@@ -1,7 +1,7 @@
-package name.graf.emanuel.testfileeditor.editors;
+package name.graf.emanuel.testfileeditor.ui.support.editor;
 
-import static name.graf.emanuel.testfileeditor.TestfileLanguage.*;
-import static name.graf.emanuel.testfileeditor.ui.TestFile.*;
+import static name.graf.emanuel.testfileeditor.model.Tokens.*;
+import static name.graf.emanuel.testfileeditor.model.TestFile.*;
 
 import org.eclipse.jface.text.rules.EndOfLineRule;
 import org.eclipse.jface.text.rules.IPredicateRule;
@@ -10,7 +10,7 @@ import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.Token;
 
-public class TestFilePartitionScanner extends RuleBasedPartitionScanner {
+public class PartitionScanner extends RuleBasedPartitionScanner {
     
     private final IToken clazz = new Token(PARTITION_TEST_CLASS);
     private final IToken comment = new Token(PARTITION_TEST_COMMENT);
@@ -20,18 +20,18 @@ public class TestFilePartitionScanner extends RuleBasedPartitionScanner {
     private final IToken name = new Token(PARTITION_TEST_NAME);
     private final IToken selection = new Token(PARTITION_TEST_SELECTION);
 
-    public TestFilePartitionScanner() {
+    public PartitionScanner() {
         super();
 
         //@formatter:off
         final IPredicateRule[] rules = new IPredicateRule[] {
-                new EndOfLineRule(TOKEN_TEST_CLASS, clazz),
-                new MultiLineRule(TOKEN_TEST_COMMENT_OPEN, TOKEN_TEST_COMMENT_CLOSE, comment),
-                new EndOfLineRule(TOKEN_TEST_EXPECTED, expected),
-                new EndOfLineRule(TOKEN_TEST_FILE, file),
-                new EndOfLineRule(TOKEN_TEST_LANGUAGE, language),
-                new EndOfLineRule(TOKEN_TEST_NAME, name),
-                new MultiLineRule(TOKEN_TEST_SELECTION_OPEN, TOKEN_TEST_SELECTION_CLOSE, selection)
+                new EndOfLineRule(CLASS, clazz),
+                new MultiLineRule(COMMENT_OPEN, COMMENT_CLOSE, comment),
+                new EndOfLineRule(EXPECTED, expected),
+                new EndOfLineRule(FILE, file),
+                new EndOfLineRule(LANGUAGE, language),
+                new EndOfLineRule(TEST, name),
+                new MultiLineRule(SELECTION_OPEN, SELECTION_CLOSE, selection)
         };
         //@formattor:on
 

@@ -9,7 +9,7 @@
             extensions="txt,rts,awts"
             icon="icons/test_file.gif"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
-            class="name.graf.emanuel.testfileeditor.editors.TestFileEditor"
+            class="name.graf.emanuel.testfileeditor.ui.Editor"
             id="name.graf.emanuel.testfileeditor.editors.TestFileEditor">
       </editor>
    </extension>
@@ -24,13 +24,13 @@
          id="TestFileDocumentSetupParticipant"
          point="org.eclipse.core.filebuffers.documentSetup">
       <participant
-            class="name.graf.emanuel.testfileeditor.editors.TestFileDocumentSetupParticipant"
+            class="name.graf.emanuel.testfileeditor.ui.support.editor.DocumentSetupParticipant"
             extensions="txt"/>
    </extension>
    <extension
          point="org.eclipse.ui.workbench.texteditor.rulerColumns">
       <column
-            class="name.graf.emanuel.testfileeditor.ui.TestFileRuler"
+            class="name.graf.emanuel.testfileeditor.ui.VirtualLineNumberRuler"
             enabled="true"
             global="true"
             id="name.graf.emanuel.testfileeditor.TestFileRulerColumn"
@@ -43,7 +43,7 @@
                id="name.graf.emanuel.testfileeditor.editors.TestFileEditor">
          </targetEditor>
          <targetClass
-               class="name.graf.emanuel.testfileeditor.editors.TestFileEditor">
+               class="name.graf.emanuel.testfileeditor.ui.Editor">
          </targetClass>
       </column>
    </extension>
@@ -57,7 +57,7 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="name.graf.emanuel.testfileeditor.handler.JumpToRTS"
+            class="name.graf.emanuel.testfileeditor.ui.JumpToRTSHandler"
             commandId="name.graf.emanuel.testfileeditor.command.JumpToRTS">
       </handler>
    </extension>

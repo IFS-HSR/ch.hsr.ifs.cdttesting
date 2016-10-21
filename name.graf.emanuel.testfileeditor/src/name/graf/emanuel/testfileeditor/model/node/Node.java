@@ -1,14 +1,14 @@
-package name.graf.emanuel.testfileeditor.ui;
+package name.graf.emanuel.testfileeditor.model.node;
 
 import org.eclipse.jface.text.*;
 
-public interface ITestFileNode
+public interface Node
 {
     Position getPosition();
     
     boolean hasChildren();
     
-    ITestFileNode[] getChildren();
+    Node[] getChildren();
     
     Object getParent();
 }

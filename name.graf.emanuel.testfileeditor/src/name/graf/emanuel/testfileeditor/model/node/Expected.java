@@ -1,26 +1,26 @@
-package name.graf.emanuel.testfileeditor.ui;
+package name.graf.emanuel.testfileeditor.model.node;
 
 import org.eclipse.jface.text.*;
 
-public class LanguageDef implements ITestFileNode
+public class Expected implements Node
 {
-    private String lang;
+    private Test parent;
+    private String text;
     private Position pos;
-    private Test test;
     
-    public LanguageDef(final String lang, final Position pos, final Test test) {
+    public Expected(final Test parent, final String text, final Position pos) {
         super();
-        this.lang = lang;
+        this.parent = parent;
+        this.text = text;
         this.pos = pos;
-        this.test = test;
     }
     
-    public ITestFileNode[] getChildren() {
+    public Node[] getChildren() {
         return null;
     }
     
-    public ITestFileNode getParent() {
-        return this.test;
+    public Node getParent() {
+        return this.parent;
     }
     
     public Position getPosition() {
@@ -32,7 +32,7 @@ public class LanguageDef implements ITestFileNode
     }
     
     public String toString() {
-        return this.lang;
+        return this.text;
     }
     
     public boolean equals(final Object obj) {

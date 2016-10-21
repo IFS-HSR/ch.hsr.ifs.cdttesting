@@ -1,8 +1,8 @@
-package name.graf.emanuel.testfileeditor.editors;
+package name.graf.emanuel.testfileeditor.ui.support.editor;
 
 import org.eclipse.swt.graphics.*;
 
-public interface ICdtTestFileColorConstants
+public interface Colors
 {
     public static final RGB CDT_TEST_COMMENT = new RGB(132, 162, 198);
     public static final RGB EXPECTED = new RGB(250, 206, 170);

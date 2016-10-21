@@ -1,4 +1,4 @@
-package name.graf.emanuel.testfileeditor.handler;
+package name.graf.emanuel.testfileeditor.ui;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,11 +39,11 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
 import ch.hsr.ifs.cdttesting.TestingPlugin;
-import name.graf.emanuel.testfileeditor.ui.Test;
-import name.graf.emanuel.testfileeditor.ui.TestFile;
+import name.graf.emanuel.testfileeditor.model.TestFile;
+import name.graf.emanuel.testfileeditor.model.node.Test;
 
 @SuppressWarnings("restriction")
-public class JumpToRTS extends AbstractHandler {
+public class JumpToRTSHandler extends AbstractHandler {
 
     private static final Pattern TEST_NAME_PATTERN = Pattern.compile(".*\\[(.*)\\].*");
 
