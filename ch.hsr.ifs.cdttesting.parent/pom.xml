@@ -1,92 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>ch.hsr.ifs.cdttesting</groupId>
-  <artifactId>cdttesting</artifactId>
-  <version>9.1.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  
-  <properties>
-	<eclipse-version>neon</eclipse-version>
-	<tycho-version>0.25.0</tycho-version>
-	<!--target-file>cdttesting-neon</target-file-->
-  </properties>
-  
-  <profiles>
-    <profile>
-	  <id>OSX</id>
-	  <activation>
-	    <os>
-		  <family>mac</family>
-		</os>
-	  </activation>
-	  <properties>
-	    <swtbot.args>-Xmx1024m -XstartOnFirstThread</swtbot.args>
-	  </properties>
-    </profile>
-	<profile>
-	  <id>notOSX</id>
-	  <activation>
-	    <os>
-		  <family>!mac</family>
-		</os>
-	  </activation>
-	  <properties>
-	    <swtbot.args>-Xmx1024m</swtbot.args>
-	  </properties>
-    </profile>
-  </profiles>
-  
-  <repositories>
-	<repository>
-		<id>mars-release</id>
-		<url>http://download.eclipse.org/releases/${eclipse-version}/</url>
-		<layout>p2</layout>
-	</repository>
-	<repository>
-		<id>mars-updates</id>
-		<url>http://download.eclipse.org/eclipse/updates/4.6/</url>
-		<layout>p2</layout>
-	</repository>
-	<repository>
-		<id>cdt 9.0 test plugins</id>
-		<url>https://hudson.eclipse.org/cdt/job/cdt-9.0/lastSuccessfulBuild/artifact/releng/org.eclipse.cdt.testing.repo/target/repository/</url>
-		<layout>p2</layout>
-	</repository>
-  </repositories>
-  
-  <modules>
-    <module>../ch.hsr.ifs.cdttesting.target</module>
-    <module>../ch.hsr.ifs.cdttesting</module>
-    <module>../ch.hsr.ifs.cdttesting.example</module>
-	<!--module>workspace_kepler/org.eclipse.cdt/core/org.eclipse.cdt.core.tests</module>
-    <module>../workspace_kepler/org.eclipse.cdt/core/org.eclipse.cdt.ui.tests</module>
-    <module>../workspace_kepler/org.eclipse.cdt/codan/org.eclipse.cdt.codan.core.test</module-->
-    <module>../ch.hsr.ifs.cdttesting.example.feature</module>
-    <module>../ch.hsr.ifs.cdttesting.showoffset</module>
-    <module>../name.graf.emanuel.testfileeditor</module>
-    <module>../ch.hsr.ifs.cdttesting.feature</module>
-    <module>../ch.hsr.ifs.pasta.plugin</module>
-    <module>../ch.hsr.ifs.pasta.tree</module>
-    <module>../ch.hsr.ifs.pasta.tree.test</module>
-    <module>../ch.hsr.ifs.pasta.feature</module>
-    <module>../ch.hsr.ifs.cdttesting.tools.feature</module>
-    <module>../ch.hsr.ifs.cdttesting.updatesite</module>
-	<!--module>ch.hsr.ifs.cdt.compatibility.changes</module>
-	<module>../ch.hsr.ifs.cdt.compatibility.changes.feature</module-->
-  </modules>
-  
-  <build>
-	<plugins>
-		<plugin>
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>ch.hsr.ifs.cdttesting</groupId>
+	<artifactId>cdttesting</artifactId>
+	<version>9.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<tycho-version>0.25.0</tycho-version>
+		<tycho-extras-version>0.25.0</tycho-extras-version>
+		<targetPlatform.repository.p2>http://mbarbero.github.com/fr.obeo.releng.targetplatform/p2/</targetPlatform.repository.p2>
+	</properties>
+
+	<profiles>
+		<profile>
+			<id>OSX</id>
+			<activation>
+				<os>
+					<family>mac</family>
+				</os>
+			</activation>
+			<properties>
+				<swtbot.args>-Xmx1024m -XstartOnFirstThread</swtbot.args>
+			</properties>
+		</profile>
+		<profile>
+			<id>notOSX</id>
+			<activation>
+				<os>
+					<family>!mac</family>
+				</os>
+			</activation>
+			<properties>
+				<swtbot.args>-Xmx1024m</swtbot.args>
+			</properties>
+		</profile>
+	</profiles>
+
+	<modules>
+		<module>../ch.hsr.ifs.cdttesting.target</module>
+		<module>../ch.hsr.ifs.cdttesting</module>
+		<module>../ch.hsr.ifs.cdttesting.example</module>
+		<module>../ch.hsr.ifs.cdttesting.example.feature</module>
+		<module>../ch.hsr.ifs.cdttesting.showoffset</module>
+		<module>../name.graf.emanuel.testfileeditor</module>
+		<module>../ch.hsr.ifs.cdttesting.feature</module>
+		<module>../ch.hsr.ifs.pasta.plugin</module>
+		<module>../ch.hsr.ifs.pasta.tree</module>
+		<module>../ch.hsr.ifs.pasta.tree.test</module>
+		<module>../ch.hsr.ifs.pasta.feature</module>
+		<module>../ch.hsr.ifs.cdttesting.tools.feature</module>
+		<module>../ch.hsr.ifs.cdttesting.updatesite</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
 			</plugin>
-			<!--The following plugin section cannot be used due to a resolution bug in tycho, eventually failing to resolve specific swt dependencies-->
-			<!--plugin>
+			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
@@ -126,8 +102,8 @@
 						</artifact>
 					</target>
 				</configuration>
-			</plugin-->
-		<plugin>
+			</plugin>
+			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-compiler-plugin</artifactId>
 				<version>${tycho-version}</version>
@@ -141,11 +117,11 @@
 				<artifactId>tycho-packaging-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
-				  <archive>
-					<addMavenDescriptor>false</addMavenDescriptor>
-				  </archive>
+					<archive>
+						<addMavenDescriptor>false</addMavenDescriptor>
+					</archive>
 				</configuration>
-			  </plugin>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jarsigner-plugin</artifactId>
@@ -178,7 +154,7 @@
 						<dependency>
 							<type>p2-installable-unit</type>
 							<artifactId>org.eclipse.platform</artifactId>
-						</dependency> 
+						</dependency>
 					</dependencies>
 					<useUIHarness>true</useUIHarness>
 					<useUIThread>true</useUIThread>
