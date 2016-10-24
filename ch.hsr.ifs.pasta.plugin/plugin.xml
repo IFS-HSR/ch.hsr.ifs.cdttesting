@@ -1,25 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-   <extension
-         point="org.eclipse.ui.views">
-         <category
-               id="ch.hsr.ifs.pasta"
-               name="Painless AST Analysis" />
-         <view 
-         		icon="icons/sample.gif" 
+    <extension
+        point="org.eclipse.ui.views">
+        <category
+            id="ch.hsr.ifs.pasta"
+            name="Painless AST Analysis"/>
+            <view 
+                icon="icons/sample.gif" 
                 category="ch.hsr.ifs.pasta" 
                 class="ch.hsr.ifs.pasta.ASTView"
                 id="ch.hsr.ifs.pasta.astview" 
                 name="AST View"/>
-         <view
+            <view
                category="ch.hsr.ifs.pasta"
                class="ch.hsr.ifs.pasta.NodeView"
                icon="icons/sample.gif"
                id="ch.hsr.ifs.pasta.nodeview"
-               name="Node View" />
-         
-
-   </extension>
+               name="Node View"/>
+    </extension>
+    <extension
+        point="org.eclipse.ui.preferencePages">
+        <page
+            category="org.eclipse.cdt.ui.preferences.CPluginPreferencePage"
+            class="ch.hsr.ifs.pasta.plugin.preferences.PreferencePage"
+            id="ch.hsr.ifs.pasta.plugin.preferences.PreferencePage"
+            name="Pasta Preferences">
+        </page>
+    </extension>
+    <extension
+        point="org.eclipse.core.runtime.preferences">
+        <initializer
+            class="ch.hsr.ifs.pasta.plugin.preferences.PreferenceInitializer">
+        </initializer>
+    </extension>
    
 </plugin>
