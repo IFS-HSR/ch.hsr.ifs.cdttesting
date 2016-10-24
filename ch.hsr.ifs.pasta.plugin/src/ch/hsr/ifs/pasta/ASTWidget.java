@@ -5,6 +5,7 @@ import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorIncludeStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.ui.CUIPlugin;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -28,6 +29,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
+import ch.hsr.ifs.pasta.plugin.preferences.PreferenceConstants;
 import ch.hsr.ifs.pasta.tree.Node;
 import ch.hsr.ifs.pasta.tree.NodeVisitor;
 
@@ -44,8 +46,9 @@ public class ASTWidget extends ScrolledComposite {
 	private final int gapSize = 20;
 	private NodeSelectionListener listener;
 	private Node<Pair<Button, IASTNode>> lastControl = null;
-	Point dragSource = null;
-	boolean dragFlag = false;
+	private Point dragSource = null;
+	private boolean dragFlag = false;
+	private final IPreferenceStore prefStore = PastaPlugin.getDefault().getPreferenceStore();
 
 	public void adjustView(final Node<Pair<Button, IASTNode>> node) {
 
@@ -286,24 +289,40 @@ public class ASTWidget extends ScrolledComposite {
 
 			@Override
 			public void mouseDown(final MouseEvent e) {
-				lastControl = node;
-				node.treatAsLeaf(!node.isTreatedAsLeaf());
-				if (!node.isTreatedAsLeaf() && node.getChildren().size() == 0) {
-					for (final IASTNode child : node.data().getSecond().getChildren()) {
-						node.addChild(constructTree(child, canvas));
-					}
+				int selectKey = 0;
+
+				if (prefStore.getString(PreferenceConstants.P_HOW_TO_SELECT)
+						.equals(PreferenceConstants.P_SELECT_BY_RIGHT_CLICK)) {
+					selectKey = 3;
+				} else if (prefStore.getString(PreferenceConstants.P_HOW_TO_SELECT)
+						.equals(PreferenceConstants.P_SELECT_BY_LEFT_CLICK)) {
+					selectKey = 1;
 				}
-				for (final Node<Pair<Button, IASTNode>> child : node.getChildren()) {
+
+				if (e.button == selectKey) {
+					setSelectedNode(astNode);
+				}
+
+				if (e.button == 1) {
+					lastControl = node;
+					node.treatAsLeaf(!node.isTreatedAsLeaf());
+					if (!node.isTreatedAsLeaf() && node.getChildren().size() == 0) {
+						for (final IASTNode child : node.data().getSecond().getChildren()) {
+							node.addChild(constructTree(child, canvas));
+						}
+					}
+					for (final Node<Pair<Button, IASTNode>> child : node.getChildren()) {
+						if (!node.isTreatedAsLeaf()) {
+							child.treatAsLeaf(true);
+						}
+						child.data().getFirst().setVisible(!node.isTreatedAsLeaf());
+					}
 					if (!node.isTreatedAsLeaf()) {
-						child.treatAsLeaf(true);
+						root.adjust(ASTWidget.SIBLING_DISTANCE, ASTWidget.BRANCH_DISTANCE);
 					}
-					child.data().getFirst().setVisible(!node.isTreatedAsLeaf());
+					updateNodePositions(root);
+					refresh();
 				}
-				if (!node.isTreatedAsLeaf()) {
-					root.adjust(ASTWidget.SIBLING_DISTANCE, ASTWidget.BRANCH_DISTANCE);
-				}
-				updateNodePositions(root);
-				refresh();
 			}
 
 		});
@@ -320,8 +339,9 @@ public class ASTWidget extends ScrolledComposite {
 
 			@Override
 			public void mouseEnter(final MouseEvent e) {
-				if (listener != null) {
-					listener.nodeSelected(astNode);
+				if (prefStore.getString(PreferenceConstants.P_HOW_TO_SELECT)
+						.equals(PreferenceConstants.P_SELECT_BY_MOUSE_OVER)) {
+					setSelectedNode(astNode);
 				}
 				IASTFileLocation fileLocation = astNode.getFileLocation();
 				while (fileLocation.getContextInclusionStatement() != null) {
@@ -335,7 +355,15 @@ public class ASTWidget extends ScrolledComposite {
 						.setSelection(textSelection);
 
 			}
+
 		});
+
 		return node;
+	}
+
+	private void setSelectedNode(final IASTNode astNode) {
+		if (listener != null) {
+			listener.nodeSelected(astNode);
+		}
 	}
 }
