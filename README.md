@@ -7,7 +7,7 @@ Enhanced testing and tooling for **Eclipse CDT C/C++** plug-in projects.
 The plugins contained in **ch.hsr.ifs.cdttesting** are grouped into four
 features that are all available via
 `https://www.cevelop.com/cdt-testing/<eclipse-codename>/` where you need to
-substitude `<eclipse-codename>` for the codename of the eclipse release you are
+substitute `<eclipse-codename>` for the codename of the eclipse release you are
 using (e.g **neon**). So if you are using **Eclipse Neon**, you would use this
 URL:
 
@@ -63,7 +63,7 @@ pASTa (from *painless AST analysis*) is a plugin that allows you to explore the
 based view of your source-code, it also provides a detail inspector for AST
 nodes.
 
-**NOTE**: pASTa is also available as a seperate feature to make it easy to
+**NOTE**: pASTa is also available as a separate feature to make it easy to
 install in **Eclipse CDT**.
 
 ##### The pASTa AST View
@@ -95,10 +95,10 @@ given node.
 
 ![The pASTa Node View](/../media/images/pasta-node-view.png?raw=true "The pASTa Node View")
 
-This is an indespensible feature for people that are new to developing with the
+This is an indispensable feature for people that are new to developing with the
 **Eclipse CDT** AST as well as seasoned developers. To enable the pASTa *Node
 View*, use the menu ***Window -> Show View -> Other***. Alternatively, you can
-use the keyboard shortcut ***Shift+Alt+Q Q***. In the diaglog that opens, you
+use the keyboard shortcut ***Shift+Alt+Q Q***. In the dialog that opens, you
 can either search for *Node View* or navigate to the folder *Painless AST
 Analysis*. Simply double-click the entry *Node View* to open the pASTa *Node
 View* in you workbench. You can move around the pASTa *Node View* as any other
@@ -140,7 +140,7 @@ based checker plugins.
 To make you even faster in navigating large test files, *Testfileeditor*
 comes with support for outlining your test files in the **Eclipse** standard
 outline page. Simply double click on a test, virtual file or before-and-after
-section to jump directly to the associated position in the testfile.
+section to jump directly to the associated position in the test file.
 
 ##### Jump to RTS
 
