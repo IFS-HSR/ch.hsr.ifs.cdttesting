@@ -9,7 +9,13 @@ features that are all available via
 `https://www.cevelop.com/cdt-testing/<eclipse-codename>/` where you need to
 substitude `<eclipse-codename>` for the codename of the eclipse release you are
 using (e.g **neon**). So if you are using **Eclipse Neon**, you would use this
-URL: https://www.cevelop.com/cdt-testing/neon/.
+URL:
+
+  https://www.cevelop.com/cdt-testing/neon/
+
+To access ***unstable*** development builds, use:
+
+  https://www.cevelop.com/cdt-testing/development/
 
 **NOTE**: These plugin-features are designed to be used by developers an we
 closely track the current release of **Eclipse CDT**. Older versions might work
