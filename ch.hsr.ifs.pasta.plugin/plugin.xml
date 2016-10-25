@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+
+    <!-- UI VIEWS -->
     <extension
         point="org.eclipse.ui.views">
         <category
@@ -19,6 +21,9 @@
                id="ch.hsr.ifs.pasta.nodeview"
                name="Node View"/>
     </extension>
+    
+    
+    <!--PREFERENCES -->
     <extension
         point="org.eclipse.ui.preferencePages">
         <page
@@ -34,5 +39,38 @@
             class="ch.hsr.ifs.pasta.plugin.preferences.PreferenceInitializer">
         </initializer>
     </extension>
-   
+    
+    
+    <!-- MENU ENTRY -->
+    <extension
+          point="org.eclipse.ui.commands">
+       <category
+             id="ch.hsr.ifs.pasta.plugin.commands.category"
+             name="Pasta Commands">
+       </category>
+       <command
+             categoryId="ch.hsr.ifs.pasta.plugin.commands.category"
+             id="ch.hsr.ifs.pasta.plugin.commands.showNodeInPasta"
+             name="Show IASTNode in PASTA">
+       </command>
+    </extension>
+    <extension
+          point="org.eclipse.ui.handlers">
+       <handler
+             class="ch.hsr.ifs.pasta.plugin.handlers.ShowInPASTAHandler"
+             commandId="ch.hsr.ifs.pasta.plugin.commands.showNodeInPasta">
+       </handler>
+    </extension>
+    <extension
+          point="org.eclipse.ui.menus">
+       <menuContribution
+             locationURI="popup:#CEditorContext?endof=additions">
+             <command
+                   commandId="ch.hsr.ifs.pasta.plugin.commands.showNodeInPasta"
+                   id="ch.hsr.ifs.pasta.plugin.menus.showNodeInPasta"
+                   label="Show IASTNode in &amp;PASTA AST View">
+             </command>
+       </menuContribution>
+    </extension>
+    
 </plugin>

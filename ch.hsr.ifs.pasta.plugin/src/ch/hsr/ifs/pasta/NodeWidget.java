@@ -63,7 +63,6 @@ public class NodeWidget extends Composite {
 			displayMethods(methods, node);
 			expandFirstLevel();
 		} catch (final InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			node.getTranslationUnit().getIndex().releaseReadLock();

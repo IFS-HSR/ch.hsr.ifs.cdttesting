@@ -26,18 +26,20 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
+import ch.hsr.ifs.pasta.events.PastaEventConstants;
+
 public class ASTView extends ViewPart {
-	IASTTranslationUnit localASTCopy;
 
 	@Override
 	public void createPartControl(final Composite parent) {
 
 		final ASTWidget treeView = new ASTWidget(parent);
+
 		getViewSite().getActionBars().getToolBarManager().add(new Action() {
+
 			@Override
 			public void run() {
-				getAST();
-				treeView.drawAST(localASTCopy);
+				treeView.drawAST(getAST());
 			}
 
 			@Override
@@ -51,20 +53,23 @@ public class ASTView extends ViewPart {
 			public String getText() {
 				return "refresh";
 			}
+
 		});
-		getAST();
-		treeView.drawAST(localASTCopy);
+
+		treeView.drawAST(getAST());
 		treeView.setListener(new NodeSelectionListener() {
+
 			@Override
 			public void nodeSelected(final IASTNode node) {
 				final Map<String, Object> map = new HashMap<>();
-				map.put("ASTNODE", node);
-				doPostEvent("ASTNODE", map);
+				map.put(PastaEventConstants.ASTNODE, node);
+				doPostEvent(PastaEventConstants.ASTNODE, map);
 			}
+
 		});
 	}
 
-	private void getAST() {
+	private IASTTranslationUnit getAST() {
 		final IEditorInput editorInput = CUIPlugin.getActivePage().getActiveEditor().getEditorInput();
 		final IWorkingCopy workingCopy = CUIPlugin.getDefault().getWorkingCopyManager().getWorkingCopy(editorInput);
 		IIndex index;
@@ -75,7 +80,7 @@ public class ASTView extends ViewPart {
 		}
 		try {
 			index.acquireReadLock();
-			localASTCopy = workingCopy.getAST(index, ITranslationUnit.AST_SKIP_ALL_HEADERS)
+			return workingCopy.getAST(index, ITranslationUnit.AST_SKIP_ALL_HEADERS)
 					.copy(IASTNode.CopyStyle.withoutLocations);
 		} catch (final CoreException | InterruptedException e) {
 			throw new RuntimeException(e);
@@ -98,4 +103,5 @@ public class ASTView extends ViewPart {
 	@Override
 	public void setFocus() {
 	}
+
 }
