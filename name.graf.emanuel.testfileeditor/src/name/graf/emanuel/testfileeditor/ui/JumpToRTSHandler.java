@@ -6,12 +6,11 @@ import java.util.regex.Pattern;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtensionRegistry;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMemberValuePair;
@@ -35,10 +34,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
-import ch.hsr.ifs.cdttesting.TestingPlugin;
 import name.graf.emanuel.testfileeditor.model.TestFile;
 import name.graf.emanuel.testfileeditor.model.node.Test;
 
@@ -80,20 +77,34 @@ public class JumpToRTSHandler extends AbstractHandler {
         return null;
     }
 
-    private String getPathViaExtension(IType classType) throws CoreException {
-        IExtensionRegistry registry = Platform.getExtensionRegistry();
-        IConfigurationElement[] elements = registry.getConfigurationElementsFor(TestingPlugin.XML_EXTENSION_POINT_ID);
-        String className = classType.getFullyQualifiedName();
+    private IFile findFileInContainer(IContainer container, String filename) {
 
-        for (IConfigurationElement element : elements) {
-            AbstractUIPlugin extension = (AbstractUIPlugin) element.createExecutableExtension("activatorClass");
-            String sourceLocation = element.getAttribute("sourceLocation");
-            String packageName = extension.getClass().getPackage().getName();
-            String pathSuffix = className.substring(packageName.length()).replace('.', '/') + ".rts";
-            String suspectPath = sourceLocation + pathSuffix;
-            if (extension.getClass().getResourceAsStream(suspectPath) != null) {
-                return suspectPath;
+        try {
+            for (IResource resource : container.members()) {
+                if (resource instanceof IContainer) {
+                    IFile found = findFileInContainer((IContainer) resource, filename);
+                    if (found != null) {
+                        return found;
+                    }
+                } else if (resource instanceof IFile) {
+                    if (((IFile) resource).getName().equals(filename)) {
+                        return (IFile) resource;
+                    }
+                }
             }
+        } catch (CoreException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private String guessPath() throws CoreException {
+        int lastDot = className.lastIndexOf('.');
+        String testFileName = className.substring(lastDot + 1) + ".rts";
+        IResource file = findFileInContainer(project.getProject(), testFileName);
+        if (file != null) {
+            return file.getProjectRelativePath().toString();
         }
 
         return null;
@@ -110,7 +121,7 @@ public class JumpToRTSHandler extends AbstractHandler {
         }
 
         String filePath = getPathViaAnnotation(classType);
-        return filePath != null ? filePath : getPathViaExtension(classType);
+        return filePath != null ? filePath : guessPath();
     }
 
     private void getTestInfo(TestElement entry) {
