@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde?>
 <!-- generated with https://github.com/mbarbero/fr.obeo.releng.targetplatform -->
-<target name="CDT-Testing Neon" sequenceNumber="1477402649">
+<target name="CDT-Testing Neon" sequenceNumber="1477644799">
   <locations>
     <location includeMode="planner" includeAllPlatforms="false" includeSource="true" includeConfigurePhase="false" type="InstallableUnit">
       <unit id="org.eclipse.platform.sdk" version="4.6.1.M20160907-1200"/>
@@ -14,8 +14,8 @@
       <repository location="http://download.eclipse.org/releases/neon"/>
     </location>
     <location includeMode="planner" includeAllPlatforms="false" includeSource="true" includeConfigurePhase="false" type="InstallableUnit">
-      <unit id="org.eclipse.cdt.testing.source.feature.group" version="9.1.0.201610231019"/>
-      <unit id="org.eclipse.cdt.testing.feature.group" version="9.1.0.201610231019"/>
+      <unit id="org.eclipse.cdt.testing.source.feature.group" version="9.1.0.201610251544"/>
+      <unit id="org.eclipse.cdt.testing.feature.group" version="9.1.0.201610251544"/>
       <repository location="https://hudson.eclipse.org/cdt/job/cdt-9.1/lastSuccessfulBuild/artifact/releng/org.eclipse.cdt.testing.repo/target/repository/"/>
     </location>
     <location includeMode="planner" includeAllPlatforms="false" includeSource="true" includeConfigurePhase="false" type="InstallableUnit">
