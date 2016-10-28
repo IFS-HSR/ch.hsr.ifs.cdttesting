@@ -10,6 +10,7 @@ import org.eclipse.cdt.core.dom.ast.IASTNodeSelector;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorIncludeStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.ui.CUIPlugin;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
@@ -40,8 +41,6 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
-
-import com.sun.istack.internal.NotNull;
 
 import ch.hsr.ifs.pasta.events.PastaEventConstants;
 import ch.hsr.ifs.pasta.plugin.preferences.PreferenceConstants;
@@ -219,7 +218,7 @@ public class ASTWidget extends ScrolledComposite {
 		treeHeight = getBounds().height;
 	}
 
-	public void drawAST(@NotNull final IASTTranslationUnit ast) {
+	public void drawAST(@NonNull final IASTTranslationUnit ast) {
 		clear();
 		localASTCopy = ast;
 		root = constructTree(localASTCopy, canvas);
@@ -231,7 +230,7 @@ public class ASTWidget extends ScrolledComposite {
 		refresh();
 	}
 
-	public void setListener(@NotNull final NodeSelectionListener listener) {
+	public void setListener(@NonNull final NodeSelectionListener listener) {
 		this.listener = listener;
 	}
 
