@@ -19,6 +19,7 @@ public class DoubleClickStrategy implements ITextDoubleClickStrategy
     
     protected boolean selectComment(final int caretPos) {
         final IDocument doc = this.fText.getDocument();
+        final char[] defaultLineDelimiter = TextUtilities.getDefaultLineDelimiter(doc).toCharArray();
         try {
             int pos = caretPos;
             char c = ' ';
@@ -28,7 +29,7 @@ public class DoubleClickStrategy implements ITextDoubleClickStrategy
                     pos -= 2;
                 }
                 else {
-                    if (c == '\r') {
+                    if (defaultLineDelimiter[defaultLineDelimiter.length - 1] == c) {
                         break;
                     }
                     if (c == '\"') {
