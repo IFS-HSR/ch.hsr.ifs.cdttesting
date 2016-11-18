@@ -2,14 +2,18 @@ package name.graf.emanuel.testfileeditor.model;
 
 import static name.graf.emanuel.testfileeditor.model.Tokens.*;
 
-import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Observable;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
 
+import name.graf.emanuel.testfileeditor.Activator;
 import name.graf.emanuel.testfileeditor.model.node.Class;
 import name.graf.emanuel.testfileeditor.model.node.Expected;
 import name.graf.emanuel.testfileeditor.model.node.File;
@@ -19,7 +23,8 @@ import name.graf.emanuel.testfileeditor.model.node.Test;
 
 public class TestFile extends Observable {
     private final String name;
-    private final ArrayList<Test> tests;
+    private final Set<Test> tests;
+    private final Set<Position> duplicatePositions;
     private IDocument document;
 
     public static final String PARTITION_TEST_CLASS = "__rts_class";
@@ -44,7 +49,8 @@ public class TestFile extends Observable {
 
     public TestFile(final String name) {
         this.name = name;
-        tests = new ArrayList<Test>();
+        tests = new HashSet<>();
+        duplicatePositions = new HashSet<>();
         document = null;
     }
 
@@ -57,6 +63,10 @@ public class TestFile extends Observable {
         return this.tests.toArray(new Test[0]);
     }
 
+    public Set<Position> getDuplicatePositions() {
+        return duplicatePositions;
+    }
+    
     @Override
     public int hashCode() {
         return this.name.hashCode();
@@ -70,6 +80,10 @@ public class TestFile extends Observable {
     public void setDocument(final IDocument document) {
         try {
             if (this.document != null) {
+                if(this.document.equals(document)){
+                    return;
+                }
+                
                 for (String category : PARTITION_TYPES) {
                     this.document.removePositionCategory(category);
                 }
@@ -86,6 +100,15 @@ public class TestFile extends Observable {
         } catch (BadLocationException | BadPositionCategoryException e) {
         }
     }
+    
+    public void reparse() {
+        try {
+            parse();
+            notifyObservers();
+        } catch (BadLocationException | BadPositionCategoryException e) {
+            Activator.logError(e, 0);
+        }
+    }
 
     public IDocument getDocument() {
         return document;
@@ -95,6 +118,7 @@ public class TestFile extends Observable {
         final int NOF_LINES = document.getNumberOfLines();
 
         tests.clear();
+        duplicatePositions.clear();
         Test currentTest = null;
         File currentFile = null;
         ParseState currentState = ParseState.INIT;
@@ -109,7 +133,11 @@ public class TestFile extends Observable {
                 final Position tagPosition = new Position(lineOffset, lineLength);
                 document.addPosition(PARTITION_TEST_NAME, tagPosition);
                 currentTest = new Test(lineContent.substring(TEST.length()).trim(), tagPosition, this);
-                tests.add(currentTest);
+                if (tests.contains(currentTest)) {
+                    duplicatePositions.add(tagPosition);
+                } else {
+                    tests.add(currentTest);
+                }
                 currentState = ParseState.TEST;
             } else if (lineContent.startsWith(LANGUAGE) && currentTest != null) {
                 final Position tagPosition = new Position(lineOffset, lineLength);
@@ -153,8 +181,7 @@ public class TestFile extends Observable {
                 }
                 final Position tagPosition = new Position(lineOffset, lineLength);
                 document.addPosition(PARTITION_TEST_FILE, tagPosition);
-                currentFile = new File(lineContent.substring(FILE.length()).trim(), tagPosition,
-                        currentTest);
+                currentFile = new File(lineContent.substring(FILE.length()).trim(), tagPosition, currentTest);
                 currentTest.addFile(currentFile);
                 currentState = ParseState.FILE;
             } else if (lineContent.startsWith(CLASS) && currentState == ParseState.TEST) {

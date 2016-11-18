@@ -73,5 +73,43 @@
          </command>
       </menuContribution>
    </extension>
+   <extension
+         id="name.graf.emanuel.testfileeditor.markers.DuplicateTestMarker"
+         name="Duplicate test case"
+         point="org.eclipse.core.resources.markers">
+      <persistent
+            value="false">
+      </persistent>
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.markerAnnotationSpecification">
+      <specification
+            annotationType="name.graf.emanuel.testfileeditor.annotations.DuplicateTestMarkerAnnotation"
+            colorPreferenceKey="duplicateTestAnnotationColor"
+            colorPreferenceValue="255,0,0"
+            highlightPreferenceValue="true"
+            includeOnPreferencePage="true"
+            label="Duplicate test detected"
+            overviewRulerPreferenceKey="duplicateTestAnnotationOverviewRuler"
+            overviewRulerPreferenceValue="true"
+            symbolicIcon="error"
+            textPreferenceKey="duplicateTestAnnotationText"
+            textPreferenceValue="true"
+            verticalRulerPreferenceKey="duplicateTestAnnotationVerticalRuler"
+            verticalRulerPreferenceValue="true">
+      </specification>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors.annotationTypes">
+      <type
+            markerSeverity="2"
+            markerType="name.graf.emanuel.testfileeditor.markers.DuplicateTestMarker"
+            name="name.graf.emanuel.testfileeditor.annotations.MarkerAnnotation"
+            super="org.eclipse.ui.workbench.texteditor.error">
+      </type>
+   </extension>
 
 </plugin>

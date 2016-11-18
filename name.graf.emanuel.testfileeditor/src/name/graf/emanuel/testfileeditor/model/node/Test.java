@@ -36,8 +36,7 @@ public class Test implements Node
     }
     
     public int hashCode() {
-        final long namenHash = this.name.hashCode();
-        return (int)namenHash + this.pos.offset;
+        return this.name.hashCode();
     }
     
     public Node[] getChildren() {
