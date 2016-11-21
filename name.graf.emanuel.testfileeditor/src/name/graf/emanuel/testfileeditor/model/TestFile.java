@@ -2,11 +2,9 @@ package name.graf.emanuel.testfileeditor.model;
 
 import static name.graf.emanuel.testfileeditor.model.Tokens.*;
 
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Observable;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPositionCategoryException;

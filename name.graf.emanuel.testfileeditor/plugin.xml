@@ -107,7 +107,7 @@
       <type
             markerSeverity="2"
             markerType="name.graf.emanuel.testfileeditor.markers.DuplicateTestMarker"
-            name="name.graf.emanuel.testfileeditor.annotations.MarkerAnnotation"
+            name="name.graf.emanuel.testfileeditor.annotations.DuplicateTestMarkerAnnotation"
             super="org.eclipse.ui.workbench.texteditor.error">
       </type>
    </extension>

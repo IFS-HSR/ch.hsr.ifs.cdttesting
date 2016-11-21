@@ -1,16 +1,13 @@
 package name.graf.emanuel.testfileeditor.ui;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 import java.util.Vector;
 
-import org.eclipse.core.internal.resources.Marker;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
@@ -18,7 +15,6 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
-import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
@@ -29,13 +25,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.texteditor.AnnotationPreference;
-import org.eclipse.ui.texteditor.MarkerAnnotation;
-import org.eclipse.ui.texteditor.MarkerAnnotationPreferences;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
-
-import com.sun.xml.internal.txw2.Document;
 
 import name.graf.emanuel.testfileeditor.model.TestFile;
 import name.graf.emanuel.testfileeditor.ui.support.editor.ColorManager;
@@ -47,7 +38,6 @@ public class Editor extends TextEditor implements Observer {
     private OutlinePage fOutlinePage;
     private ProjectionSupport projectionSupport;
     private ProjectionAnnotationModel projectionAnnotationModel;
-    private IAnnotationModel annotationModel;
     private Annotation[] oldAnnotations;
     private TestFile file;
 
@@ -82,7 +72,6 @@ public class Editor extends TextEditor implements Observer {
         this.getSourceViewerDecorationSupport(viewer);
         IEditorInput input = getEditorInput();
         IDocument document = getDocumentProvider().getDocument(input);
-        annotationModel = getDocumentProvider().getAnnotationModel(input);
         file = new TestFile(input.getName());
         file.addObserver(this);
         file.setDocument(document);
@@ -163,7 +152,6 @@ public class Editor extends TextEditor implements Observer {
                 FileEditorInput input = (FileEditorInput) getEditorInput();
                 IDocument document = getDocumentProvider().getDocument(input);
                 IFile file = input.getFile();
-                AnnotationPreference preferences = getAnnotationPreferenceLookup().getAnnotationPreference("name.graf.emanuel.testfileeditor.annotations.MarkerAnnotation");
                 
                 try {
                     IMarker[] findMarkers = file.findMarkers("name.graf.emanuel.testfileeditor.markers.DuplicateTestMarker", false, IFile.DEPTH_INFINITE);
