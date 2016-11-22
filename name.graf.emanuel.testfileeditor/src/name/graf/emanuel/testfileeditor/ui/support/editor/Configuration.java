@@ -64,4 +64,9 @@ public class Configuration extends SourceViewerConfiguration
         final MonoReconciler reconciler = new MonoReconciler((IReconcilingStrategy)strategy, false);
         return (IReconciler)reconciler;
     }
+    
+    @Override
+    public IAnnotationHover getAnnotationHover(ISourceViewer sourceViewer) {
+        return new DefaultAnnotationHover();
+    }
 }

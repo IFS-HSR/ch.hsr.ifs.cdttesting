@@ -75,7 +75,7 @@
    </extension>
    <extension
          id="name.graf.emanuel.testfileeditor.markers.DuplicateTestMarker"
-         name="Duplicate test case"
+         name="Duplicate RTS Test"
          point="org.eclipse.core.resources.markers">
       <persistent
             value="false">
@@ -92,7 +92,7 @@
             colorPreferenceValue="255,0,0"
             highlightPreferenceValue="true"
             includeOnPreferencePage="true"
-            label="Duplicate test detected"
+            label="Duplicte RTS Test"
             overviewRulerPreferenceKey="duplicateTestAnnotationOverviewRuler"
             overviewRulerPreferenceValue="true"
             symbolicIcon="error"

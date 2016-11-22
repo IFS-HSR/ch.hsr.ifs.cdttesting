@@ -9,7 +9,6 @@ import java.util.Vector;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
@@ -28,12 +27,16 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
+import name.graf.emanuel.testfileeditor.Activator;
+import name.graf.emanuel.testfileeditor.model.Problem;
 import name.graf.emanuel.testfileeditor.model.TestFile;
 import name.graf.emanuel.testfileeditor.ui.support.editor.ColorManager;
 import name.graf.emanuel.testfileeditor.ui.support.editor.Configuration;
 import name.graf.emanuel.testfileeditor.ui.support.editor.DocumentProvider;
 
 public class Editor extends TextEditor implements Observer {
+    private static final String MARKER_ID_DUPLICATE_TEST = "name.graf.emanuel.testfileeditor.markers.DuplicateTestMarker";
+
     private ColorManager colorManager;
     private OutlinePage fOutlinePage;
     private ProjectionSupport projectionSupport;
@@ -44,8 +47,7 @@ public class Editor extends TextEditor implements Observer {
     public Editor() {
         super();
         this.colorManager = new ColorManager();
-        this.setSourceViewerConfiguration(
-                new Configuration(this.colorManager, this));
+        this.setSourceViewerConfiguration(new Configuration(this.colorManager, this));
         this.setDocumentProvider(new DocumentProvider());
     }
 
@@ -146,39 +148,59 @@ public class Editor extends TextEditor implements Observer {
     public void update(Observable object, Object info) {
         if (object instanceof TestFile) {
             TestFile testFile = (TestFile) object;
-            
-            if(!testFile.getDuplicatePositions().isEmpty()) {
-                Set<Position> duplicates = testFile.getDuplicatePositions();
-                FileEditorInput input = (FileEditorInput) getEditorInput();
-                IDocument document = getDocumentProvider().getDocument(input);
-                IFile file = input.getFile();
-                
-                try {
-                    IMarker[] findMarkers = file.findMarkers("name.graf.emanuel.testfileeditor.markers.DuplicateTestMarker", false, IFile.DEPTH_INFINITE);
 
-                    for (IMarker marker : findMarkers) {
-                        int offset = MarkerUtilities.getCharStart(marker);
-                        int length = MarkerUtilities.getCharEnd(marker) - offset;
-                        Position position = new Position(offset, length);
-                        if(!duplicates.contains(position)) {
-                            marker.delete();
-                        } else {
-                            duplicates.remove(position);
-                        }
-                    }
-                    
-                    for (Position position : duplicates) {
-                        IMarker marker = file.createMarker("name.graf.emanuel.testfileeditor.markers.DuplicateTestMarker");
-                        MarkerUtilities.setCharStart(marker, position.offset);
-                        MarkerUtilities.setCharEnd(marker, position.offset + position.length);
-                        MarkerUtilities.setLineNumber(marker, document.getLineOfOffset(position.offset));
-                        marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-                        marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-                    }
-                } catch (CoreException | BadLocationException e) {
+            Set<Problem> problems = testFile.getProblems();
+            cleanMarkers(problems);
+            postMarkers(problems);
+        }
+    }
 
+    private void postMarkers(Set<Problem> problems) {
+        FileEditorInput input = (FileEditorInput) getEditorInput();
+        IFile file = input.getFile();
+
+        try {
+            for (Problem problem : problems) {
+                IMarker marker = file.createMarker(MARKER_ID_DUPLICATE_TEST);
+                MarkerUtilities.setCharStart(marker, problem.getPosition().offset);
+                MarkerUtilities.setCharEnd(marker, problem.getPosition().offset + problem.getPosition().length);
+                MarkerUtilities.setLineNumber(marker, problem.getLineNumber());
+                marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+                marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+                marker.setAttribute(IMarker.MESSAGE, problem.getDescription());
+            }
+        } catch (CoreException e) {
+            Activator.logError(e, 0);
+        }
+    }
+
+    private void cleanMarkers(Set<Problem> problems) {
+        FileEditorInput input = (FileEditorInput) getEditorInput();
+        IFile file = input.getFile();
+
+        try {
+            IMarker[] currentMarkers = file.findMarkers(MARKER_ID_DUPLICATE_TEST, false, IFile.DEPTH_INFINITE);
+            for (IMarker marker : currentMarkers) {
+                int offset = MarkerUtilities.getCharStart(marker);
+                int length = MarkerUtilities.getCharEnd(marker) - offset;
+                Position position = new Position(offset, length);
+
+                Problem found = null;
+                for (Problem problem : problems) {
+                    if (problem.getPosition().equals(position)) {
+                        found = problem;
+                        break;
+                    }
+                }
+
+                if (found == null) {
+                    marker.delete();
+                } else {
+                    problems.remove(found);
                 }
             }
+        } catch (CoreException e) {
+            Activator.logError(e, 0);
         }
     }
 }

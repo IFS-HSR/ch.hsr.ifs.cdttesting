@@ -22,7 +22,7 @@ import name.graf.emanuel.testfileeditor.model.node.Test;
 public class TestFile extends Observable {
     private final String name;
     private final Set<Test> tests;
-    private final Set<Position> duplicatePositions;
+    private final Set<Problem> problems;
     private IDocument document;
 
     public static final String PARTITION_TEST_CLASS = "__rts_class";
@@ -48,7 +48,7 @@ public class TestFile extends Observable {
     public TestFile(final String name) {
         this.name = name;
         tests = new HashSet<>();
-        duplicatePositions = new HashSet<>();
+        problems = new HashSet<>();
         document = null;
     }
 
@@ -61,8 +61,8 @@ public class TestFile extends Observable {
         return this.tests.toArray(new Test[0]);
     }
 
-    public Set<Position> getDuplicatePositions() {
-        return duplicatePositions;
+    public Set<Problem> getProblems() {
+        return problems;
     }
     
     @Override
@@ -116,7 +116,7 @@ public class TestFile extends Observable {
         final int NOF_LINES = document.getNumberOfLines();
 
         tests.clear();
-        duplicatePositions.clear();
+        problems.clear();
         Test currentTest = null;
         File currentFile = null;
         ParseState currentState = ParseState.INIT;
@@ -132,7 +132,7 @@ public class TestFile extends Observable {
                 document.addPosition(PARTITION_TEST_NAME, tagPosition);
                 currentTest = new Test(lineContent.substring(TEST.length()).trim(), tagPosition, this);
                 if (tests.contains(currentTest)) {
-                    duplicatePositions.add(tagPosition);
+                    problems.add(new DuplicateTest(currentTest.toString(), currentLine + 1, tagPosition));
                 } else {
                     tests.add(currentTest);
                 }
