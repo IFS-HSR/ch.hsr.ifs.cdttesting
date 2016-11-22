@@ -4,12 +4,19 @@ import static name.graf.emanuel.testfileeditor.model.Tokens.*;
 
 import java.util.HashSet;
 import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPositionCategoryException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.Position;
+import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.ui.texteditor.MarkerUtilities;
 
 import name.graf.emanuel.testfileeditor.Activator;
 import name.graf.emanuel.testfileeditor.model.node.Class;
@@ -20,10 +27,13 @@ import name.graf.emanuel.testfileeditor.model.node.Selection;
 import name.graf.emanuel.testfileeditor.model.node.Test;
 
 public class TestFile extends Observable {
-    private final String name;
-    private final Set<Test> tests;
-    private final Set<Problem> problems;
-    private IDocument document;
+    private static final String MARKER_ID_DUPLICATE_TEST = "name.graf.emanuel.testfileeditor.markers.DuplicateTestMarker";
+    
+    private final String fName;
+    private final Set<Test> fTests;
+    private final Set<Problem> fProblems;
+    private final IDocumentProvider fProvider;
+    private FileEditorInput fInput;
 
     public static final String PARTITION_TEST_CLASS = "__rts_class";
     public static final String PARTITION_TEST_COMMENT = "__rts_comment";
@@ -45,78 +55,66 @@ public class TestFile extends Observable {
     };
     //@formatter:on
 
-    public TestFile(final String name) {
-        this.name = name;
-        tests = new HashSet<>();
-        problems = new HashSet<>();
-        document = null;
+    public TestFile(FileEditorInput input, IDocumentProvider provider) {
+        fInput = input;
+        fProvider = provider;
+        fName = input.getName();
+        fTests = new HashSet<>();
+        fProblems = new HashSet<>();
+        setupPositionCategories();
+    }
+
+    private void setupPositionCategories() {
+        IDocument document = fProvider.getDocument(fInput);
+        for (String partition : PARTITION_TYPES) {
+            document.addPositionCategory(partition);
+        }
+    }
+    
+    public TestFile(FileEditorInput input, IDocumentProvider provider, Observer observer) {
+        this(input, provider);
+        addObserver(observer);
     }
 
     @Override
     public String toString() {
-        return this.name;
+        return this.fName;
     }
 
     public Test[] getTests() {
-        return this.tests.toArray(new Test[0]);
+        return this.fTests.toArray(new Test[0]);
     }
 
     public Set<Problem> getProblems() {
-        return problems;
+        return fProblems;
     }
     
     @Override
     public int hashCode() {
-        return this.name.hashCode();
+        return this.fName.hashCode();
     }
 
     @Override
     public boolean equals(final Object obj) {
         return this.hashCode() == obj.hashCode();
     }
-
-    public void setDocument(final IDocument document) {
-        try {
-            if (this.document != null) {
-                if(this.document.equals(document)){
-                    return;
-                }
-                
-                for (String category : PARTITION_TYPES) {
-                    this.document.removePositionCategory(category);
-                }
-            }
-
-            this.document = document;
-            if (this.document != null) {
-                for (String category : PARTITION_TYPES) {
-                    this.document.addPositionCategory(category);
-                }
-                parse();
-                notifyObservers();
-            }
-        } catch (BadLocationException | BadPositionCategoryException e) {
-        }
-    }
     
-    public void reparse() {
+    public void parse() {
         try {
-            parse();
+            doParse();
             notifyObservers();
-        } catch (BadLocationException | BadPositionCategoryException e) {
+        } catch (BadLocationException | BadPositionCategoryException | CoreException e) {
             Activator.logError(e, 0);
         }
     }
 
-    public IDocument getDocument() {
-        return document;
-    }
-
-    private void parse() throws BadLocationException, BadPositionCategoryException {
+    private void doParse() throws BadLocationException, BadPositionCategoryException, CoreException {
+        final IDocument document = fProvider.getDocument(fInput);
         final int NOF_LINES = document.getNumberOfLines();
 
-        tests.clear();
-        problems.clear();
+        fTests.clear();
+        fProblems.clear();
+        cleanMarkers();
         Test currentTest = null;
         File currentFile = null;
         ParseState currentState = ParseState.INIT;
@@ -131,10 +129,12 @@ public class TestFile extends Observable {
                 final Position tagPosition = new Position(lineOffset, lineLength);
                 document.addPosition(PARTITION_TEST_NAME, tagPosition);
                 currentTest = new Test(lineContent.substring(TEST.length()).trim(), tagPosition, this);
-                if (tests.contains(currentTest)) {
-                    problems.add(new DuplicateTest(currentTest.toString(), currentLine + 1, tagPosition));
+                if (fTests.contains(currentTest)) {
+                    Problem duplicateTest = new DuplicateTest(currentTest.toString(), currentLine + 1, tagPosition);
+                    reportProblem(duplicateTest);
+                    fProblems.add(new DuplicateTest(currentTest.toString(), currentLine + 1, tagPosition));
                 } else {
-                    tests.add(currentTest);
+                    fTests.add(currentTest);
                 }
                 currentState = ParseState.TEST;
             } else if (lineContent.startsWith(LANGUAGE) && currentTest != null) {
@@ -203,7 +203,50 @@ public class TestFile extends Observable {
         setChanged();
     }
 
+    private void reportProblem(Problem problem) throws CoreException {
+        IFile file = fInput.getFile();
+        IMarker marker = file.createMarker(MARKER_ID_DUPLICATE_TEST);
+        MarkerUtilities.setCharStart(marker, problem.getPosition().offset);
+        MarkerUtilities.setCharEnd(marker, problem.getPosition().offset + problem.getPosition().length);
+        MarkerUtilities.setLineNumber(marker, problem.getLineNumber());
+        marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
+        marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+        marker.setAttribute(IMarker.MESSAGE, problem.getDescription());
+    }
+
+    private void cleanMarkers() {
+        try {
+            IMarker[] currentMarkers = fInput.getFile().findMarkers(MARKER_ID_DUPLICATE_TEST, false, IFile.DEPTH_INFINITE);
+            for (IMarker marker : currentMarkers) {
+                int offset = MarkerUtilities.getCharStart(marker);
+                int length = MarkerUtilities.getCharEnd(marker) - offset;
+                Position position = new Position(offset, length);
+
+                Problem found = null;
+                for (Problem problem : fProblems) {
+                    if (problem.getPosition().equals(position)) {
+                        found = problem;
+                        break;
+                    }
+                }
+
+                if (found == null) {
+                    marker.delete();
+                } else {
+                    fProblems.remove(found);
+                }
+            }
+        } catch (CoreException e) {
+            Activator.logError(e, 0);
+        }
+    }
+
     private enum ParseState {
         INIT, TEST, FILE, SELECTION
+    }
+
+    public void setInput(FileEditorInput input) {
+        fInput = input;
+        setupPositionCategories();
     }
 }

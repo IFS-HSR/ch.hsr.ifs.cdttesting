@@ -6,6 +6,7 @@ import org.eclipse.jface.text.IPositionUpdater;
 import org.eclipse.jface.viewers.TreeNodeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
 import name.graf.emanuel.testfileeditor.Activator;
@@ -24,7 +25,8 @@ public class TestFileTreeNodeContentProvider extends TreeNodeContentProvider {
         this.fPositionUpdater = new DefaultPositionUpdater(Activator.TEST_FILE_PARTITIONING);
         this.provider = provider;
         this.input = input;
-        this.file = new TestFile(input.getName());
+        this.file = new TestFile((FileEditorInput) input, provider);
+        file.parse();
     }
 
     @Override
@@ -40,7 +42,7 @@ public class TestFileTreeNodeContentProvider extends TreeNodeContentProvider {
             final IDocument document = this.provider.getDocument(newInput);
             if (document != null) {
                 document.addPositionUpdater(this.fPositionUpdater);
-                this.file.setDocument(document);
+                file.setInput((FileEditorInput) input);
             }
         }
     }

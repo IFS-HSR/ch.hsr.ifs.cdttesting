@@ -34,6 +34,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
 import name.graf.emanuel.testfileeditor.model.TestFile;
@@ -157,12 +158,13 @@ public class JumpToRTSHandler extends AbstractHandler {
                 IWorkbench workbench = PlatformUI.getWorkbench();
 
                 IWorkbenchPage page = workbench.getActiveWorkbenchWindow().getActivePage();
+                FileEditorInput input = new FileEditorInput(file);
                 IDocumentProvider provider = new TextFileDocumentProvider();
-                provider.connect(file);
-                IDocument document = provider.getDocument(file);
+                provider.connect(input);
+                IDocument document = provider.getDocument(input);
 
-                TestFile testFile = new TestFile(file.getName());
-                testFile.setDocument(document);
+                TestFile testFile = new TestFile(input, provider);
+                testFile.parse();
                 IEditorDescriptor defaultEditor = workbench.getEditorRegistry().getDefaultEditor(file.getName());
                 String editorId = defaultEditor.getId();
 
@@ -182,6 +184,7 @@ public class JumpToRTSHandler extends AbstractHandler {
                     IDE.openEditor(page, file);
                 }
             } catch (CoreException | BadLocationException | NullPointerException e) {
+                e.printStackTrace();
                 MessageDialog.openError(shell, "Jump to RTS", "Failed to find associated RTS file.");
             }
         }

@@ -113,7 +113,8 @@ public class VirtualLineNumberRuler extends LineNumberRulerColumn implements ICo
             List<Integer> endLineNumbers = new ArrayList<>();
 
             TestFile file = (TestFile) o;
-            IDocument document = file.getDocument();
+            
+            IDocument document = getEditor().getDocumentProvider().getDocument(getEditor().getEditorInput());
             Test[] tests = file.getTests();
 
             try {

@@ -1,14 +1,8 @@
 package name.graf.emanuel.testfileeditor.ui;
 
 import java.util.HashMap;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Set;
 import java.util.Vector;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
@@ -24,19 +18,14 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.texteditor.MarkerUtilities;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
-import name.graf.emanuel.testfileeditor.Activator;
-import name.graf.emanuel.testfileeditor.model.Problem;
 import name.graf.emanuel.testfileeditor.model.TestFile;
 import name.graf.emanuel.testfileeditor.ui.support.editor.ColorManager;
 import name.graf.emanuel.testfileeditor.ui.support.editor.Configuration;
 import name.graf.emanuel.testfileeditor.ui.support.editor.DocumentProvider;
 
-public class Editor extends TextEditor implements Observer {
-    private static final String MARKER_ID_DUPLICATE_TEST = "name.graf.emanuel.testfileeditor.markers.DuplicateTestMarker";
-
+public class Editor extends TextEditor {
     private ColorManager colorManager;
     private OutlinePage fOutlinePage;
     private ProjectionSupport projectionSupport;
@@ -74,15 +63,14 @@ public class Editor extends TextEditor implements Observer {
         this.getSourceViewerDecorationSupport(viewer);
         IEditorInput input = getEditorInput();
         IDocument document = getDocumentProvider().getDocument(input);
-        file = new TestFile(input.getName());
-        file.addObserver(this);
-        file.setDocument(document);
+        file = new TestFile((FileEditorInput) input, getDocumentProvider());
+        file.parse();
 
         document.addDocumentListener(new IDocumentListener() {
 
             @Override
             public void documentChanged(DocumentEvent event) {
-                file.reparse();
+                file.parse();
             }
 
             @Override
@@ -129,7 +117,7 @@ public class Editor extends TextEditor implements Observer {
         }
 
         if (file != null) {
-            file.reparse();
+            file.parse();
         }
 
         super.editorSaved();
@@ -144,63 +132,4 @@ public class Editor extends TextEditor implements Observer {
         super.handleCursorPositionChanged();
     }
 
-    @Override
-    public void update(Observable object, Object info) {
-        if (object instanceof TestFile) {
-            TestFile testFile = (TestFile) object;
-
-            Set<Problem> problems = testFile.getProblems();
-            cleanMarkers(problems);
-            postMarkers(problems);
-        }
-    }
-
-    private void postMarkers(Set<Problem> problems) {
-        FileEditorInput input = (FileEditorInput) getEditorInput();
-        IFile file = input.getFile();
-
-        try {
-            for (Problem problem : problems) {
-                IMarker marker = file.createMarker(MARKER_ID_DUPLICATE_TEST);
-                MarkerUtilities.setCharStart(marker, problem.getPosition().offset);
-                MarkerUtilities.setCharEnd(marker, problem.getPosition().offset + problem.getPosition().length);
-                MarkerUtilities.setLineNumber(marker, problem.getLineNumber());
-                marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-                marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
-                marker.setAttribute(IMarker.MESSAGE, problem.getDescription());
-            }
-        } catch (CoreException e) {
-            Activator.logError(e, 0);
-        }
-    }
-
-    private void cleanMarkers(Set<Problem> problems) {
-        FileEditorInput input = (FileEditorInput) getEditorInput();
-        IFile file = input.getFile();
-
-        try {
-            IMarker[] currentMarkers = file.findMarkers(MARKER_ID_DUPLICATE_TEST, false, IFile.DEPTH_INFINITE);
-            for (IMarker marker : currentMarkers) {
-                int offset = MarkerUtilities.getCharStart(marker);
-                int length = MarkerUtilities.getCharEnd(marker) - offset;
-                Position position = new Position(offset, length);
-
-                Problem found = null;
-                for (Problem problem : problems) {
-                    if (problem.getPosition().equals(position)) {
-                        found = problem;
-                        break;
-                    }
-                }
-
-                if (found == null) {
-                    marker.delete();
-                } else {
-                    problems.remove(found);
-                }
-            }
-        } catch (CoreException e) {
-            Activator.logError(e, 0);
-        }
-    }
 }
