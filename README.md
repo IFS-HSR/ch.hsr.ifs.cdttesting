@@ -142,6 +142,28 @@ comes with support for outlining your test files in the **Eclipse** standard
 outline page. Simply double click on a test, virtual file or before-and-after
 section to jump directly to the associated position in the test file.
 
+##### Duplicate test detection
+
+![RTS duplicate detection](/../media/images/rts-editor-duplicate-annotation.png?raw=true "The RTS editor duplicate detection")
+
+The **Eclipse CDT RTS** test execution environment does not detect is there are
+multiple definitions for the same test. Instead, it simply picks one of them
+and runs it, while the other definitions will be silently ignored. This can
+lead to the false believe, that all tests have run successfully, since there is
+no way, using the standard tools provided by **Eclipse PDE**, to detect this
+situation.
+
+This is where the Testfileeditor comes into play. It scans your currently open
+file for duplicate test definitions and marks them directly in the editor,
+using a marker similar to the ones you are used to from
+**Eclipse CDT/PDE/JDT**.
+
+![RTS duplicate log](/../media/images/rts-editor-duplicate-log.png?raw=true "The RTS editor duplicate log")
+
+In addition to the markers in the currently open editor, you can also access
+the problems via the built-in **Problems** view. From there, you can jump
+directly to the offending definition.
+
 ##### Jump to RTS
 
 ![Jump to RTS](/../media/images/rts-editor-jumptorts.png?raw=true "Jump to RTS")
