@@ -9,7 +9,7 @@
             id="ch.hsr.ifs.pasta"
             name="Painless AST Analysis"/>
             <view 
-                icon="icons/sample.gif" 
+                icon="icons/pasta.gif" 
                 category="ch.hsr.ifs.pasta" 
                 class="ch.hsr.ifs.pasta.ASTView"
                 id="ch.hsr.ifs.pasta.astview" 
@@ -17,7 +17,7 @@
             <view
                category="ch.hsr.ifs.pasta"
                class="ch.hsr.ifs.pasta.NodeView"
-               icon="icons/sample.gif"
+               icon="icons/pasta.gif"
                id="ch.hsr.ifs.pasta.nodeview"
                name="Node View"/>
     </extension>

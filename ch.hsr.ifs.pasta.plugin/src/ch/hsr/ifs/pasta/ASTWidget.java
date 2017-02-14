@@ -9,6 +9,7 @@ import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTNodeSelector;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorIncludeStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
+import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTTranslationUnit;
 import org.eclipse.cdt.ui.CUIPlugin;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -361,6 +362,11 @@ public class ASTWidget extends ScrolledComposite {
 		nodeHeight = Math.max(nodeHeight, minButtonSize.y);
 		node.setWidth(minButtonSize.x);
 		node.treatAsLeaf(true);
+
+		if (astNode instanceof ICPPASTTranslationUnit) {
+			button.setBackground(new Color(Display.getCurrent(), 255, 168, 0));
+			button.getFont().getFontData()[0].setStyle(SWT.BOLD);
+		}
 
 		button.addMouseListener(new MouseAdapter() {
 

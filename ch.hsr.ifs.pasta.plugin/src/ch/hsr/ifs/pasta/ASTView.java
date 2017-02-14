@@ -39,6 +39,15 @@ public class ASTView extends ViewPart {
 
 			@Override
 			public void run() {
+				// CUIPlugin.getActivePage().getActiveEditor().addPropertyListener(new
+				// IPropertyListener() {
+				//
+				// @Override
+				// public void propertyChanged(final Object source, final int
+				// propId) {
+				// treeView.drawAST(getAST());
+				// }
+				// });
 				treeView.drawAST(getAST());
 			}
 
