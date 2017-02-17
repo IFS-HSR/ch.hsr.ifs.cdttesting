@@ -11,7 +11,6 @@ import org.eclipse.cdt.core.dom.ast.IASTPreprocessorIncludeStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTTranslationUnit;
 import org.eclipse.cdt.ui.CUIPlugin;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
@@ -219,7 +218,7 @@ public class ASTWidget extends ScrolledComposite {
 		treeHeight = getBounds().height;
 	}
 
-	public void drawAST(@NonNull final IASTTranslationUnit ast) {
+	public void drawAST(final IASTTranslationUnit ast) {
 		clear();
 		localASTCopy = ast;
 		root = constructTree(localASTCopy, canvas);
@@ -231,7 +230,7 @@ public class ASTWidget extends ScrolledComposite {
 		refresh();
 	}
 
-	public void setListener(@NonNull final NodeSelectionListener listener) {
+	public void setListener(final NodeSelectionListener listener) {
 		this.listener = listener;
 	}
 
