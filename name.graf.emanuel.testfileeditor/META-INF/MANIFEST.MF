@@ -6,6 +6,7 @@ Bundle-Version: 9.2.0.qualifier
 Bundle-Activator: name.graf.emanuel.testfileeditor.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
+ org.eclipse.core.resources,
  org.eclipse.jface.text,
  org.eclipse.ui.editors,
  org.eclipse.ui.workbench.texteditor,
@@ -13,7 +14,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.equinox.preferences,
  org.eclipse.jdt.core,
  org.eclipse.jdt,
- org.eclipse.core.resources,
  org.eclipse.ui.ide,
  ch.hsr.ifs.cdttesting,
  org.eclipse.ui.browser

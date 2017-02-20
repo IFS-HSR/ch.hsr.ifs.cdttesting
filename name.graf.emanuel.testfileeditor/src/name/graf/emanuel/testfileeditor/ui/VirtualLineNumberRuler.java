@@ -14,8 +14,13 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.JFaceTextUtil;
 import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.source.CompositeRuler;
 import org.eclipse.jface.text.source.LineNumberRulerColumn;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -36,138 +41,199 @@ import name.graf.emanuel.testfileeditor.model.node.Test;
 @SuppressWarnings("restriction")
 public class VirtualLineNumberRuler extends LineNumberRulerColumn implements IContributedRulerColumn, Observer {
 
-    private Editor textEditor;
-    private RulerColumnDescriptor columnDescriptor;
-    private ITextViewer textWidget;
-    private Map<Integer, Integer> modelLineToRulerLineMap = new HashMap<>();
-    private int maxDigits = 0;
+	/**
+	 * @author tstauber
+	 *
+	 *         Implements a mouseDoubleClick handler that allows for adding the
+	 *         virtual line number that one double clicked on to the markerLines
+	 *         list associated with the virtual test file.
+	 *
+	 */
+	class MouseHandler implements MouseListener, MouseMoveListener, MouseWheelListener {
 
-    @Override
-    protected int computeNumberOfDigits() {
-        return maxDigits + 1;
-    }
+		@Override
+		public void mouseScrolled(final MouseEvent e) {
+		}
 
-    @Override
-    public void columnCreated() {
-    }
+		@Override
+		public void mouseMove(final MouseEvent e) {
+		}
 
-    @Override
-    public void columnRemoved() {
-    }
+		@Override
+		public void mouseDoubleClick(final MouseEvent e) {
 
-    @Override
-    public Control createControl(CompositeRuler parentRuler, Composite parentControl) {
-        textWidget = parentRuler.getTextViewer();
-        TestFile file = textEditor.getAdapter(TestFile.class);
-        file.addObserver(this);
-        update(file, null);
+			final Integer lineNo = fparentRuler.getLineOfLastMouseButtonActivity();
+			final Integer relativeLineNo = modelLineToRulerLineMap.get(lineNo);
 
-        RGB foreground = getColor(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_LINE_NUMBER_RULER_COLOR);
-        RGB background = getColor(AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND);
+			if (lineNo != -1) {
+				final IDocument document = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
+				try {
+					final TestFile testFile = textEditor.getTestFile();
+					final Integer newLength = testFile.addLineNoToMarkerList(lineNo, relativeLineNo);
+					if (newLength != -1) {
+						final TextSelection sel = new TextSelection(document.getLineOffset(lineNo) + newLength, 0);
+						textEditor.getSelectionProvider().setSelection(sel);
+					}
+				} catch (final BadLocationException exc) {
+				}
+			}
+		}
 
-        setForeground(EditorsPlugin.getDefault().getSharedTextColors().getColor(foreground));
-        setBackground(EditorsPlugin.getDefault().getSharedTextColors().getColor(background));
+		@Override
+		public void mouseDown(final MouseEvent e) {
+		}
 
-        return super.createControl(parentRuler, parentControl);
-    }
+		@Override
+		public void mouseUp(final MouseEvent e) {
+		}
+	}
 
-    @Override
-    protected String createDisplayString(int line) {
-        line = JFaceTextUtil.widgetLine2ModelLine(textWidget, line);
-        return modelLineToRulerLineMap.containsKey(line) ? modelLineToRulerLineMap.get(line).toString() : "";
-    }
+	private Editor textEditor;
+	private MouseHandler fMouseHandler;
+	private RulerColumnDescriptor columnDescriptor;
+	private ITextViewer textWidget;
+	private CompositeRuler fparentRuler;
+	private final Map<Integer, Integer> modelLineToRulerLineMap = new HashMap<>();
+	private int maxDigits = 0;
 
-    private RGB getColor(String key) {
-        IPreferenceStore preferenceStore = EditorsUI.getPreferenceStore();
-        if (preferenceStore.contains(key)) {
-            return PreferenceConverter.getColor(preferenceStore, key);
-        }
+	public VirtualLineNumberRuler() {
+		super();
+	}
 
-        return PreferenceConverter.getDefaultColor(preferenceStore, key);
-    }
+	@Override
+	protected int computeNumberOfDigits() {
+		return maxDigits + 1;
+	}
 
-    @Override
-    public RulerColumnDescriptor getDescriptor() {
-        return columnDescriptor;
-    }
+	@Override
+	public void columnCreated() {
+	}
 
-    @Override
-    public ITextEditor getEditor() {
-        return textEditor;
-    }
+	@Override
+	public void columnRemoved() {
+	}
 
-    @Override
-    public void setDescriptor(RulerColumnDescriptor descriptor) {
-        columnDescriptor = descriptor;
-    }
+	@Override
+	public Control createControl(final CompositeRuler parentRuler, final Composite parentControl) {
+		fparentRuler = parentRuler;
+		textWidget = parentRuler.getTextViewer();
+		final TestFile file = textEditor.getAdapter(TestFile.class);
+		file.addObserver(this);
+		update(file, null);
 
-    @Override
-    public void setEditor(ITextEditor editor) {
-        textEditor = (Editor) editor;
-    }
+		final RGB foreground = getColor(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_LINE_NUMBER_RULER_COLOR);
+		final RGB background = getColor(AbstractTextEditor.PREFERENCE_COLOR_BACKGROUND);
 
-    @Override
-    public void update(Observable o, Object arg) {
-        if (o instanceof TestFile) {
-            List<Integer> startLineNumbers = new ArrayList<>();
-            List<Integer> endLineNumbers = new ArrayList<>();
+		setForeground(EditorsPlugin.getDefault().getSharedTextColors().getColor(foreground));
+		setBackground(EditorsPlugin.getDefault().getSharedTextColors().getColor(background));
 
-            TestFile file = (TestFile) o;
-            
-            IDocument document = getEditor().getDocumentProvider().getDocument(getEditor().getEditorInput());
-            Test[] tests = file.getTests();
+		final Control fCanvas = super.createControl(parentRuler, parentControl);
 
-            try {
-                for (Test test : tests) {
-                    Node[] files = test.getChildren();
-                    Position nodePosition = test.getPosition();
-                    int realLine = document.getLineOfOffset(nodePosition.offset);
-                    endLineNumbers.add(realLine + 1);
-                    for (Node testNode : files) {
-                        nodePosition = testNode.getPosition();
-                        realLine = document.getLineOfOffset(nodePosition.offset) + 1;
+		fMouseHandler = new MouseHandler();
+		fCanvas.addMouseListener(fMouseHandler);
+		fCanvas.addMouseMoveListener(fMouseHandler);
+		fCanvas.addMouseWheelListener(fMouseHandler);
 
-                        if (testNode instanceof File) {
-                            String name = testNode.toString();
-                            if (name.endsWith(".cpp") || name.endsWith(".h") || name.endsWith(".hpp")) {
-                                startLineNumbers.add(realLine);
-                            } else {
-                                endLineNumbers.add(realLine);
-                            }
-                        } else if (testNode instanceof Expected) {
-                            startLineNumbers.add(realLine);
-                        } else {
-                            endLineNumbers.add(realLine);
-                        }
-                    }
-                }
-            } catch (BadLocationException e) {
-                e.printStackTrace();
-            }
+		return fCanvas;
+	}
 
-            modelLineToRulerLineMap.clear();
-            int largestNumber = 0;
-            int lines = document.getNumberOfLines() + 1;
-            boolean inFile = false;
-            int rulerLine = 1;
-            for (int line = 1; line < lines; ++line) {
-                if (startLineNumbers.contains(line)) {
-                    inFile = true;
-                    rulerLine = 1;
-                    continue;
-                } else if (endLineNumbers.contains(line)) {
-                    inFile = false;
-                } else if (inFile) {
-                    if (rulerLine > largestNumber) {
-                        largestNumber = rulerLine;
-                    }
-                    modelLineToRulerLineMap.put(line - 1, rulerLine++);
-                }
-            }
+	@Override
+	protected String createDisplayString(int line) {
+		line = JFaceTextUtil.widgetLine2ModelLine(textWidget, line);
+		return modelLineToRulerLineMap.containsKey(line) ? modelLineToRulerLineMap.get(line).toString() : "";
+	}
 
-            maxDigits = Integer.toString(largestNumber).length();
-            redraw();
-        }
-    }
+	private RGB getColor(final String key) {
+		final IPreferenceStore preferenceStore = EditorsUI.getPreferenceStore();
+		if (preferenceStore.contains(key)) {
+			return PreferenceConverter.getColor(preferenceStore, key);
+		}
+
+		return PreferenceConverter.getDefaultColor(preferenceStore, key);
+	}
+
+	@Override
+	public RulerColumnDescriptor getDescriptor() {
+		return columnDescriptor;
+	}
+
+	@Override
+	public ITextEditor getEditor() {
+		return textEditor;
+	}
+
+	@Override
+	public void setDescriptor(final RulerColumnDescriptor descriptor) {
+		columnDescriptor = descriptor;
+	}
+
+	@Override
+	public void setEditor(final ITextEditor editor) {
+		textEditor = (Editor) editor;
+	}
+
+	@Override
+	public void update(final Observable o, final Object arg) {
+		if (o instanceof TestFile) {
+			final List<Integer> startLineNumbers = new ArrayList<>();
+			final List<Integer> endLineNumbers = new ArrayList<>();
+
+			final TestFile file = (TestFile) o;
+
+			final IDocument document = getEditor().getDocumentProvider().getDocument(getEditor().getEditorInput());
+			final Test[] tests = file.getTests();
+
+			try {
+				for (final Test test : tests) {
+					final Node[] files = test.getChildren();
+					Position nodePosition = test.getPosition();
+					int realLine = document.getLineOfOffset(nodePosition.offset);
+					endLineNumbers.add(realLine + 1);
+					for (final Node testNode : files) {
+						nodePosition = testNode.getPosition();
+						realLine = document.getLineOfOffset(nodePosition.offset) + 1;
+
+						if (testNode instanceof File) {
+							final String name = testNode.toString();
+							if (name.endsWith(".cpp") || name.endsWith(".h") || name.endsWith(".hpp")) {
+								startLineNumbers.add(realLine);
+							} else {
+								endLineNumbers.add(realLine);
+							}
+						} else if (testNode instanceof Expected) {
+							startLineNumbers.add(realLine);
+						} else {
+							endLineNumbers.add(realLine);
+						}
+					}
+				}
+			} catch (final BadLocationException e) {
+				e.printStackTrace();
+			}
+
+			modelLineToRulerLineMap.clear();
+			int largestNumber = 0;
+			final int lines = document.getNumberOfLines() + 1;
+			boolean inFile = false;
+			int rulerLine = 1;
+			for (int line = 1; line < lines; ++line) {
+				if (startLineNumbers.contains(line)) {
+					inFile = true;
+					rulerLine = 1;
+					continue;
+				} else if (endLineNumbers.contains(line)) {
+					inFile = false;
+				} else if (inFile) {
+					if (rulerLine > largestNumber) {
+						largestNumber = rulerLine;
+					}
+					modelLineToRulerLineMap.put(line - 1, rulerLine++);
+				}
+			}
+
+			maxDigits = Integer.toString(largestNumber).length();
+			redraw();
+		}
+	}
 
 }

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde version="3.8"?><target name="CDT-Testing Neon" sequenceNumber="1478509163">
+<?pde version="3.8"?><target name="CDT-Testing Neon" sequenceNumber="1478509165">
 <locations>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.tools.templates.freemarker" version="1.0.0.201612052101"/>
-<unit id="org.eclipse.tools.templates.core" version="1.1.0.201612052101"/>
-<unit id="org.eclipse.tools.templates.ui" version="1.1.1.201612052101"/>
+<unit id="org.eclipse.tools.templates.freemarker" version="1.0.0.201702010152"/>
+<unit id="org.eclipse.tools.templates.core" version="1.1.0.201702010152"/>
+<unit id="org.eclipse.tools.templates.ui" version="1.1.1.201702010152"/>
 <repository location="https://hudson.eclipse.org/cdt/job/tools-templates-master/lastSuccessfulBuild/artifact/repo/target/repository/"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
@@ -23,8 +23,8 @@
 <repository location="http://download.eclipse.org/releases/neon"/>
 </location>
 <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
-<unit id="org.eclipse.cdt.testing.feature.group" version="9.2.0.201612160706"/>
-<unit id="org.eclipse.cdt.testing.source.feature.group" version="9.2.0.201612160706"/>
+<unit id="org.eclipse.cdt.testing.feature.group" version="9.2.0.201702131830"/>
+<unit id="org.eclipse.cdt.testing.source.feature.group" version="9.2.0.201702131830"/>
 <repository location="https://hudson.eclipse.org/cdt/job/cdt-9.2/lastSuccessfulBuild/artifact/releng/org.eclipse.cdt.testing.repo/target/repository/"/>
 </location>
 </locations>
