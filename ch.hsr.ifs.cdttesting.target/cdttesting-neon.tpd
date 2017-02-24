@@ -25,7 +25,3 @@ location "https://hudson.eclipse.org/cdt/job/tools-templates-master/lastSuccessf
 	org.eclipse.tools.templates.core
 	org.eclipse.tools.templates.ui
 }
-
-location "http://eclipseguru.github.io/missing-swt-fragments/" {
-	org.eclipse.swt.dummyfragments.feature.group
-}
