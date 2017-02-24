@@ -62,18 +62,16 @@ public class VirtualLineNumberRuler extends LineNumberRulerColumn implements ICo
 		@Override
 		public void mouseDoubleClick(final MouseEvent e) {
 
-			final Integer lineNo = fparentRuler.getLineOfLastMouseButtonActivity();
-			final Integer relativeLineNo = modelLineToRulerLineMap.get(lineNo);
+			final int lineNo = fparentRuler.getLineOfLastMouseButtonActivity();
+			final int relativeLineNo = modelLineToRulerLineMap.get(lineNo);
 
 			if (lineNo != -1) {
 				final IDocument document = textEditor.getDocumentProvider().getDocument(textEditor.getEditorInput());
 				try {
-					final TestFile testFile = textEditor.getTestFile();
-					final Integer newLength = testFile.addLineNoToMarkerList(lineNo, relativeLineNo);
-					if (newLength != -1) {
-						final TextSelection sel = new TextSelection(document.getLineOffset(lineNo) + newLength, 0);
-						textEditor.getSelectionProvider().setSelection(sel);
-					}
+					final int lineOffset = document.getLineOffset(lineNo);
+					final int newLength = textEditor.getTestFile().addLineNoToMarkerList(lineNo, relativeLineNo);
+					final TextSelection sel = new TextSelection(lineOffset + newLength, 0);
+					textEditor.getSelectionProvider().setSelection(sel);
 				} catch (final BadLocationException exc) {
 				}
 			}

@@ -1,81 +1,97 @@
 package name.graf.emanuel.testfileeditor.model.node;
 
-import org.eclipse.jface.text.*;
+import org.eclipse.jface.text.Position;
 
-public class File implements Node
-{
-    private String name;
-    private Position pos;
-    private Test parent;
-    private Expected exp;
-    private Selection sel;
-    
-    public File(final String name, final Position pos, final Test parent) {
-        super();
-        this.exp = null;
-        this.sel = null;
-        this.name = name;
-        this.pos = pos;
-        this.parent = parent;
-    }
-    
-    public Node[] getChildren() {
-        final int i = this.howManyChildren();
-        if (i > 0) {
-            int index = 0;
-            final Node[] children = new Node[i];
-            if (this.sel != null) {
-                children[index++] = this.sel;
-            }
-            if (this.exp != null) {
-                children[index++] = this.exp;
-            }
-            return children;
-        }
-        return null;
-    }
-    
-    public Object getParent() {
-        return this.parent;
-    }
-    
-    public Position getPosition() {
-        return this.pos;
-    }
-    
-    public boolean hasChildren() {
-        return this.howManyChildren() > 0;
-    }
-    
-    public String toString() {
-        return this.name;
-    }
-    
-    public int hashCode() {
-        final long namenHash = this.name.hashCode();
-        return (int)namenHash + this.pos.offset;
-    }
-    
-    public boolean equals(final Object obj) {
-        return this.hashCode() == obj.hashCode();
-    }
-    
-    public void setExpected(final Expected node) {
-        this.exp = node;
-    }
-    
-    public void setSelection(final Selection node) {
-        this.sel = node;
-    }
-    
-    private int howManyChildren() {
-        int length = 0;
-        if (this.sel != null) {
-            ++length;
-        }
-        if (this.exp != null) {
-            ++length;
-        }
-        return length;
-    }
+public class File implements Node {
+	private final String name;
+	private final Position pos;
+	private final Position head;
+	private final Test parent;
+	private Expected exp;
+	private Selection sel;
+
+	public File(final String name, final Position pos, final Position head, final Test parent) {
+		super();
+		exp = null;
+		sel = null;
+		this.name = name;
+		this.pos = pos;
+		this.head = head;
+		this.parent = parent;
+	}
+
+	@Override
+	public Node[] getChildren() {
+		final int i = howManyChildren();
+		if (i > 0) {
+			int index = 0;
+			final Node[] children = new Node[i];
+			if (sel != null) {
+				children[index++] = sel;
+			}
+			if (exp != null) {
+				children[index++] = exp;
+			}
+			return children;
+		}
+		return null;
+	}
+
+	@Override
+	public Object getParent() {
+		return parent;
+	}
+
+	@Override
+	public Position getPosition() {
+		return pos;
+	}
+
+	public Position getHeadPosition() {
+		return head;
+	}
+
+	public boolean containsOffset(final int offset) {
+		return pos.overlapsWith(offset, 1);
+	}
+
+	@Override
+	public boolean hasChildren() {
+		return howManyChildren() > 0;
+	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
+
+	@Override
+	public int hashCode() {
+		final long namenHash = name.hashCode();
+		return (int) namenHash + pos.offset;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		return hashCode() == obj.hashCode();
+	}
+
+	public void setExpected(final Expected node) {
+		exp = node;
+	}
+
+	public void setSelection(final Selection node) {
+		sel = node;
+	}
+
+	private int howManyChildren() {
+		int length = 0;
+		if (sel != null) {
+			++length;
+		}
+		if (exp != null) {
+			++length;
+		}
+		return length;
+	}
 }

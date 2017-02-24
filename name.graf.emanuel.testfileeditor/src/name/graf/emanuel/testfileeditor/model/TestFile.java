@@ -27,6 +27,10 @@ import name.graf.emanuel.testfileeditor.model.node.Selection;
 import name.graf.emanuel.testfileeditor.model.node.Test;
 
 public class TestFile extends Observable {
+	private static final String CONFIG_FILE_STRING = ".config";
+	private static final String MARKER_LINES_STRING = "markerLines=";
+	private static final String CONFIG_TEXT_STRING_REGEX = "(//@\\.config\\r?\\n(\\s*^(?!//@).*\\r?\\n)*?\\s*markerLines=((\\d+,)*\\d+)?)";
+
 	private static final String MARKER_ID_DUPLICATE_TEST = "name.graf.emanuel.testfileeditor.markers.DuplicateTestMarker";
 
 	private final String fName;
@@ -81,54 +85,162 @@ public class TestFile extends Observable {
 	 */
 	public int addLineNoToMarkerList(final int lineNo, final int relativeLineNo) {
 		final IDocument document = fProvider.getDocument(fInput);
-		int additionalLength = -1;
-
-		Position precursor = new Position(0);
-		Position successor = new Position(document.getLength() - 1);
-
-		int precursorDist = document.getLength() - 1;
-		int successorDist = document.getLength() - 1;
+		int deltaLength = 0;
 
 		try {
 			final int offset = document.getLineOffset(lineNo);
-			for (final Test test : fTests) {
-				final int testOffset = test.getPosition().getOffset();
-				if (testOffset < offset) {
-					if (offset - testOffset < precursorDist) {
-						precursorDist = offset - testOffset;
-						precursor = test.getPosition();
-					}
-				} else {
-					if (testOffset - offset < successorDist) {
-						successorDist = testOffset - offset;
-						successor = test.getPosition();
-					}
-				}
+			final Test test = getTest(offset);
+
+			if (test == null) {
+				return deltaLength;
 			}
 
-			final int length = successor.getOffset() - precursor.getOffset();
-			final StringBuffer testText = new StringBuffer(document.get(precursor.getOffset(), length));
+			deltaLength += addConfigFileIfNotExists(test);
+			deltaLength += addMarkerLinePropertyIfNotExists(test);
+			deltaLength += addVirtLineNumToMarkerLines(test, relativeLineNo);
 
-			final Pattern pattern = Pattern.compile(
-					"(//@\\.config\\n(\\s*^(?!//@).*\\n)*?\\s*markerLines=((\\d+,)*\\d+)?)", Pattern.MULTILINE);
-			final Matcher matcher = pattern.matcher(testText);
-
-			if (matcher.find()) {
-
-				if (matcher.group(3) == null) {
-					testText.insert(matcher.end(), relativeLineNo);
-					additionalLength = ("" + relativeLineNo).length();
-				} else {
-					testText.insert(matcher.end(), "," + relativeLineNo);
-					additionalLength = ("," + relativeLineNo).length();
-				}
-
-				document.replace(precursor.getOffset() + matcher.start(), matcher.end() - matcher.start(),
-						testText.substring(matcher.start(), matcher.end() + additionalLength));
-			}
 		} catch (final IllegalStateException | BadLocationException e) {
+		} finally {
+			parse();
 		}
-		return additionalLength;
+
+		return deltaLength;
+	}
+
+	private Test getTest(final int offset) {
+		for (final Test test : fTests) {
+			if (test.containsOffset(offset)) {
+				return test;
+			}
+		}
+		return null;
+	}
+
+	private String getDocText(final Position position) throws BadLocationException {
+		return fProvider.getDocument(fInput).get(position.getOffset(), position.getLength());
+	}
+
+	/*
+	 * @author tstauber
+	 *
+	 * Adds the relativeLineNo to the markerLines.
+	 *
+	 */
+	private int addVirtLineNumToMarkerLines(final Test test, final int relativeLineNo) throws BadLocationException {
+
+		final File file = test.getFile(CONFIG_FILE_STRING);
+		if (file == null) {
+			return 0;
+		}
+
+		final String fileText = getDocText(file.getPosition());
+		final Pattern pattern = Pattern.compile(TestFile.CONFIG_TEXT_STRING_REGEX, Pattern.MULTILINE);
+		final Matcher matcher = pattern.matcher(fileText);
+
+		if (matcher.find()) {
+			final int offset = file.getPosition().getOffset() + matcher.end();
+
+			String insertText = Integer.toString(relativeLineNo);
+			int additionalLength = insertText.length();
+
+			if (matcher.group(3) != null) {
+				insertText = ",".concat(insertText);
+				additionalLength++;
+			}
+
+			fProvider.getDocument(fInput).replace(offset, 0, insertText);
+
+			adjustPostitionLength(file, additionalLength);
+			adjustPostitionLength(test, additionalLength);
+
+			return additionalLength;
+		}
+		return 0;
+	}
+
+	/*
+	 * @author tstauber
+	 *
+	 * Checks if a //@.config file exists and creates one for this Test in case
+	 * it does not exist.
+	 *
+	 * return additional length
+	 *
+	 */
+	private int addConfigFileIfNotExists(final Test test) throws BadLocationException {
+		if (!test.containsFile(CONFIG_FILE_STRING)) {
+			insertFileIntoTest(test, CONFIG_FILE_STRING, 0);
+			return Tokens.FILE.concat(CONFIG_FILE_STRING).concat("\n").length();
+		}
+		return 0;
+	}
+
+	/*
+	 * @author tstauber
+	 *
+	 * Checks if a markerLines= property exists for this Test's //@.config file
+	 * and creates one in case it does not exist.
+	 *
+	 * returns the additional length
+	 *
+	 */
+	private int addMarkerLinePropertyIfNotExists(final Test test) throws BadLocationException {
+
+		if (test.containsFile(CONFIG_FILE_STRING)) {
+			final File file = test.getFile(CONFIG_FILE_STRING);
+			final String fileText = getDocText(file.getPosition());
+
+			final Pattern pattern = Pattern.compile(MARKER_LINES_STRING);
+			final Matcher matcher = pattern.matcher(fileText);
+
+			if (!matcher.find()) {
+				final String insertText = MARKER_LINES_STRING.concat("\n");
+				final int offset = file.getPosition().getOffset() + file.getHeadPosition().getLength();
+				fProvider.getDocument(fInput).replace(offset, 0, insertText);
+
+				final int additionalLength = insertText.length();
+				adjustPostitionLength(file, additionalLength);
+				adjustPostitionLength(test, additionalLength);
+
+				return additionalLength;
+			}
+		}
+		return 0;
+	}
+
+	/*
+	 * @author tstauber
+	 *
+	 * Adjusts the size of the Test's Positions.
+	 *
+	 */
+	private static void adjustPostitionLength(final Test test, final int additionalLength) {
+		test.getPosition().setLength(test.getPosition().getLength() + additionalLength);
+	}
+
+	private static void adjustPostitionLength(final File file, final int additionalLength) {
+		file.getPosition().setLength(file.getPosition().getLength() + additionalLength);
+	}
+
+	/*
+	 * @author tstauber
+	 *
+	 * Checks if a markerLines= property exists for this Test's //@.config file
+	 * and creates one in case it does not exist.
+	 *
+	 */
+	private void insertFileIntoTest(final Test test, final String name, final int offsetInTestBody)
+			throws BadLocationException {
+		final int insertOffset = test.getPosition().getOffset() + test.getHeadPosition().getLength() + offsetInTestBody;
+		final String insertText = Tokens.FILE.concat(name).concat("\n");
+
+		final Position pos = new Position(insertOffset, insertText.length());
+		final Position headPos = new Position(insertOffset, insertText.length());
+		test.addFile(new File(name, pos, headPos, test));
+
+		adjustPostitionLength(test, insertText.length());
+
+		fProvider.getDocument(fInput).replace(insertOffset, 0, insertText);
 	}
 
 	private void setupPositionCategories() {
@@ -182,8 +294,13 @@ public class TestFile extends Observable {
 		fTests.clear();
 		fProblems.clear();
 		cleanMarkers();
+
 		Test currentTest = null;
+		Test previousTest = null;
+
 		File currentFile = null;
+		File previousFile = null;
+
 		ParseState currentState = ParseState.INIT;
 		int currentSelectionStart = 0;
 
@@ -192,78 +309,128 @@ public class TestFile extends Observable {
 			final int lineLength = document.getLineLength(currentLine);
 			final String lineContent = document.get(lineOffset, lineLength);
 
-			if (lineContent.startsWith(Tokens.TEST)) {
-				final Position tagPosition = new Position(lineOffset, lineLength);
-				document.addPosition(PARTITION_TEST_NAME, tagPosition);
-				currentTest = new Test(lineContent.substring(Tokens.TEST.length()).trim(), tagPosition, this);
-				if (fTests.contains(currentTest)) {
-					final Problem duplicateTest = new DuplicateTest(currentTest.toString(), currentLine + 1,
-							tagPosition);
-					reportProblem(duplicateTest);
-					fProblems.add(new DuplicateTest(currentTest.toString(), currentLine + 1, tagPosition));
-				} else {
-					fTests.add(currentTest);
-				}
-				currentState = ParseState.TEST;
-			} else if (lineContent.startsWith(Tokens.LANGUAGE) && currentTest != null) {
-				final Position tagPosition = new Position(lineOffset, lineLength);
-				document.addPosition(PARTITION_TEST_LANGUAGE, tagPosition);
-				currentTest.setLang(
-						new Language(lineContent.substring(Tokens.LANGUAGE.length()).trim(), tagPosition, currentTest));
-			} else if (lineContent.startsWith(Tokens.EXPECTED)) {
-				if (currentState == ParseState.SELECTION) {
-					final Position tagPosition = new Position(currentSelectionStart,
-							lineOffset - currentSelectionStart);
-					document.addPosition(PARTITION_TEST_EXPECTED, tagPosition);
-					currentFile.setSelection(new Selection(tagPosition, currentFile));
-					currentState = ParseState.FILE;
-				}
+			if (lineContent.length() > 3) {
+				switch (lineContent.substring(0, Tokens.TOKENLENGTH)) {
+				case Tokens.TEST:
 
-				switch (currentState) {
-				case FILE:
+					final Position headPos_TEST = new Position(lineOffset, lineLength);
+					final Position pos_TEST = new Position(lineOffset, document.getLength() - lineOffset);
+					document.addPosition(PARTITION_TEST_NAME, headPos_TEST);
+					currentTest = new Test(lineContent.trim().substring(Tokens.TOKENLENGTH), pos_TEST, headPos_TEST,
+							this);
+
+					if (previousTest != null) {
+						previousTest.getPosition().setLength(lineOffset - previousTest.getPosition().getOffset());
+					}
+					previousTest = currentTest;
+
+					if (fTests.contains(currentTest)) {
+						final Problem duplicateTest = new DuplicateTest(currentTest.toString(), currentLine + 1,
+								headPos_TEST);
+						reportProblem(duplicateTest);
+						fProblems.add(new DuplicateTest(currentTest.toString(), currentLine + 1, headPos_TEST));
+					} else {
+						fTests.add(currentTest);
+					}
+					currentState = ParseState.TEST;
+
+					break;
+
+				case Tokens.LANGUAGE:
+					if (previousFile != null) {
+						previousFile.getPosition().setLength(lineOffset - previousFile.getPosition().getOffset());
+						previousFile = null;
+					}
 					if (currentTest != null) {
-						final Position tagPosition = new Position(lineOffset, lineLength);
-						document.addPosition(PARTITION_TEST_EXPECTED, tagPosition);
-						currentTest.setExpected(new Expected(currentTest,
-								lineContent.substring(Tokens.EXPECTED.length()).trim(), tagPosition));
+
+						final Position pos_LANG = new Position(lineOffset, lineLength);
+
+						document.addPosition(PARTITION_TEST_LANGUAGE, pos_LANG);
+						currentTest.setLang(
+								new Language(lineContent.trim().substring(Tokens.TOKENLENGTH), pos_LANG, currentTest));
+
 					}
 					break;
-				case SELECTION:
-					if (currentFile != null) {
-						final Position tagPosition = new Position(lineOffset, lineLength);
-						document.addPosition(PARTITION_TEST_SELECTION, tagPosition);
-						currentFile.setExpected(new Expected(currentTest,
-								lineContent.substring(Tokens.EXPECTED.length()).trim(), tagPosition));
+
+				case Tokens.EXPECTED:
+					if (previousFile != null) {
+						previousFile.getPosition().setLength(lineOffset - previousFile.getPosition().getOffset());
+						previousFile = null;
+					}
+
+					switch (currentState) {
+					case SELECTION:
+						final Position pos_SEL_OPEN = new Position(currentSelectionStart,
+								lineOffset - currentSelectionStart);
+						document.addPosition(PARTITION_TEST_EXPECTED, pos_SEL_OPEN);
+						currentFile.setSelection(new Selection(pos_SEL_OPEN, currentFile));
+						currentState = ParseState.FILE;
+					case FILE:
+						if (currentTest != null) {
+							final Position pos_FILE = new Position(lineOffset, lineLength);
+							document.addPosition(PARTITION_TEST_EXPECTED, pos_FILE);
+							currentTest.setExpected(new Expected(currentTest,
+									lineContent.trim().substring(Tokens.TOKENLENGTH), pos_FILE));
+						}
+						break;
+					default:
 					}
 					break;
-				default:
+
+				case Tokens.FILE:
+					if (currentTest != null) {
+						if (currentState == ParseState.SELECTION) {
+							final Position pos_SEL_OPEN = new Position(currentSelectionStart,
+									lineOffset - currentSelectionStart);
+							document.addPosition(PARTITION_TEST_SELECTION, pos_SEL_OPEN);
+							currentFile.setSelection(new Selection(pos_SEL_OPEN, currentFile));
+						}
+
+						final Position headPos_FILE = new Position(lineOffset, lineLength);
+						final Position pos_FILE = new Position(lineOffset, lineLength);
+						document.addPosition(PARTITION_TEST_FILE, headPos_FILE);
+						currentFile = new File(lineContent.trim().substring(Tokens.TOKENLENGTH), pos_FILE, headPos_FILE,
+								currentTest);
+
+						if (previousFile != null) {
+							previousFile.getPosition().setLength(lineOffset - previousFile.getPosition().getOffset());
+						}
+						previousFile = currentFile;
+
+						currentTest.addFile(currentFile);
+						currentState = ParseState.FILE;
+					}
+					break;
+
+				case Tokens.CLASS:
+					if (previousFile != null) {
+						previousFile.getPosition().setLength(lineOffset - previousFile.getPosition().getOffset());
+						previousFile = null;
+					}
+
+					if (currentState == ParseState.TEST) {
+						final Position pos_CLASS = new Position(lineOffset, lineLength);
+						document.addPosition(PARTITION_TEST_CLASS, pos_CLASS);
+						currentTest.setClassname(
+								new Class(lineContent.trim().substring(Tokens.TOKENLENGTH), pos_CLASS, currentTest));
+					}
+					break;
+
+				case Tokens.SELECTION_OPEN:
+
+					if (currentState == ParseState.FILE) {
+						currentState = ParseState.SELECTION;
+						currentSelectionStart = lineOffset + lineContent.indexOf(Tokens.SELECTION_CLOSE);
+					}
+					break;
 				}
-			} else if (lineContent.startsWith(Tokens.FILE) && currentTest != null) {
-				if (currentState == ParseState.SELECTION) {
-					final Position tagPosition = new Position(currentSelectionStart,
-							lineOffset - currentSelectionStart);
-					document.addPosition(PARTITION_TEST_SELECTION, tagPosition);
-					currentFile.setSelection(new Selection(tagPosition, currentFile));
-				}
-				final Position tagPosition = new Position(lineOffset, lineLength);
-				document.addPosition(PARTITION_TEST_FILE, tagPosition);
-				currentFile = new File(lineContent.substring(Tokens.FILE.length()).trim(), tagPosition, currentTest);
-				currentTest.addFile(currentFile);
-				currentState = ParseState.FILE;
-			} else if (lineContent.startsWith(Tokens.CLASS) && currentState == ParseState.TEST) {
-				final Position tagPosition = new Position(lineOffset, lineLength);
-				document.addPosition(PARTITION_TEST_CLASS, tagPosition);
-				currentTest.setClassname(
-						new Class(lineContent.substring(Tokens.CLASS.length()).trim(), tagPosition, currentTest));
-			} else if (lineContent.contains(Tokens.SELECTION_OPEN) && currentState == ParseState.FILE) {
-				currentState = ParseState.SELECTION;
-				currentSelectionStart = lineOffset + lineContent.indexOf(Tokens.SELECTION_CLOSE);
 			}
+
 			if (lineContent.contains(Tokens.SELECTION_CLOSE) && currentState == ParseState.SELECTION) {
-				final Position tagPosition = new Position(currentSelectionStart,
+				final Position pos_SEL_CLOSE = new Position(currentSelectionStart,
 						lineOffset + lineContent.indexOf(Tokens.SELECTION_CLOSE) - currentSelectionStart);
-				document.addPosition(PARTITION_TEST_SELECTION, tagPosition);
-				currentFile.setSelection(new Selection(tagPosition, currentFile));
+				document.addPosition(PARTITION_TEST_SELECTION, pos_SEL_CLOSE);
+				currentFile.setSelection(new Selection(pos_SEL_CLOSE, currentFile));
 				currentState = ParseState.FILE;
 			}
 		}
