@@ -2,7 +2,7 @@
  * Copyright (c) 2010 Institute for Software, HSR Hochschule fuer Technik
  * Rapperswil, University of applied sciences and others
  * All rights reserved.
- * 
+ *
  * Contributors:
  *     Institute for Software - initial API and implementation
  ******************************************************************************/
@@ -42,14 +42,14 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 
 	public CDTSourceFileTest() {
 		super();
-		fileMap = new TreeMap<String, TestSourceFile>();
-		referencedProjectsToLoad = new LinkedHashMap<String, List<TestSourceFile>>();
+		fileMap = new TreeMap<>();
+		referencedProjectsToLoad = new LinkedHashMap<>();
 	}
 
-	public void initTestSourceFiles(List<TestSourceFile> files) {
+	public void initTestSourceFiles(final List<TestSourceFile> files) {
 		initActiveFileName(files);
 		TestSourceFile configFile = null;
-		for (TestSourceFile file : files) {
+		for (final TestSourceFile file : files) {
 			fileMap.put(file.getName(), file);
 			if (file.getName().equals(CONFIG_FILE_NAME)) {
 				configFile = file;
@@ -63,9 +63,9 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 		initSelection(files);
 	}
 
-	private void initSelection(List<TestSourceFile> files) {
-		for (TestSourceFile file : files) {
-			TextSelection selection = file.getSelection();
+	private void initSelection(final List<TestSourceFile> files) {
+		for (final TestSourceFile file : files) {
+			final TextSelection selection = file.getSelection();
 			if (selection != null) {
 				fileWithSelection = file.getName();
 				this.selection = selection;
@@ -74,7 +74,7 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 		}
 	}
 
-	private void initActiveFileName(List<TestSourceFile> files) {
+	private void initActiveFileName(final List<TestSourceFile> files) {
 		activeFileName = ".unknown";
 		int index = 0;
 		if (files.size() <= index) {
@@ -88,9 +88,9 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 		}
 	}
 
-	private void initializeConfiguration(TestSourceFile configFile) {
+	private void initializeConfiguration(final TestSourceFile configFile) {
 
-		Properties properties = new Properties();
+		final Properties properties = new Properties();
 		try {
 			properties.load(new ByteArrayInputStream(configFile.getSource().getBytes()));
 		} catch (final IOException e) {
@@ -99,7 +99,7 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 		fileMap.remove(configFile.getName());
 	}
 
-	private void initializeConfiguration(Properties properties) {
+	private void initializeConfiguration(final Properties properties) {
 		initCommonFields(properties);
 		configureTest(properties);
 	}
@@ -108,11 +108,11 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 		initializeConfiguration(new Properties());
 	}
 
-	protected void configureTest(Properties properties) {
+	protected void configureTest(final Properties properties) {
 	};
 
-	private void initCommonFields(Properties properties) {
-		String filename = properties.getProperty("filename", null);
+	private void initCommonFields(final Properties properties) {
+		final String filename = properties.getProperty("filename", null);
 		if (filename != null) {
 			activeFileName = filename;
 		}
@@ -120,7 +120,7 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 
 	@Override
 	protected void setupFiles() throws Exception {
-		for (TestSourceFile testFile : fileMap.values()) {
+		for (final TestSourceFile testFile : fileMap.values()) {
 			importFile(testFile.getName(), testFile.getSource());
 		}
 		project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
@@ -134,14 +134,15 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 
 	@Override
 	protected void initReferencedProjects() throws Exception {
-		for (Entry<String, List<TestSourceFile>> curEntry : referencedProjectsToLoad.entrySet()) {
+		for (final Entry<String, List<TestSourceFile>> curEntry : referencedProjectsToLoad.entrySet()) {
 			initReferencedProject(curEntry.getKey(), curEntry.getValue());
 		}
 	}
 
-	private void initReferencedProject(String projectName, List<TestSourceFile> testCases) throws Exception {
-		ICProject cProj = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER);
-		for (TestSourceFile testFile : testCases) {
+	private void initReferencedProject(final String projectName, final List<TestSourceFile> testCases)
+			throws Exception {
+		final ICProject cProj = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER);
+		for (final TestSourceFile testFile : testCases) {
 			if (testFile.getSource().length() > 0) {
 				importFile(testFile.getName(), testFile.getSource(), cProj.getProject());
 			}
@@ -153,27 +154,40 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 		return getTestSource(activeFileName);
 	}
 
-	protected String getTestSource(String relativeFilePath) throws IOException {
+	protected String getTestSource(final String relativeFilePath) throws IOException {
 		if (relativeFilePath.startsWith("..")) {
 			return getExternalSource(makeProjectAbsolutePath(relativeFilePath));
 		}
 		return fileMap.get(relativeFilePath).getSource();
 	}
 
-	private String getExternalSource(String absoluteFilePath) throws IOException {
-		int len = (int) (new File(absoluteFilePath).length());
-		FileInputStream fis = new FileInputStream(absoluteFilePath);
-		byte buf[] = new byte[len];
+	private String getExternalSource(final String absoluteFilePath) throws IOException {
+		final int len = (int) (new File(absoluteFilePath).length());
+		final FileInputStream fis = new FileInputStream(absoluteFilePath);
+		final byte buf[] = new byte[len];
 		fis.read(buf);
 		fis.close();
 		return new String(buf);
+	}
+
+	protected String normalize(final String in) {
+		//@formatter:off
+		return in.replaceAll("/\\*.*\\*/", "")					//Remove all test-editor-comments
+				.replaceAll("(^(\\r?\\n)*|(\\r?\\n)*$)", "")	//Remove all leading and trailing linebreaks
+				.replaceAll("\\s*(\\r?\\n)+\\s*", "↵")			//Replace all linebreaks with linebreak-symbol
+				.replaceAll("\\s+", " ");						//Reduce all groups of whitespace to a single space
+		//@formatter:on
+	}
+
+	protected void assertEqualsNormalized(final String expected, final String actual) {
+		assertEquals(normalize(expected), normalize(actual));
 	}
 
 	protected String getExpectedSource() {
 		return getExpectedSource(activeFileName);
 	}
 
-	protected String getExpectedSource(String relativeFilePath) {
+	protected String getExpectedSource(final String relativeFilePath) {
 		return fileMap.get(relativeFilePath).getExpectedSource();
 	}
 }

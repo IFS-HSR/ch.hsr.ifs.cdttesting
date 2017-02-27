@@ -7,9 +7,9 @@ import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
 
 public abstract class CDTTestingCodanQuickfixTest extends CDTTestingCodanCheckerTest {
 
-	protected void runQuickFix(IMarkerResolution quickFix) throws Exception {
-		IMarker[] markers = findMarkers();
-		String msg = "CDTTestingCodanQuickfixTest.runQuickFix(quickfix) is only intended to run on testcases containing only exactly 1 marker. "
+	protected void runQuickFix(final IMarkerResolution quickFix) throws Exception {
+		final IMarker[] markers = findMarkers();
+		final String msg = "CDTTestingCodanQuickfixTest.runQuickFix(quickfix) is only intended to run on testcases containing only exactly 1 marker. "
 				+ "Use overlaod runQuickFix(marker, quickfix) for other cases. Use findMarkers-methods to find available markers.";
 		assertEquals(msg, 1, markers.length);
 		runQuickFix(markers[0], quickFix);
