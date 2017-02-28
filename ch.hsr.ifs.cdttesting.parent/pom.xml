@@ -41,6 +41,7 @@
 	<modules>
 		<module>../ch.hsr.ifs.cdttesting.target</module>
 		<module>../ch.hsr.ifs.cdttesting</module>
+		<module>../ch.hsr.ifs.cdttesting.test</module>
 		<module>../ch.hsr.ifs.cdttesting.example</module>
 		<module>../ch.hsr.ifs.cdttesting.example.feature</module>
 		<module>../ch.hsr.ifs.cdttesting.showoffset</module>
