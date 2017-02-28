@@ -11,7 +11,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 /**
  * @author tstauber
  *
- *         An extended QuickfixTest that allows to set individual settings for
+ *         An extended QuickfixTest that allows to set individual preferences for
  *         each test.
  *
  *         Usage:
@@ -20,7 +20,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
  *
  *           //!TestFoo
  *           //@.config
- *           setSettings=(com.cevelop.intwidthfixator.intMappingLength|com.cevelop.intwidthfixator.size.16)
+ *           setPreferences=(com.cevelop.intwidthfixator.intMappingLength|com.cevelop.intwidthfixator.size.16)
  *           //@main.cpp
  *           int foo {42};
  *
@@ -30,7 +30,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
  *
  *           //!TestBar
  *           //@.config
- *           setSettingsEval=(P_CHAR_MAPPING_TO_FIXED|V_SIZE_16),(P_CHAR_PLATFORM_SIGNED_UNSIGNED|V_CHAR_PLATFORM_UNSIGNED)
+ *           setPreferencesEval=(P_CHAR_MAPPING_TO_FIXED|V_SIZE_16),(P_CHAR_PLATFORM_SIGNED_UNSIGNED|V_CHAR_PLATFORM_UNSIGNED)
  *           //@main.cpp
  *           char foo {42};
  *
@@ -43,29 +43,29 @@ public abstract class CDTTestingCodanQuickfixTestWithPreferences extends CDTTest
 
 	@Override
 	protected void configureTest(final Properties properties) {
-		final String setSettings = properties.getProperty("setSettings");
-		final String setSettingsEval = properties.getProperty("setSettingsEval");
-		if (setSettings != null && !setSettings.isEmpty()) {
+		final String setPreference = properties.getProperty("setPreferences");
+		final String setPreferenceEval = properties.getProperty("setPreferencesEval");
+		if (setPreference != null && !setPreference.isEmpty()) {
 			if (preferenceStore == null) {
 				preferenceStore = initPrefs();
 			}
-			final String[] splitSettings = setSettings.split(",");
-			final Map<String, String> settingsMap = new HashMap<>();
-			splitAndAdd(settingsMap, splitSettings);
-			backupSettings(prefBackup, settingsMap);
-			setSettings(settingsMap);
+			final String[] splitPreferences = setPreference.split(",");
+			final Map<String, String> preferencesMap = new HashMap<>();
+			splitAndAdd(preferencesMap, splitPreferences);
+			backupPreferences(prefBackup, preferencesMap);
+			setPreferences(preferencesMap);
 		}
-		if (setSettingsEval != null && !setSettingsEval.isEmpty()) {
+		if (setPreferenceEval != null && !setPreferenceEval.isEmpty()) {
 
 			if (preferenceStore == null) {
 				preferenceStore = initPrefs();
 			}
-			final String[] splitSettings = setSettingsEval.split(",");
-			final Map<String, String> settingsMap = new HashMap<>();
-			splitAndAdd(settingsMap, splitSettings);
-			final Map<String, String> evaluatedMap = interpretSettings(settingsMap);
-			backupSettings(prefEvalBackup, evaluatedMap);
-			setSettings(evaluatedMap);
+			final String[] splitPreferences = setPreferenceEval.split(",");
+			final Map<String, String> preferencesMap = new HashMap<>();
+			splitAndAdd(preferencesMap, splitPreferences);
+			final Map<String, String> evaluatedMap = evaluatePreferences(preferencesMap);
+			backupPreferences(prefEvalBackup, evaluatedMap);
+			setPreferences(evaluatedMap);
 		}
 		super.configureTest(properties);
 	}
@@ -90,38 +90,38 @@ public abstract class CDTTestingCodanQuickfixTestWithPreferences extends CDTTest
 
 	@Override
 	public void tearDown() throws Exception {
-		setSettings(prefBackup);
-		setSettings(prefEvalBackup);
+		setPreferences(prefBackup);
+		setPreferences(prefEvalBackup);
 		super.tearDown();
 		cleanupProject();
 	}
 
-	private void backupSettings(final Map<String, String> backupMap, final Map<String, String> settingsMap) {
-		for (final String key : settingsMap.keySet()) {
+	private void backupPreferences(final Map<String, String> backupMap, final Map<String, String> preferencesMap) {
+		for (final String key : preferencesMap.keySet()) {
 			final String value = preferenceStore.getString(key);
 			backupMap.put(key, value);
 		}
 	}
 
-	private void setSettings(final Map<String, String> settingsMap) {
-		for (final String key : settingsMap.keySet()) {
-			preferenceStore.setValue(key, settingsMap.get(key));
+	private void setPreferences(final Map<String, String> preferencesMap) {
+		for (final String key : preferencesMap.keySet()) {
+			preferenceStore.setValue(key, preferencesMap.get(key));
 		}
 	}
 
-	private void splitAndAdd(final Map<String, String> settingsMap, final String[] splitSettings) {
-		for (final String s : splitSettings) {
+	private void splitAndAdd(final Map<String, String> preferencesMap, final String[] splitPreferences) {
+		for (final String s : splitPreferences) {
 			final String[] pair = s.substring(1, s.length() - 1).split("\\|");
-			settingsMap.put(pair[0], pair[1]);
+			preferencesMap.put(pair[0], pair[1]);
 		}
 	}
 
-	private Map<String, String> interpretSettings(final Map<String, String> settingsMap) {
+	private Map<String, String> evaluatePreferences(final Map<String, String> preferencesMap) {
 		final Map<String, String> evaluatedMap = new HashMap<>();
 		try {
-			for (final String key : settingsMap.keySet()) {
+			for (final String key : preferencesMap.keySet()) {
 				final Field evaluatedKey = getPreferenceConstants().getDeclaredField(key);
-				final Field evaluatedValue = getPreferenceConstants().getDeclaredField(settingsMap.get(key));
+				final Field evaluatedValue = getPreferenceConstants().getDeclaredField(preferencesMap.get(key));
 				evaluatedMap.put((String) evaluatedKey.get(null), (String) evaluatedValue.get(null));
 			}
 		} catch (final NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
