@@ -170,16 +170,16 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 		return new String(buf);
 	}
 
-	protected String normalize(final String in) {
+	public static String normalize(final String in) {
 		//@formatter:off
-		return in.replaceAll("/\\*.*\\*/", "")					//Remove all test-editor-comments
-				.replaceAll("(^(\\r?\\n)*|(\\r?\\n)*$)", "")	//Remove all leading and trailing linebreaks
-				.replaceAll("\\s*(\\r?\\n)+\\s*", "↵")			//Replace all linebreaks with linebreak-symbol
-				.replaceAll("\\s+", " ");						//Reduce all groups of whitespace to a single space
+		return in.replaceAll("/\\*.*\\*/", "")								//Remove all test-editor-comments
+				.replaceAll("(^((\\r?\\n)|\\s)*|((\\r?\\n)|\\s)*$)", "")	//Remove all leading and trailing linebreaks/whitespaces
+				.replaceAll("\\s*(\\r?\\n)+\\s*", "↵")						//Replace all linebreaks with linebreak-symbol
+				.replaceAll("\\s+", " ");									//Reduce all groups of whitespace to a single space
 		//@formatter:on
 	}
 
-	protected void assertEqualsNormalized(final String expected, final String actual) {
+	public static void assertEqualsNormalized(final String expected, final String actual) {
 		assertEquals(normalize(expected), normalize(actual));
 	}
 
