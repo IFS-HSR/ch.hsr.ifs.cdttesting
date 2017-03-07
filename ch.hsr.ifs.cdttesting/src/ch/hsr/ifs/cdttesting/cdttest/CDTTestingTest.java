@@ -2,13 +2,24 @@ package ch.hsr.ifs.cdttesting.cdttest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.cdt.core.ToolFactory;
 import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
+import org.eclipse.cdt.core.dom.ast.IASTNode;
+import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
+import org.eclipse.cdt.core.formatter.CodeFormatter;
+import org.eclipse.cdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.cdt.core.model.CModelException;
+import org.eclipse.cdt.core.model.CoreModelUtil;
+import org.eclipse.cdt.core.model.ICProject;
+import org.eclipse.cdt.core.model.ITranslationUnit;
 import org.eclipse.cdt.internal.ui.editor.CEditor;
 import org.eclipse.cdt.internal.ui.util.ExternalEditorInput;
 import org.eclipse.cdt.ui.testplugin.Accessor;
@@ -17,6 +28,7 @@ import org.eclipse.core.commands.NotEnabledException;
 import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.BadLocationException;
@@ -31,6 +43,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.ReplaceEdit;
+import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
@@ -64,31 +77,32 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		skip, inTest, inSource, inExpectedResult
 	}
 
-	private static final String testRegexp = "//!(.*)\\s*(\\w*)*$";
-	private static final String fileRegexp = "//@(.*)\\s*(\\w*)*$";
-	private static final String resultRegexp = "//=.*$";
+	private static final String testRegex = "//!(.*)\\s*(\\w*)*$";
+	private static final String fileRegex = "//@(.*)\\s*(\\w*)*$";
+	private static final String resultRegex = "//=.*$";
 
-	protected static Map<String, ArrayList<TestSourceFile>> createTests(BufferedReader inputReader) throws Exception {
-		Map<String, ArrayList<TestSourceFile>> testCases = new TreeMap<String, ArrayList<TestSourceFile>>();
+	protected static Map<String, ArrayList<TestSourceFile>> createTests(final BufferedReader inputReader)
+			throws Exception {
+		final Map<String, ArrayList<TestSourceFile>> testCases = new TreeMap<>();
 
 		String line;
-		ArrayList<TestSourceFile> files = new ArrayList<TestSourceFile>();
+		ArrayList<TestSourceFile> files = new ArrayList<>();
 		TestSourceFile actFile = null;
 		MatcherState matcherState = MatcherState.skip;
 		String testName = null;
-		boolean bevorFirstTest = true;
+		boolean beforeFirstTest = true;
 
 		while ((line = inputReader.readLine()) != null) {
 
 			if (lineMatchesBeginOfTest(line)) {
-				if (!bevorFirstTest) {
+				if (!beforeFirstTest) {
 					testCases.put(testName, files);
-					files = new ArrayList<TestSourceFile>();
+					files = new ArrayList<>();
 					testName = null;
 				}
 				matcherState = MatcherState.inTest;
 				testName = getNameOfTest(line);
-				bevorFirstTest = false;
+				beforeFirstTest = false;
 				continue;
 			} else if (lineMatchesBeginOfResult(line)) {
 				matcherState = MatcherState.inExpectedResult;
@@ -124,8 +138,8 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		return testCases;
 	}
 
-	private static String getFileName(String line) {
-		Matcher matcherBeginOfTest = createMatcherFromString(fileRegexp, line);
+	private static String getFileName(final String line) {
+		final Matcher matcherBeginOfTest = createMatcherFromString(fileRegex, line);
 		if (matcherBeginOfTest.find()) {
 			return matcherBeginOfTest.group(1);
 		} else {
@@ -133,20 +147,20 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		}
 	}
 
-	private static boolean lineMatchesBeginOfTest(String line) {
-		return createMatcherFromString(testRegexp, line).find();
+	private static boolean lineMatchesBeginOfTest(final String line) {
+		return createMatcherFromString(testRegex, line).find();
 	}
 
-	private static boolean lineMatchesFileName(String line) {
-		return createMatcherFromString(fileRegexp, line).find();
+	private static boolean lineMatchesFileName(final String line) {
+		return createMatcherFromString(fileRegex, line).find();
 	}
 
-	private static Matcher createMatcherFromString(String pattern, String line) {
+	private static Matcher createMatcherFromString(final String pattern, final String line) {
 		return Pattern.compile(pattern).matcher(line);
 	}
 
-	private static String getNameOfTest(String line) {
-		Matcher matcherBeginOfTest = createMatcherFromString(testRegexp, line);
+	private static String getNameOfTest(final String line) {
+		final Matcher matcherBeginOfTest = createMatcherFromString(testRegex, line);
 		if (matcherBeginOfTest.find()) {
 			return matcherBeginOfTest.group(1);
 		} else {
@@ -154,19 +168,21 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		}
 	}
 
-	private static boolean lineMatchesBeginOfResult(String line) {
-		return createMatcherFromString(resultRegexp, line).find();
+	private static boolean lineMatchesBeginOfResult(final String line) {
+		return createMatcherFromString(resultRegex, line).find();
 	}
 
-	protected void addReferencedProject(String projectName, String rtsFileName) throws Exception {
-		RtsFileInfo rtsFileInfo = new RtsFileInfo(appendSubPackages(rtsFileName));
+	protected void addReferencedProject(final String projectName, final String rtsFileName) throws Exception {
+		final RtsFileInfo rtsFileInfo = new RtsFileInfo(appendSubPackages(rtsFileName));
 		try {
-			BufferedReader in = rtsFileInfo.getRtsFileReader();
-			Map<String, ArrayList<TestSourceFile>> testCases = createTests(in);
+			final BufferedReader in = rtsFileInfo.getRtsFileReader();
+			final Map<String, ArrayList<TestSourceFile>> testCases = createTests(in);
 			if (testCases.isEmpty()) {
-				throw new Exception("Failed to add referenced project. RTS file " + rtsFileName + " does not contain any test-cases.");
+				throw new Exception("Failed to add referenced project. RTS file " + rtsFileName
+						+ " does not contain any test-cases.");
 			} else if (testCases.size() > 1) {
-				throw new Exception("RTS files + " + rtsFileName + " which represents a referenced project must only contain a single test case.");
+				throw new Exception("RTS files + " + rtsFileName
+						+ " which represents a referenced project must only contain a single test case.");
 			}
 			referencedProjectsToLoad.put(projectName, testCases.values().iterator().next());
 		} finally {
@@ -174,16 +190,17 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		}
 	}
 
-	private String appendSubPackages(String rtsFileName) {
-		String testClassPackage = getClass().getPackage().getName();
+	private String appendSubPackages(final String rtsFileName) {
+		final String testClassPackage = getClass().getPackage().getName();
 		return testClassPackage + "." + rtsFileName;
 	}
 
 	@RTSTestCases
-	public static Map<String, ArrayList<TestSourceFile>> testCases(Class<? extends CDTTestingTest> testClass) throws Exception {
-		RtsFileInfo rtsFileInfo = new RtsFileInfo(testClass);
+	public static Map<String, ArrayList<TestSourceFile>> testCases(final Class<? extends CDTTestingTest> testClass)
+			throws Exception {
+		final RtsFileInfo rtsFileInfo = new RtsFileInfo(testClass);
 		try {
-			Map<String, ArrayList<TestSourceFile>> testCases = createTests(rtsFileInfo.getRtsFileReader());
+			final Map<String, ArrayList<TestSourceFile>> testCases = createTests(rtsFileInfo.getRtsFileReader());
 			return testCases;
 		} finally {
 			rtsFileInfo.closeReaderStream();
@@ -214,7 +231,9 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	}
 
 	protected void closeEditorsWithoutSaving() throws Exception {
-		FileHelper.clean(); // make sure we are not holding any reference to the open IDocument anymore (otherwise, local changes in dirty editors
+		FileHelper.clean(); // make sure we are not holding any reference to the
+							// open IDocument anymore (otherwise, local changes
+							// in dirty editors
 							// won't get lost).
 		new UIThreadSyncRunnable() {
 
@@ -261,17 +280,17 @@ public class CDTTestingTest extends CDTSourceFileTest {
 
 			@Override
 			protected void runSave() throws Exception {
-				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-				IViewReference viewRef = page.findViewReference(INTROVIEW_ID);
-				page.hideView(viewRef);
+				final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+				final IViewReference viewReference = page.findViewReference(INTROVIEW_ID);
+				page.hideView(viewReference);
 			}
 		}.runSyncOnUIThread();
 	}
 
-	protected void setSelectionIfAvailable(IFile file) {
-		TestSourceFile testSourceFile = fileMap.get(file.getProjectRelativePath().toString());
+	protected void setSelectionIfAvailable(final IFile file) {
+		final TestSourceFile testSourceFile = fileMap.get(file.getProjectRelativePath().toString());
 		if (testSourceFile != null && testSourceFile.getSelection() != null) {
-			ISelectionProvider selectionProvider = getActiveEditorSelectionProvider();
+			final ISelectionProvider selectionProvider = getActiveEditorSelectionProvider();
 			if (selectionProvider != null) {
 				selectionProvider.setSelection(testSourceFile.getSelection());
 			} else {
@@ -281,12 +300,12 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	}
 
 	protected AbstractTextEditor getActiveEditor() {
-		IEditorPart editor = getActivePage().getActiveEditor();
+		final IEditorPart editor = getActivePage().getActiveEditor();
 		return ((editor instanceof AbstractTextEditor) ? ((AbstractTextEditor) editor) : null);
 	}
 
 	protected ISelectionProvider getActiveEditorSelectionProvider() {
-		AbstractTextEditor editor = getActiveEditor();
+		final AbstractTextEditor editor = getActiveEditor();
 		return (editor != null) ? editor.getSelectionProvider() : null;
 	}
 
@@ -295,7 +314,8 @@ public class CDTTestingTest extends CDTSourceFileTest {
 
 			@Override
 			protected void runSave() throws Exception {
-				ExternalEditorInput input = new ExternalEditorInput(FileHelper.stringToUri(absolutePath), project);
+				final ExternalEditorInput input = new ExternalEditorInput(FileHelper.stringToUri(absolutePath),
+						project);
 				IDE.openEditor(getActivePage(), input, "org.eclipse.cdt.ui.editor.CEditor", true);
 				runEventLoop();
 			}
@@ -306,7 +326,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		return getIFile(activeFileName);
 	}
 
-	protected IFile getIFile(String relativePath) {
+	protected IFile getIFile(final String relativePath) {
 		return project.getFile(relativePath);
 	}
 
@@ -314,130 +334,177 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		return getDocument(getActiveIFile());
 	}
 
-	protected IDocument getDocument(IFile file) {
+	protected IDocument getDocument(final IFile file) {
 		return FileHelper.getDocument(file);
+	}
+
+	protected IDocument getDocument(final String absoluteFilePath) {
+		final URI uri = FileHelper.stringToUri(absoluteFilePath);
+		return FileHelper.getDocument(uri);
 	}
 
 	protected String getCurrentSource() {
 		return getCurrentSource(activeFileName);
 	}
 
-	protected String getCurrentSource(String relativeFilePath) {
-		String absolutePath = makeProjectAbsolutePath(relativeFilePath);
-		return getCurrentSourceAbsolutePath(absolutePath);
+	protected String getCurrentSource(final String relativeFilePath) {
+		final String absolutePath = makeProjectAbsolutePath(relativeFilePath);
+		return getCurrentSourceFromAbsolutePath(absolutePath);
 	}
 
-	protected String getCurrentSourceAbsolutePath(String absoluteFilePath) {
-		return FileHelper.getDocument(FileHelper.stringToUri(absoluteFilePath)).get();
+	protected String getCurrentSourceFromAbsolutePath(final String absoluteFilePath) {
+		return getDocument(absoluteFilePath).get();
 	}
 
-	protected void executeCommand(String commandId) throws ExecutionException, NotDefinedException, NotEnabledException, NotHandledException {
-		IHandlerService hs = (IHandlerService) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IHandlerService.class);
+	@Override
+	protected String getExpectedSource() {
+		return getExpectedSource(activeFileName);
+	}
+
+	@Override
+	protected String getExpectedSource(final String relativeFilePath) {
+		final String absolutePath = makeProjectAbsolutePath(relativeFilePath, expectedProject);
+		return getExpectedSourceFromAbsolutePath(absolutePath);
+	}
+
+	protected String getExpectedSourceFromAbsolutePath(final String absoluteFilePath) {
+		final URI uri = FileHelper.stringToUri(absoluteFilePath);
+
+		final IDocument doc = FileHelper.getDocument(uri);
+
+		if (expectedCproject instanceof ICProject) {
+			final Map<String, Object> options = new HashMap<>(expectedCproject.getOptions(true));
+
+			try {
+				final ITranslationUnit tu = CoreModelUtil.findTranslationUnitForLocation(uri, expectedCproject);
+				options.put(DefaultCodeFormatterConstants.FORMATTER_TRANSLATION_UNIT, tu);
+				final CodeFormatter formatter = ToolFactory.createCodeFormatter(options);
+
+				// TODO use better line delimiter
+				final TextEdit te = formatter.format(CodeFormatter.K_TRANSLATION_UNIT, absoluteFilePath, 0,
+						doc.getLength(), 0, "\n");
+				te.apply(doc);
+			} catch (CModelException | MalformedTreeException | BadLocationException e) {
+				e.printStackTrace();
+			}
+		}
+		return doc.get();
+	}
+
+	protected void executeCommand(final String commandId)
+			throws ExecutionException, NotDefinedException, NotEnabledException, NotHandledException {
+		final IHandlerService hs = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+				.getService(IHandlerService.class);
 		hs.executeCommand(commandId, null);
 	}
 
-	protected void insertUserTyping(String text, int position) throws MalformedTreeException, BadLocationException, IOException {
-		String path = makeProjectAbsolutePath(activeFileName);
+	protected void insertUserTyping(final String text, int position)
+			throws MalformedTreeException, BadLocationException, IOException {
+		final String path = makeProjectAbsolutePath(activeFileName);
 		position = adaptExpectedOffsetOfCurrentDocument(path, position);
 		insertUserTyping(text, position, 0);
 	}
 
-	protected void insertUserTyping(String text) throws MalformedTreeException, BadLocationException, IOException {
-		TextSelection selection = getCurrentEditorTextSelection();
+	protected void insertUserTyping(final String text)
+			throws MalformedTreeException, BadLocationException, IOException {
+		final TextSelection selection = getCurrentEditorTextSelection();
 		if (selection != null) {
 			insertUserTyping(text, selection.getOffset(), selection.getLength());
 			return;
 		}
-		int caretPos = getCurrentEditorCaretPosition();
+		final int caretPos = getCurrentEditorCaretPosition();
 		insertUserTyping(text, caretPos, 0);
 	}
 
 	private TextSelection getCurrentEditorTextSelection() {
-		ISelectionProvider selectionProvider = getActiveEditorSelectionProvider();
+		final ISelectionProvider selectionProvider = getActiveEditorSelectionProvider();
 		if (selectionProvider == null) {
 			return null;
 		}
-		ISelection selection = selectionProvider.getSelection();
+		final ISelection selection = selectionProvider.getSelection();
 		return (selection instanceof TextSelection) ? ((TextSelection) selection) : null;
 	}
 
 	private int getCurrentEditorCaretPosition() {
-		ITextViewer viewer = (ITextViewer) getActiveEditor().getAdapter(ITextOperationTarget.class);
+		final ITextViewer viewer = (ITextViewer) getActiveEditor().getAdapter(ITextOperationTarget.class);
 		return JFaceTextUtil.getOffsetForCursorLocation(viewer);
 	}
 
-	protected void insertUserTyping(String text, int startPosition, int length) throws MalformedTreeException, BadLocationException, IOException {
-		IDocument document = getDocument(getActiveIFile());
+	protected void insertUserTyping(final String text, final int startPosition, final int length)
+			throws MalformedTreeException, BadLocationException, IOException {
+		final IDocument document = getDocument(getActiveIFile());
 		new ReplaceEdit(startPosition, length, text.replaceAll("\\n", NL)).apply(document);
 	}
 
 	/**
-	 * This method can e.g. be used to jump to next linked-edit-group by sending c='\t' (tab)
+	 * This method can e.g. be used to jump to next linked-edit-group by sending
+	 * c='\t' (tab)
 	 */
-	protected void invokeKeyEvent(char c) {
-		AbstractTextEditor abstractEditor = getActiveEditor();
+	protected void invokeKeyEvent(final char c) {
+		final AbstractTextEditor abstractEditor = getActiveEditor();
 		if (!(abstractEditor instanceof CEditor)) {
 			fail("active editor is no ceditor.");
 		}
-		StyledText textWidget = ((CEditor) abstractEditor).getViewer().getTextWidget();
+		final StyledText textWidget = ((CEditor) abstractEditor).getViewer().getTextWidget();
 		assertNotNull(textWidget);
-		Accessor accessor = new Accessor(textWidget, StyledText.class);
-		Event event = new Event();
+		final Accessor accessor = new Accessor(textWidget, StyledText.class);
+		final Event event = new Event();
 		event.character = c;
 		event.keyCode = 0;
 		event.stateMask = 0;
 		accessor.invoke("handleKeyDown", new Object[] { event });
 	}
 
-	protected int adaptExpectedOffset(String absoluteFilePath, int offset) throws IOException {
+	protected int adaptExpectedOffset(final String absoluteFilePath, final int offset) throws IOException {
 		if (NL.length() < 2) {
 			return offset;
 		}
-		String expectedNewLine = "\n";
-		String expectedSource = getTestSourceAbsolutePath(absoluteFilePath).replace(NL, expectedNewLine);
+		final String expectedNewLine = "\n";
+		final String expectedSource = getTestSourceAbsolutePath(absoluteFilePath).replace(NL, expectedNewLine);
 		return offset + getOffsetAdaptionDelta(offset, expectedSource, expectedNewLine);
 	}
 
-	protected int adaptExpectedOffsetOfCurrentDocument(String fileLocation, int expectedOffset) throws IOException {
+	protected int adaptExpectedOffsetOfCurrentDocument(final String fileLocation, final int expectedOffset)
+			throws IOException {
 		if (NL.length() < 2) {
 			return expectedOffset;
 		}
-		String expectedNewLine = "\n";
-		String expectedSource = getCurrentSourceAbsolutePath(fileLocation).replace(NL, expectedNewLine);
+		final String expectedNewLine = "\n";
+		final String expectedSource = getCurrentSourceFromAbsolutePath(fileLocation).replace(NL, expectedNewLine);
 		return expectedOffset + getOffsetAdaptionDelta(expectedOffset, expectedSource, expectedNewLine);
 	}
 
-	protected int adaptActualOffset(IASTFileLocation fileLocation) throws IOException {
+	protected int adaptActualOffset(final IASTFileLocation fileLocation) throws IOException {
 		return adaptActualOffset(fileLocation.getFileName(), fileLocation.getNodeOffset());
 	}
 
-	protected int adaptActualOffset(String fileName, int offset) throws IOException {
+	protected int adaptActualOffset(final String fileName, final int offset) throws IOException {
 		if (NL.length() < 2) {
 			return offset;
 		}
-		return offset - getOffsetAdaptionDelta(offset, getCurrentSourceAbsolutePath(fileName), NL);
+		return offset - getOffsetAdaptionDelta(offset, getCurrentSourceFromAbsolutePath(fileName), NL);
 	}
 
-	private int getOffsetAdaptionDelta(int offset, String source, String nl) throws IOException {
-		int amountNewLines = countUpTo(source, nl, offset);
-		int delta = (NL.length() - 1) * amountNewLines;
+	private int getOffsetAdaptionDelta(final int offset, final String source, final String nl) throws IOException {
+		final int amountNewLines = countUpTo(source, nl, offset);
+		final int delta = (NL.length() - 1) * amountNewLines;
 		return delta;
 	}
 
-	protected Object adaptActualLength(String fileName, int length, int offset) throws IOException {
+	protected Object adaptActualLength(final String fileName, final int length, final int offset) throws IOException {
 		if (NL.length() < 2) {
 			return length;
 		}
 		return length - getLengthAdaptionDelta(length, offset, getTestSourceAbsolutePath(fileName), NL);
 	}
 
-	private int getLengthAdaptionDelta(int length, int offset, String source, String nl) {
-		int amountNewLines = countFromTo(source, nl, offset, offset + length);
-		int delta = (NL.length() - 1) * amountNewLines;
+	private int getLengthAdaptionDelta(final int length, final int offset, final String source, final String nl) {
+		final int amountNewLines = countFromTo(source, nl, offset, offset + length);
+		final int delta = (NL.length() - 1) * amountNewLines;
 		return delta;
 	}
 
-	private int countFromTo(String hayStack, String needle, int startAt, int stopAt) {
+	private int countFromTo(final String hayStack, final String needle, final int startAt, final int stopAt) {
 		int curOffset = startAt;
 		int matches = 0;
 		while ((curOffset = hayStack.indexOf(needle, curOffset)) < stopAt) {
@@ -450,12 +517,150 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		return matches;
 	}
 
-	private int countUpTo(String hayStack, String needle, int stopAt) {
+	private int countUpTo(final String hayStack, final String needle, final int stopAt) {
 		return countFromTo(hayStack, needle, 0, stopAt);
 	}
 
-	private String getTestSourceAbsolutePath(String absoluteFilePath) throws IOException {
-		IPath prjectRelativePath = new Path(absoluteFilePath).makeRelativeTo(project.getLocation());
-		return getTestSource(prjectRelativePath.toOSString());
+	private String getTestSourceAbsolutePath(final String absoluteFilePath) throws IOException {
+		final IPath projectRelativePath = new Path(absoluteFilePath).makeRelativeTo(project.getLocation());
+		return getTestSource(projectRelativePath.toOSString());
+	}
+
+	/**
+	 * Normalizes the passed {@link String} by removing all testeditor-comments,
+	 * removing leading/trailing whitespaces and linebreaks, replacing all
+	 * remaining linebreaks by ↵ and reducting all groups of whitespace to a
+	 * single space.
+	 *
+	 * @author tstauber
+	 *
+	 * @param in
+	 *            The {@link String} that should be normalized.
+	 *
+	 * @return A normalized copy of the parameter in.
+	 **/
+	public static String normalize(final String in) {
+		//@formatter:off
+		return in.replaceAll("/\\*.*\\*/", "")								//Remove all test-editor-comments
+				.replaceAll("(^((\\r?\\n)|\\s)*|((\\r?\\n)|\\s)*$)", "")	//Remove all leading and trailing linebreaks/whitespaces
+				.replaceAll("\\s*(\\r?\\n)*+\\s*", "↵")						//Replace all linebreaks with linebreak-symbol
+				.replaceAll("\\s+", " ");									//Reduce all groups of whitespace to a single space
+		//@formatter:on
+	}
+
+	/**
+	 * Performs an assertEquals on the passed parameters after using
+	 * {@link normalize} on them.
+	 *
+	 * @author tstauber
+	 */
+	public static void assertEqualsNormalized(final String expected, final String actual) {
+		assertEquals(normalize(expected), normalize(actual));
+	}
+
+	/**
+	 * Compares the {@link IASTTranslationUnit} from the code after the QuickFix
+	 * was applied with the {@link IASTTranslationUnit} from the expected code.
+	 * To use this method the flag {@code instantiateExpectedProject} has to be
+	 * set to true.
+	 *
+	 * @author tstauber
+	 *
+	 */
+	public void assertEqualsAST(final IASTTranslationUnit expectedAST, final IASTTranslationUnit currentAST) {
+		if (!instantiateExpectedProject) {
+			fail("To use the assertEqualsAST() method, the class must set instantiateExpectedProject=true ");
+		}
+
+		final Pair<ComparisonState, String[]> equals = equals(expectedAST, currentAST);
+
+		switch (equals.first) {
+		case EQUAL:
+			assertTrue(true);
+			break;
+		case DIFFERENT_AMOUNT_OF_CHILDREN:
+			assertEquals("Some IASTNodes had different amount of childrens.", equals.second[0], equals.second[1]);
+			break;
+		case DIFFERENT_TYPE:
+			assertEquals("Some IASTNodes were of different type", equals.second[0], equals.second[1]);
+			break;
+		case DIFFERENT_SIGNATURE:
+			assertEquals("Some leaf-nodes had different normalized signatures.", equals.second[0], equals.second[1]);
+			break;
+		}
+	}
+
+	/**
+	 * Get the AST of the expected result
+	 *
+	 * @author tstauber
+	 *
+	 * @return The expected AST or null, if an exception occured.
+	 */
+	public IASTTranslationUnit getExpectedAST() {
+		final String absoluteExpectedPath = makeProjectAbsolutePath(activeFileName, expectedProject);
+		final URI expectedURI = FileHelper.stringToUri(absoluteExpectedPath);
+		try {
+			return CoreModelUtil.findTranslationUnitForLocation(expectedURI, expectedCproject).getAST();
+		} catch (final CoreException ignored) {
+			return null;
+		}
+	}
+
+	/**
+	 * Get the AST of the current result after the quickfix
+	 *
+	 * @author tstauber
+	 *
+	 * @return The current AST or null, if an exception occured.
+	 */
+	public IASTTranslationUnit getCurrentAST() {
+		final String absoluteCurrentPath = makeProjectAbsolutePath(activeFileName);
+		final URI currentURI = FileHelper.stringToUri(absoluteCurrentPath);
+		try {
+			return CoreModelUtil.findTranslationUnitForLocation(currentURI, cproject).getAST();
+		} catch (final CoreException ignored) {
+			return null;
+		}
+	}
+
+	private Pair<ComparisonState, String[]> equals(final IASTNode expected, final IASTNode actual) {
+		final IASTNode[] lChilds = expected.getChildren();
+		final IASTNode[] rChilds = actual.getChildren();
+		if (lChilds.length != rChilds.length) {
+			return new Pair<>(ComparisonState.DIFFERENT_AMOUNT_OF_CHILDREN,
+					new String[] { expected.getRawSignature(), actual.getRawSignature() });
+		}
+		if (!expected.getClass().equals(actual.getClass())) {
+			return new Pair<>(ComparisonState.DIFFERENT_TYPE,
+					new String[] { expected.getRawSignature(), actual.getRawSignature() });
+		}
+
+		if (lChilds.length != 0) {
+			for (int i = 0; i < lChilds.length; i++) {
+				final Pair<ComparisonState, String[]> childResult = equals(lChilds[i], rChilds[i]);
+				if (childResult.first != ComparisonState.EQUAL) {
+					return childResult;
+				}
+			}
+		} else if (!normalize(expected.getRawSignature()).equals(normalize(actual.getRawSignature()))) {
+			return new Pair<>(ComparisonState.DIFFERENT_SIGNATURE,
+					new String[] { expected.getRawSignature(), actual.getRawSignature() });
+		}
+		return new Pair<>(ComparisonState.EQUAL, null);
+	}
+
+	private enum ComparisonState {
+		DIFFERENT_TYPE, DIFFERENT_AMOUNT_OF_CHILDREN, DIFFERENT_SIGNATURE, EQUAL
+	}
+
+	private class Pair<T1, T2> {
+		public T1 first;
+		public T2 second;
+
+		public Pair(final T1 first, final T2 second) {
+			this.first = first;
+			this.second = second;
+		}
 	}
 }

@@ -40,6 +40,10 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 	 */
 	protected final LinkedHashMap<String, List<TestSourceFile>> referencedProjectsToLoad;
 
+	{
+		instantiateExpectedProject = true;
+	}
+
 	public CDTSourceFileTest() {
 		super();
 		fileMap = new TreeMap<>();
@@ -122,8 +126,10 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 	protected void setupFiles() throws Exception {
 		for (final TestSourceFile testFile : fileMap.values()) {
 			importFile(testFile.getName(), testFile.getSource());
+			importFile(testFile.getName(), testFile.getExpectedSource(), expectedProject);
 		}
 		project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+		expectedProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 	}
 
 	@Override
@@ -168,19 +174,6 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 		fis.read(buf);
 		fis.close();
 		return new String(buf);
-	}
-
-	public static String normalize(final String in) {
-		//@formatter:off
-		return in.replaceAll("/\\*.*\\*/", "")								//Remove all test-editor-comments
-				.replaceAll("(^((\\r?\\n)|\\s)*|((\\r?\\n)|\\s)*$)", "")	//Remove all leading and trailing linebreaks/whitespaces
-				.replaceAll("\\s*(\\r?\\n)+\\s*", "↵")						//Replace all linebreaks with linebreak-symbol
-				.replaceAll("\\s+", " ");									//Reduce all groups of whitespace to a single space
-		//@formatter:on
-	}
-
-	public static void assertEqualsNormalized(final String expected, final String actual) {
-		assertEquals(normalize(expected), normalize(actual));
 	}
 
 	protected String getExpectedSource() {

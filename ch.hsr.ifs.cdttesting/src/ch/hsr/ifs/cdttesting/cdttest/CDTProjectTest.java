@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.dom.IPDOMManager;
 import org.eclipse.cdt.core.index.IIndexManager;
@@ -57,17 +55,31 @@ import org.eclipse.ui.PlatformUI;
 
 import ch.hsr.ifs.cdttesting.helpers.ExternalResourceHelper;
 import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
+import junit.framework.TestCase;
 
 abstract public class CDTProjectTest extends TestCase {
+	protected static final String EXPECTED_PREFIX = "expected_";
+
 	protected IWorkspace workspace;
 	protected IProject project;
 	protected ICProject cproject;
+
+	protected IProject expectedProject;
+	protected ICProject expectedCproject;
+
 	protected FileManager fileManager;
 	protected boolean indexDisabled = false;
 	/**
-	 * when set to false, a C project will be created instead of a (default) C++ project
+	 * If set to false, a C project will be created instead of a (default) C++
+	 * project
 	 */
 	protected boolean instantiateCCProject = true;
+
+	/**
+	 * If set to true, a project supporting the expected files will be
+	 * instantiated.
+	 */
+	protected boolean instantiateExpectedProject = false;
 
 	protected ArrayList<ICProject> referencedProjects;
 	private List<String> externalIncudeDirPaths;
@@ -77,15 +89,15 @@ abstract public class CDTProjectTest extends TestCase {
 		init();
 	}
 
-	public CDTProjectTest(String name) {
+	public CDTProjectTest(final String name) {
 		super(name);
 		init();
 	}
 
 	private void init() {
-		referencedProjects = new ArrayList<ICProject>();
-		externalIncudeDirPaths = new ArrayList<String>();
-		inProjectIncudeDirPaths = new ArrayList<String>();
+		referencedProjects = new ArrayList<>();
+		externalIncudeDirPaths = new ArrayList<>();
+		inProjectIncudeDirPaths = new ArrayList<>();
 	}
 
 	@Override
@@ -113,23 +125,33 @@ abstract public class CDTProjectTest extends TestCase {
 	}
 
 	private void initProject() {
-		if (project != null) {
+		if (project != null && expectedProject != null) {
 			return;
 		}
 		if (CCorePlugin.getDefault() != null && CCorePlugin.getDefault().getCoreModel() != null) {
-			String projectName = makeProjectName();
+			final String projectName = makeProjectName();
 			workspace = ResourcesPlugin.getWorkspace();
 			try {
 				if (instantiateCCProject) {
 					cproject = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ //$NON-NLS-2$
+					if (instantiateExpectedProject) {
+						expectedCproject = CProjectHelper.createCCProject(EXPECTED_PREFIX.concat(projectName), "bin", //$NON-NLS-1$ //$NON-NLS-2$
+								IPDOMManager.ID_NO_INDEXER);
+					}
 				} else {
 					cproject = CProjectHelper.createCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ //$NON-NLS-2$
+					if (instantiateExpectedProject) {
+						expectedCproject = CProjectHelper.createCProject(EXPECTED_PREFIX.concat(projectName), "bin", //$NON-NLS-1$ //$NON-NLS-2$
+								IPDOMManager.ID_NO_INDEXER);
+					}
 				}
 				project = cproject.getProject();
-			} catch (CoreException e) {
-				/* boo */
+				if (instantiateExpectedProject) {
+					expectedProject = expectedCproject.getProject();
+				}
+			} catch (final CoreException ignored) {
 			}
-			if (project == null) {
+			if (project == null || (instantiateExpectedProject && expectedProject == null)) {
 				fail("Unable to create project"); //$NON-NLS-1$
 			}
 			fileManager = new FileManager();
@@ -143,27 +165,35 @@ abstract public class CDTProjectTest extends TestCase {
 	public void cleanupProject() throws Exception {
 		try {
 			project.delete(true, true, new NullProgressMonitor());
-		} catch (Throwable e) {
-			/* boo */
+			expectedProject.delete(true, true, new NullProgressMonitor());
+		} catch (final Throwable ignored) {
 		} finally {
 			project = null;
+			expectedProject = null;
 		}
 	}
 
 	private void disposeProjMembers() throws CoreException {
-		if (project == null || !project.exists())
-			return;
+		disposeProjMembers(project);
+		disposeProjMembers(expectedProject);
+	}
 
-		IResource[] members = project.members();
-		for (int i = 0; i < members.length; i++) {
-			if (members[i].getName().equals(".project") || members[i].getName().equals(".cproject")) //$NON-NLS-1$ //$NON-NLS-2$
+	private void disposeProjMembers(final IProject proj) throws CoreException {
+		if (proj == null || !proj.exists()) {
+			return;
+		}
+
+		final IResource[] members = proj.members();
+		for (final IResource member : members) {
+			if (member.getName().equals(".project") || member.getName().equals(".cproject")) {
 				continue;
-			if (members[i].getName().equals(".settings"))
+			}
+			if (member.getName().equals(".settings")) {
 				continue;
+			}
 			try {
-				members[i].delete(false, new NullProgressMonitor());
-			} catch (Throwable e) {
-				/* boo */
+				member.delete(false, new NullProgressMonitor());
+			} catch (final Throwable ignored) {
 			}
 		}
 	}
@@ -174,11 +204,11 @@ abstract public class CDTProjectTest extends TestCase {
 
 	private void setupProjectReferences() throws CoreException {
 		if (referencedProjects.size() > 0) {
-			ICProjectDescription des = CCorePlugin.getDefault().getProjectDescription(project, true);
-			ICConfigurationDescription cfgs[] = des.getConfigurations();
-			for (ICConfigurationDescription config : cfgs) {
-				Map<String, String> refMap = config.getReferenceInfo();
-				for (ICProject refProject : referencedProjects) {
+			final ICProjectDescription des = CCorePlugin.getDefault().getProjectDescription(project, true);
+			final ICConfigurationDescription cfgs[] = des.getConfigurations();
+			for (final ICConfigurationDescription config : cfgs) {
+				final Map<String, String> refMap = config.getReferenceInfo();
+				for (final ICProject refProject : referencedProjects) {
 					refMap.put(refProject.getProject().getName(), "");
 				}
 				config.setReferenceInfo(refMap);
@@ -193,7 +223,7 @@ abstract public class CDTProjectTest extends TestCase {
 		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, new NullProgressMonitor());
 		// reindexing will happen automatically after call of setIndexerId
 		CCorePlugin.getIndexManager().setIndexerId(cproject, IPDOMManager.ID_FAST_INDEXER);
-		for (ICProject curProj : referencedProjects) {
+		for (final ICProject curProj : referencedProjects) {
 			CCorePlugin.getIndexManager().setIndexerId(curProj, IPDOMManager.ID_FAST_INDEXER);
 		}
 		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, new NullProgressMonitor());
@@ -208,43 +238,46 @@ abstract public class CDTProjectTest extends TestCase {
 		}
 		try {
 			BaseTestCase.waitForIndexer(cproject);
-		} catch (InterruptedException e) {
+		} catch (final InterruptedException e) {
 			System.err.println("Wait for indexer has been interrupted.");
 		}
 	}
 
 	protected abstract void initReferencedProjects() throws Exception;
 
-	protected void addIncludeDirPath(String path) {
+	protected void addIncludeDirPath(final String path) {
 		externalIncudeDirPaths.add(path);
 	}
 
-	protected void addInProjectIncludeDirPath(String projectRelativePath) {
+	protected void addInProjectIncludeDirPath(final String projectRelativePath) {
 		inProjectIncudeDirPaths.add(projectRelativePath);
 	}
 
 	private void addIncludePathDirs() {
-		int externalProjectOffset = externalIncudeDirPaths.size() + inProjectIncudeDirPaths.size();
-		String[] array = new String[externalProjectOffset + referencedProjects.size()];
+		final int externalProjectOffset = externalIncudeDirPaths.size() + inProjectIncudeDirPaths.size();
+		final String[] array = new String[externalProjectOffset + referencedProjects.size()];
 		int i = 0;
 		for (; i < externalIncudeDirPaths.size(); i++) {
-			String externalAbsolutePath = makeExternalResourceAbsolutePath(externalIncudeDirPaths.get(i));
-			File folder = new File(externalAbsolutePath);
+			final String externalAbsolutePath = makeExternalResourceAbsolutePath(externalIncudeDirPaths.get(i));
+			final File folder = new File(externalAbsolutePath);
 			if (!folder.exists()) {
-				System.err.println("Adding external include path dir " + externalAbsolutePath + " to test " + getName() + " which does not exist.");
+				System.err.println("Adding external include path dir " + externalAbsolutePath + " to test " + getName()
+						+ " which does not exist.");
 			}
 			array[i] = externalAbsolutePath;
 		}
 		for (; i < externalProjectOffset; i++) {
-			String inProjectAbsolutePath = makeProjectAbsolutePath(inProjectIncudeDirPaths.get(i - externalIncudeDirPaths.size()));
-			File folder = new File(inProjectAbsolutePath);
+			final String inProjectAbsolutePath = makeProjectAbsolutePath(
+					inProjectIncudeDirPaths.get(i - externalIncudeDirPaths.size()));
+			final File folder = new File(inProjectAbsolutePath);
 			if (!folder.exists()) {
-				System.err.println("Adding external include path dir " + inProjectAbsolutePath + " to test " + getName() + " which does not exist.");
+				System.err.println("Adding external include path dir " + inProjectAbsolutePath + " to test " + getName()
+						+ " which does not exist.");
 			}
 			array[i] = inProjectAbsolutePath;
 		}
 		for (; i < array.length; i++) {
-			ICProject referencedProj = referencedProjects.get(i - externalProjectOffset);
+			final ICProject referencedProj = referencedProjects.get(i - externalProjectOffset);
 			array[i] = referencedProj.getProject().getLocation().toOSString();
 		}
 		externalIncudeDirPaths.clear();
@@ -253,53 +286,60 @@ abstract public class CDTProjectTest extends TestCase {
 		TestScannerProvider.sIncludes = array;
 	}
 
-	private void addIncludeRefs(String[] pathsToAdd, int externalProjectOffset) {
+	private void addIncludeRefs(final String[] pathsToAdd, final int externalProjectOffset) {
 		try {
-			IPathEntry[] allPathEntries = cproject.getRawPathEntries();
-			IPathEntry[] newPathEntries = new IPathEntry[allPathEntries.length + pathsToAdd.length];
+			final IPathEntry[] allPathEntries = cproject.getRawPathEntries();
+			final IPathEntry[] newPathEntries = new IPathEntry[allPathEntries.length + pathsToAdd.length];
 			System.arraycopy(allPathEntries, 0, newPathEntries, 0, allPathEntries.length);
 			int i = 0;
 			for (; i < externalProjectOffset; i++) {
-				newPathEntries[allPathEntries.length + i] = CoreModel.newIncludeEntry(null, null, new Path(pathsToAdd[i]));
+				newPathEntries[allPathEntries.length + i] = CoreModel.newIncludeEntry(null, null,
+						new Path(pathsToAdd[i]));
 			}
 			for (; i < pathsToAdd.length; i++) {
-				ICProject referencedProj = referencedProjects.get(i - externalProjectOffset);
-				newPathEntries[allPathEntries.length + i] = CoreModel.newIncludeEntry(null, referencedProj.getPath().makeRelative(), null);
+				final ICProject referencedProj = referencedProjects.get(i - externalProjectOffset);
+				newPathEntries[allPathEntries.length + i] = CoreModel.newIncludeEntry(null,
+						referencedProj.getPath().makeRelative(), null);
 			}
 			cproject.setRawPathEntries(newPathEntries, new NullProgressMonitor());
-		} catch (CModelException e) {
+		} catch (final CModelException e) {
 			e.printStackTrace();
 		}
 	}
 
-	protected IFile importFile(String fileName, String contents, IProject project) throws Exception {
-		IFile file = project.getFile(fileName);
-		IPath projectRelativePath = file.getProjectRelativePath();
+	protected IFile importFile(final String fileName, final String contents) throws Exception {
+		return importFile(fileName, contents, project);
+	}
+
+	protected IFile importFile(final String fileName, final String contents, final IProject project) throws Exception {
+		final IFile file = project.getFile(fileName);
+		final IPath projectRelativePath = file.getProjectRelativePath();
 		for (int i = projectRelativePath.segmentCount() - 1; i > 0; i--) {
-			IPath folderPath = file.getProjectRelativePath().removeLastSegments(i);
-			IFolder folder = project.getFolder(folderPath);
+			final IPath folderPath = file.getProjectRelativePath().removeLastSegments(i);
+			final IFolder folder = project.getFolder(folderPath);
 			if (!folder.exists()) {
 				folder.create(false, true, new NullProgressMonitor());
 			}
 		}
-		InputStream stream = new ByteArrayInputStream(contents.getBytes());
+		final InputStream stream = new ByteArrayInputStream(contents.getBytes());
 		if (file.exists()) {
-			System.err.println("Overwriding existing file which should not yet exist: " + fileName);
+			System.err.println("Overwriting existing file which should not yet exist: " + fileName);
 			file.setContents(stream, true, false, new NullProgressMonitor());
-		} else
+		} else {
 			file.create(stream, true, new NullProgressMonitor());
+		}
 
 		fileManager.addFile(file);
 		checkFileContent(file.getLocation(), contents);
 		return file;
 	}
 
-	private void checkFileContent(IPath location, String expected) throws IOException {
+	private void checkFileContent(final IPath location, final String expected) throws IOException {
 		Reader in = null;
 		try {
 			in = new FileReader(location.toOSString());
-			StringBuilder existing = new StringBuilder();
-			char[] buffer = new char[4096];
+			final StringBuilder existing = new StringBuilder();
+			final char[] buffer = new char[4096];
 			int read = 0;
 			do {
 				existing.append(buffer, 0, read);
@@ -315,38 +355,37 @@ abstract public class CDTProjectTest extends TestCase {
 		}
 	}
 
-	protected IFile importFile(String fileName, String contents) throws Exception {
-		return importFile(fileName, contents, project);
-	}
-
 	@SuppressWarnings("restriction")
 	private void disposeCDTAstCache() {
 		CUIPlugin.getDefault().getASTProvider().dispose();
 	}
 
-	protected String makeExternalResourceAbsolutePath(String relativePath) {
+	protected String makeExternalResourceAbsolutePath(final String relativePath) {
 		return ExternalResourceHelper.makeExternalResourceAbsolutePath(relativePath);
 	}
 
-	protected String makeProjectAbsolutePath(String relativePath) {
-		IPath projectPath = project.getLocation();
+	protected String makeProjectAbsolutePath(final String relativePath) {
+		return makeProjectAbsolutePath(relativePath, project);
+	}
+
+	protected String makeProjectAbsolutePath(final String relativePath, final IProject proj) {
+		final IPath projectPath = proj.getLocation();
 		return projectPath.append(relativePath).toOSString();
 	}
 
-	protected String makeWorkspaceAbsolutePath(String relativePath) {
+	protected String makeWorkspaceAbsolutePath(final String relativePath) {
 		return ResourcesPlugin.getWorkspace().getRoot().getLocation().append(relativePath).toOSString();
 	}
 
-	protected String makeOSPath(String path) {
+	protected String makeOSPath(final String path) {
 		return new Path(path).toOSString();
 	}
 
 	private void deleteReferencedProjects() {
-		for (ICProject curProj : referencedProjects) {
+		for (final ICProject curProj : referencedProjects) {
 			try {
 				curProj.getProject().delete(true, false, new NullProgressMonitor());
-			} catch (CoreException e) {
-				// ignore
+			} catch (final CoreException ignore) {
 			}
 		}
 		referencedProjects.clear();
@@ -355,8 +394,9 @@ abstract public class CDTProjectTest extends TestCase {
 	protected IWorkbenchWindow getActiveWorkbenchWindow() {
 		IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		if (activeWorkbenchWindow == null) {
-			IWorkbenchWindow[] workbenchWindows = PlatformUI.getWorkbench().getWorkbenchWindows();
-			assertEquals("There should be exactly one workbench window. Includator test will thus fail.", 1, workbenchWindows.length);
+			final IWorkbenchWindow[] workbenchWindows = PlatformUI.getWorkbench().getWorkbenchWindows();
+			assertEquals("There should be exactly one workbench window. Includator test will thus fail.", 1,
+					workbenchWindows.length);
 			activeWorkbenchWindow = workbenchWindows[0];
 		}
 		return activeWorkbenchWindow;
