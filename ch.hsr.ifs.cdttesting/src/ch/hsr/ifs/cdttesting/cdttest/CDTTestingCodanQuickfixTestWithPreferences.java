@@ -86,6 +86,7 @@ public abstract class CDTTestingCodanQuickfixTestWithPreferences extends CDTTest
 	 *         {@code String}s representing the id's for the preferences.
 	 *
 	 */
+	@SuppressWarnings("rawtypes")
 	public abstract Class getPreferenceConstants();
 
 	@Override
