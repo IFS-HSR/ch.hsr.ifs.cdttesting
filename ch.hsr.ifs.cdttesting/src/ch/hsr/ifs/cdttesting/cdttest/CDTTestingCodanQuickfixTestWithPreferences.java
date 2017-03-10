@@ -39,7 +39,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 public abstract class CDTTestingCodanQuickfixTestWithPreferences extends CDTTestingCodanQuickfixTest {
 	private final Map<String, String> prefBackup = new HashMap<>();
 	private final Map<String, String> prefEvalBackup = new HashMap<>();
-	protected static IPreferenceStore preferenceStore;
+	protected IPreferenceStore preferenceStore;
 
 	@Override
 	protected void configureTest(final Properties properties) {
