@@ -126,10 +126,14 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
 	protected void setupFiles() throws Exception {
 		for (final TestSourceFile testFile : fileMap.values()) {
 			importFile(testFile.getName(), testFile.getSource());
-			importFile(testFile.getName(), testFile.getExpectedSource(), expectedProject);
+			if (expectedProject != null) {
+			    importFile(testFile.getName(), testFile.getExpectedSource(), expectedProject);
+			}
 		}
 		project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-		expectedProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+		if (expectedProject != null) {
+		    expectedProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+		}
 	}
 
 	@Override
