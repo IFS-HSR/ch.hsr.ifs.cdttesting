@@ -644,8 +644,11 @@ public class CDTTestingTest extends CDTSourceFileTest {
 				}
 			}
 		} else if (!normalize(expected.getRawSignature()).equals(normalize(actual.getRawSignature()))) {
-			return new Pair<>(ComparisonState.DIFFERENT_SIGNATURE,
-					new String[] { expected.getRawSignature(), actual.getRawSignature() });
+			if (!(expected.getRawSignature().matches("(\\(|\\{)(\\s|\\n)*(\\)|\\})")
+					&& actual.getRawSignature().matches("(\\(|\\{)(\\s|\\n)*(\\)|\\})"))) {
+				return new Pair<>(ComparisonState.DIFFERENT_SIGNATURE,
+						new String[] { expected.getRawSignature(), actual.getRawSignature() });
+			}
 		}
 		return new Pair<>(ComparisonState.EQUAL, null);
 	}

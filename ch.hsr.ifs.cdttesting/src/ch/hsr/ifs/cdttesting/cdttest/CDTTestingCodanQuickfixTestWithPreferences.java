@@ -119,10 +119,11 @@ public abstract class CDTTestingCodanQuickfixTestWithPreferences extends CDTTest
 
 	private Map<String, String> evaluatePreferences(final Map<String, String> preferencesMap) {
 		final Map<String, String> evaluatedMap = new HashMap<>();
+		final Class prefConstants = getPreferenceConstants();
 		try {
 			for (final String key : preferencesMap.keySet()) {
-				final Field evaluatedKey = getPreferenceConstants().getDeclaredField(key);
-				final Field evaluatedValue = getPreferenceConstants().getDeclaredField(preferencesMap.get(key));
+				final Field evaluatedKey = prefConstants.getDeclaredField(key);
+				final Field evaluatedValue = prefConstants.getDeclaredField(preferencesMap.get(key));
 				evaluatedMap.put((String) evaluatedKey.get(null), (String) evaluatedValue.get(null));
 			}
 		} catch (final NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
