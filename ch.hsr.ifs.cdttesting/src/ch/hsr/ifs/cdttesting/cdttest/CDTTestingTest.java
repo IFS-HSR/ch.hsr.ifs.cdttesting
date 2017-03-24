@@ -543,7 +543,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		//@formatter:off
 		return in.replaceAll("/\\*.*\\*/", "")								//Remove all test-editor-comments
 				.replaceAll("(^((\\r?\\n)|\\s)*|((\\r?\\n)|\\s)*$)", "")	//Remove all leading and trailing linebreaks/whitespaces
-				.replaceAll("\\s*(\\r?\\n)*+\\s*", "↵")						//Replace all linebreaks with linebreak-symbol
+				.replaceAll("\\s*(\\r?\\n)+\\s*", "↵")						//Replace all linebreaks with linebreak-symbol
 				.replaceAll("\\s+", " ");									//Reduce all groups of whitespace to a single space
 		//@formatter:on
 	}
