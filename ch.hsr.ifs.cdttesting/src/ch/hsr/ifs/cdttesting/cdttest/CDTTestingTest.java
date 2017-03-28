@@ -528,8 +528,8 @@ public class CDTTestingTest extends CDTSourceFileTest {
 
 	/**
 	 * Normalizes the passed {@link String} by removing all testeditor-comments,
-	 * removing leading/trailing whitespaces and linebreaks, replacing all
-	 * remaining linebreaks by ↵ and reducting all groups of whitespace to a
+	 * removing leading/trailing whitespaces and line-breaks, replacing all
+	 * remaining line-breaks by ↵ and reducing all groups of whitespace to a
 	 * single space.
 	 *
 	 * @author tstauber
@@ -579,13 +579,16 @@ public class CDTTestingTest extends CDTSourceFileTest {
 			assertTrue(true);
 			break;
 		case DIFFERENT_AMOUNT_OF_CHILDREN:
-			assertEquals("Some IASTNodes had different amount of childrens.", equals.second[0], equals.second[1]);
+			assertEquals("Different amount of childrens. On line no: " + equals.second[2] + " -> ", equals.second[0],
+					equals.second[1]);
 			break;
 		case DIFFERENT_TYPE:
-			assertEquals("Some IASTNodes were of different type", equals.second[0], equals.second[1]);
+			assertEquals("Different type. On line no: " + equals.second[2] + " -> ", equals.second[0],
+					equals.second[1]);
 			break;
 		case DIFFERENT_SIGNATURE:
-			assertEquals("Some leaf-nodes had different normalized signatures.", equals.second[0], equals.second[1]);
+			assertEquals("Different normalized signatures. On line no: " + equals.second[2] + " -> ", equals.second[0],
+					equals.second[1]);
 			break;
 		}
 	}
@@ -628,12 +631,12 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		final IASTNode[] lChilds = expected.getChildren();
 		final IASTNode[] rChilds = actual.getChildren();
 		if (lChilds.length != rChilds.length) {
-			return new Pair<>(ComparisonState.DIFFERENT_AMOUNT_OF_CHILDREN,
-					new String[] { expected.getRawSignature(), actual.getRawSignature() });
+			return new Pair<>(ComparisonState.DIFFERENT_AMOUNT_OF_CHILDREN, new String[] { expected.getRawSignature(),
+					actual.getRawSignature(), "Line No: " + actual.getFileLocation().getStartingLineNumber() });
 		}
 		if (!expected.getClass().equals(actual.getClass())) {
-			return new Pair<>(ComparisonState.DIFFERENT_TYPE,
-					new String[] { expected.getRawSignature(), actual.getRawSignature() });
+			return new Pair<>(ComparisonState.DIFFERENT_TYPE, new String[] { expected.getRawSignature(),
+					actual.getRawSignature(), "Line No: " + actual.getFileLocation().getStartingLineNumber() });
 		}
 
 		if (lChilds.length != 0) {
@@ -646,8 +649,8 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		} else if (!normalize(expected.getRawSignature()).equals(normalize(actual.getRawSignature()))) {
 			if (!(expected.getRawSignature().matches("(\\(|\\{)(\\s|\\n)*(\\)|\\})")
 					&& actual.getRawSignature().matches("(\\(|\\{)(\\s|\\n)*(\\)|\\})"))) {
-				return new Pair<>(ComparisonState.DIFFERENT_SIGNATURE,
-						new String[] { expected.getRawSignature(), actual.getRawSignature() });
+				return new Pair<>(ComparisonState.DIFFERENT_SIGNATURE, new String[] { expected.getRawSignature(),
+						actual.getRawSignature(), String.valueOf(actual.getFileLocation().getStartingLineNumber()) });
 			}
 		}
 		return new Pair<>(ComparisonState.EQUAL, null);
