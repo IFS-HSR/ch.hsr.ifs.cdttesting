@@ -2,7 +2,7 @@
 <feature
       id="ch.hsr.ifs.cdttesting.tools.feature"
       label="IFS CDT-Testing Tools Feature"
-      version="9.2.0.qualifier"
+      version="9.2.1.qualifier"
       provider-name="IFS">
 
    <description url="https://github.com/IFS-HSR/ch.hsr.ifs.cdttesting">

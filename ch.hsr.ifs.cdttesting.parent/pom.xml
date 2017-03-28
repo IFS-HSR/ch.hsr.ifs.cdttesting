@@ -4,13 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ch.hsr.ifs.cdttesting</groupId>
 	<artifactId>cdttesting</artifactId>
-	<version>9.2.0-SNAPSHOT</version>
+	<version>9.2.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<properties>
 		<tycho-version>0.25.0</tycho-version>
 		<tycho-extras-version>0.25.0</tycho-extras-version>
-		<targetPlatform.repository.p2>http://mbarbero.github.com/fr.obeo.releng.targetplatform/p2/</targetPlatform.repository.p2>
 	</properties>
 
 	<profiles>
@@ -98,8 +97,8 @@
 					<target>
 						<artifact>
 							<groupId>ch.hsr.ifs.cdttesting</groupId>
-							<artifactId>cdttesting-neon</artifactId>
-							<version>9.2.0-SNAPSHOT</version>
+							<artifactId>ch.hsr.ifs.cdttesting.target</artifactId>
+							<version>9.2.1-SNAPSHOT</version>
 						</artifact>
 					</target>
 				</configuration>
