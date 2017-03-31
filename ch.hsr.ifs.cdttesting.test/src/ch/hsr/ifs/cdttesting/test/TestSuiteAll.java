@@ -11,6 +11,6 @@ import ch.hsr.ifs.cdttesting.test.cdttest.tests.NormalizerTest;
 @SuiteClasses({
 	NormalizerTest.class
 	})
-public class TestFileEditorTests {
+public class TestSuiteAll {
 
 }

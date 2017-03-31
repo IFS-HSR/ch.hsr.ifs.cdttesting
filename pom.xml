@@ -153,6 +153,9 @@
 					<useUIHarness>true</useUIHarness>
 					<product>org.eclipse.epp.package.cpp.product</product>
 					<application>org.eclipse.ui.ide.workbench</application>
+					<includes>
+						<include>**/TestSuiteAll.java</include>
+					</includes>
 				</configuration>
 			</plugin>
 		</plugins>
