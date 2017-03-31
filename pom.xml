@@ -13,6 +13,7 @@
   <properties>
     <tycho-version>1.0.0</tycho-version>
     <tycho-extras-version>${tycho-version}</tycho-extras-version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <modules>
