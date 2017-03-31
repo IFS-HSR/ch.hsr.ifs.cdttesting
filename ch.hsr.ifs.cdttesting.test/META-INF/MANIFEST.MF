@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Testfileeditor
-Bundle-SymbolicName: ch.hsr.ifs.cdttesting.test;singleton:=true
+Bundle-SymbolicName: ch.hsr.ifs.cdttesting.tests;singleton:=true
 Bundle-Version: 9.2.1.qualifier
 Bundle-Activator: ch.hsr.ifs.cdttesting.test.Activator
 Require-Bundle: org.eclipse.ui,
