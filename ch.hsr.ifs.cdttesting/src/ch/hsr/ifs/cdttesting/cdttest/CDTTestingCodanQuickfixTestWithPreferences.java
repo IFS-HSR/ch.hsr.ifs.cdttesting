@@ -119,7 +119,7 @@ public abstract class CDTTestingCodanQuickfixTestWithPreferences extends CDTTest
 
 	private Map<String, String> evaluatePreferences(final Map<String, String> preferencesMap) {
 		final Map<String, String> evaluatedMap = new HashMap<>();
-		final Class prefConstants = getPreferenceConstants();
+		final Class<?> prefConstants = getPreferenceConstants();
 		try {
 			for (final String key : preferencesMap.keySet()) {
 				final Field evaluatedKey = prefConstants.getDeclaredField(key);

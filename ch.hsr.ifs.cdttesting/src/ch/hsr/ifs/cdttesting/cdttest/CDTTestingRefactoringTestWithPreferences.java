@@ -69,8 +69,6 @@ public abstract class CDTTestingRefactoringTestWithPreferences extends CDTTestin
 	protected void configureTest(final Properties properties) {
 		final String preference = properties.getProperty("setPreferences");
 		final String preferenceEval = properties.getProperty("setPreferencesEval");
-		final String setting = properties.getProperty("setDialogSettings");
-		final String settingEval = properties.getProperty("setDialogSettingsEval");
 
 		if (preference != null && !preference.isEmpty()) {
 			if (preferenceStore == null) {
