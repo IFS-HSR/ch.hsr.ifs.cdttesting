@@ -232,9 +232,9 @@ public class CDTTestingTest extends CDTSourceFileTest {
 
 	protected void closeEditorsWithoutSaving() throws Exception {
 		FileHelper.clean(); // make sure we are not holding any reference to the
-							// open IDocument anymore (otherwise, local changes
-							// in dirty editors
-							// won't get lost).
+		// open IDocument anymore (otherwise, local changes
+		// in dirty editors
+		// won't get lost).
 		new UIThreadSyncRunnable() {
 
 			@Override
@@ -379,10 +379,8 @@ public class CDTTestingTest extends CDTSourceFileTest {
 				final ITranslationUnit tu = CoreModelUtil.findTranslationUnitForLocation(uri, expectedCproject);
 				options.put(DefaultCodeFormatterConstants.FORMATTER_TRANSLATION_UNIT, tu);
 				final CodeFormatter formatter = ToolFactory.createCodeFormatter(options);
-
-				// TODO use better line delimiter
 				final TextEdit te = formatter.format(CodeFormatter.K_TRANSLATION_UNIT, absoluteFilePath, 0,
-						doc.getLength(), 0, "\n");
+						doc.getLength(), 0, NL);
 				te.apply(doc);
 			} catch (CModelException | MalformedTreeException | BadLocationException e) {
 				e.printStackTrace();
