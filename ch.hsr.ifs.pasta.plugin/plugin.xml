@@ -68,6 +68,7 @@
              <command
                    commandId="ch.hsr.ifs.pasta.plugin.commands.showNodeInPasta"
                    id="ch.hsr.ifs.pasta.plugin.menus.showNodeInPasta"
+                   icon="icons/pasta.gif"
                    label="Show IASTNode in &amp;PASTA AST View">
              </command>
        </menuContribution>

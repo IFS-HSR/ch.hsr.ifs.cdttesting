@@ -1,7 +1,9 @@
 package ch.hsr.ifs.pasta;
 
 import java.net.URL;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 import org.eclipse.cdt.core.CCorePlugin;
@@ -16,6 +18,8 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.part.ViewPart;
@@ -25,6 +29,8 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
+import org.osgi.service.event.EventConstants;
+import org.osgi.service.event.EventHandler;
 
 import ch.hsr.ifs.pasta.events.PastaEventConstants;
 
@@ -39,15 +45,6 @@ public class ASTView extends ViewPart {
 
 			@Override
 			public void run() {
-				// CUIPlugin.getActivePage().getActiveEditor().addPropertyListener(new
-				// IPropertyListener() {
-				//
-				// @Override
-				// public void propertyChanged(final Object source, final int
-				// propId) {
-				// treeView.drawAST(getAST());
-				// }
-				// });
 				treeView.drawAST(getAST());
 			}
 
@@ -76,6 +73,26 @@ public class ASTView extends ViewPart {
 			}
 
 		});
+
+		registerEventHandler(PastaEventConstants.SHOW_SELECTION, new EventHandler() {
+
+			@Override
+			public void handleEvent(final Event event) {
+
+				final ISelection selection = (ISelection) event.getProperty(PastaEventConstants.SELECTION);
+				if (selection instanceof ITextSelection) {
+					treeView.drawAST(getAST());
+					treeView.showSelectedNode((ITextSelection) selection);
+				}
+			}
+		});
+	}
+
+	private void registerEventHandler(final String topic, final EventHandler handler) {
+		final BundleContext ctx = FrameworkUtil.getBundle(ASTView.class).getBundleContext();
+		final Dictionary<String, String> props = new Hashtable<>();
+		props.put(EventConstants.EVENT_TOPIC, topic);
+		ctx.registerService(EventHandler.class.getName(), handler, props);
 	}
 
 	private IASTTranslationUnit getAST() {

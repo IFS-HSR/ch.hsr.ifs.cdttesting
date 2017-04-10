@@ -1,7 +1,5 @@
 package ch.hsr.ifs.pasta;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.LinkedList;
 
 import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
@@ -14,7 +12,6 @@ import org.eclipse.cdt.ui.CUIPlugin;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.DragDetectEvent;
@@ -36,13 +33,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.service.event.Event;
-import org.osgi.service.event.EventConstants;
-import org.osgi.service.event.EventHandler;
 
-import ch.hsr.ifs.pasta.events.PastaEventConstants;
 import ch.hsr.ifs.pasta.plugin.preferences.PreferenceConstants;
 import ch.hsr.ifs.pasta.tree.Node;
 import ch.hsr.ifs.pasta.tree.NodeVisitor;
@@ -79,48 +70,37 @@ public class ASTWidget extends ScrolledComposite {
 
 		setupCanvas();
 
-		registerEventHandler(PastaEventConstants.SHOW_SELECTION, new EventHandler() {
 
-			@Override
-			public void handleEvent(final Event event) {
+	}
 
-				final ISelection selection = (ISelection) event.getProperty(PastaEventConstants.SELECTION);
-				if (selection instanceof ITextSelection) {
-					showSelectedNode((ITextSelection) selection);
+	void showSelectedNode(final ITextSelection selection) {
+
+		if (!root.isTreatedAsLeaf()) {
+			buildChildrenAndRefresh(root);
+		}
+
+		final IASTNodeSelector selector = localASTCopy.getNodeSelector(localASTCopy.getFilePath());
+		final LinkedList<IASTNode> nodeList = new LinkedList<>();
+		IASTNode parent = selector.findEnclosingNode(selection.getOffset(), selection.getLength());
+		while (parent.getParent() != null) {
+			nodeList.add(parent);
+			parent = parent.getParent();
+		}
+
+		IASTNode listNode;
+		Node<Pair<Button, IASTNode>> currentNode = root;
+		while (!nodeList.isEmpty()) {
+			listNode = nodeList.removeLast();
+			buildChildrenAndRefresh(currentNode);
+			for (final Node<Pair<Button, IASTNode>> child : currentNode.getChildren()) {
+				if (child.data().getSecond().equals(listNode)) {
+					currentNode = child;
+					break;
 				}
-
 			}
+		}
+		buildChildrenAndRefresh(currentNode);
 
-			private void showSelectedNode(final ITextSelection selection) {
-
-				if (!root.isTreatedAsLeaf()) {
-					buildChildrenAndRefresh(root);
-				}
-
-				final IASTNodeSelector selector = localASTCopy.getNodeSelector(localASTCopy.getFilePath());
-				final LinkedList<IASTNode> nodeList = new LinkedList<>();
-				IASTNode parent = selector.findEnclosingNode(selection.getOffset(), selection.getLength());
-				while (parent.getParent() != null) {
-					nodeList.add(parent);
-					parent = parent.getParent();
-				}
-
-				IASTNode listNode;
-				Node<Pair<Button, IASTNode>> currentNode = root;
-				while (!nodeList.isEmpty()) {
-					listNode = nodeList.removeLast();
-					buildChildrenAndRefresh(currentNode);
-					for (final Node<Pair<Button, IASTNode>> child : currentNode.getChildren()) {
-						if (child.data().getSecond().equals(listNode)) {
-							currentNode = child;
-							break;
-						}
-					}
-				}
-				buildChildrenAndRefresh(currentNode);
-
-			}
-		});
 	}
 
 	private void setupScrolledComposite(final Composite parent) {
@@ -417,7 +397,7 @@ public class ASTWidget extends ScrolledComposite {
 				final TextSelection textSelection = new TextSelection(fileLocation.getNodeOffset(),
 						fileLocation.getNodeLength());
 				CUIPlugin.getActivePage().getActiveEditor().getEditorSite().getSelectionProvider()
-						.setSelection(textSelection);
+				.setSelection(textSelection);
 
 			}
 
@@ -453,10 +433,5 @@ public class ASTWidget extends ScrolledComposite {
 		refresh();
 	}
 
-	private void registerEventHandler(final String topic, final EventHandler handler) {
-		final BundleContext ctx = FrameworkUtil.getBundle(ASTView.class).getBundleContext();
-		final Dictionary<String, String> props = new Hashtable<>();
-		props.put(EventConstants.EVENT_TOPIC, topic);
-		ctx.registerService(EventHandler.class.getName(), handler, props);
-	}
+
 }
