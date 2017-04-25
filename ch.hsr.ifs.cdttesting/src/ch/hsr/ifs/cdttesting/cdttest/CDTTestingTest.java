@@ -14,6 +14,8 @@ import org.eclipse.cdt.core.ToolFactory;
 import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
+import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTCompoundStatement;
+import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTInitializerList;
 import org.eclipse.cdt.core.formatter.CodeFormatter;
 import org.eclipse.cdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.cdt.core.model.CModelException;
@@ -526,7 +528,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 
 	/**
 	 * Normalizes the passed {@link String} by removing all testeditor-comments,
-	 * removing leading/trailing whitespaces and line-breaks, replacing all
+	 * removing leading/trailing whitespace and line-breaks, replacing all
 	 * remaining line-breaks by ↵ and reducing all groups of whitespace to a
 	 * single space.
 	 *
@@ -540,7 +542,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	public static String normalize(final String in) {
 		//@formatter:off
 		return in.replaceAll("/\\*.*\\*/", "")								//Remove all test-editor-comments
-				.replaceAll("(^((\\r?\\n)|\\s)*|((\\r?\\n)|\\s)*$)", "")	//Remove all leading and trailing linebreaks/whitespaces
+				.replaceAll("(^((\\r?\\n)|\\s)*|((\\r?\\n)|\\s)*$)", "")	//Remove all leading and trailing linebreaks/whitespace
 				.replaceAll("\\s*(\\r?\\n)+\\s*", "↵")						//Replace all linebreaks with linebreak-symbol
 				.replaceAll("\\s+", " ");									//Reduce all groups of whitespace to a single space
 		//@formatter:on
@@ -577,7 +579,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 			assertTrue(true);
 			break;
 		case DIFFERENT_AMOUNT_OF_CHILDREN:
-			assertEquals("Different amount of childrens. On line no: " + equals.second[2] + " -> ", equals.second[0],
+			assertEquals("Different amount of children. On line no: " + equals.second[2] + " -> ", equals.second[0],
 					equals.second[1]);
 			break;
 		case DIFFERENT_TYPE:
@@ -596,7 +598,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	 *
 	 * @author tstauber
 	 *
-	 * @return The expected AST or null, if an exception occured.
+	 * @return The expected AST or null, if an exception occurred.
 	 */
 	public IASTTranslationUnit getExpectedAST() {
 		final String absoluteExpectedPath = makeProjectAbsolutePath(activeFileName, expectedProject);
@@ -613,7 +615,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	 *
 	 * @author tstauber
 	 *
-	 * @return The current AST or null, if an exception occured.
+	 * @return The current AST or null, if an exception occurred.
 	 */
 	public IASTTranslationUnit getCurrentAST() {
 		final String absoluteCurrentPath = makeProjectAbsolutePath(activeFileName);
@@ -625,31 +627,30 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		}
 	}
 
+	// TODO feature to enable failure if node of type CPPASTProblemId occurs
+
 	private Pair<ComparisonState, String[]> equals(final IASTNode expected, final IASTNode actual) {
 		final IASTNode[] lChilds = expected.getChildren();
 		final IASTNode[] rChilds = actual.getChildren();
-		if (lChilds.length != rChilds.length) {
-			return new Pair<>(ComparisonState.DIFFERENT_AMOUNT_OF_CHILDREN, new String[] { expected.getRawSignature(),
-					actual.getRawSignature(), "Line No: " + actual.getFileLocation().getStartingLineNumber() });
-		}
-		if (!expected.getClass().equals(actual.getClass())) {
-			return new Pair<>(ComparisonState.DIFFERENT_TYPE, new String[] { expected.getRawSignature(),
-					actual.getRawSignature(), "Line No: " + actual.getFileLocation().getStartingLineNumber() });
-		}
+		final IASTFileLocation fileLocation = actual.getOriginalNode().getFileLocation();
+		final String lineNo = fileLocation == null ? "?" : String.valueOf(fileLocation.getStartingLineNumber());
+		final String[] description = new String[] { expected.getRawSignature(), actual.getRawSignature(), lineNo };
 
-		if (lChilds.length != 0) {
+		if (lChilds.length != rChilds.length) {
+			return new Pair<>(ComparisonState.DIFFERENT_AMOUNT_OF_CHILDREN, description);
+		} else if (!expected.getClass().equals(actual.getClass())) {
+			return new Pair<>(ComparisonState.DIFFERENT_TYPE, description);
+		} else if (lChilds.length != 0) {
 			for (int i = 0; i < lChilds.length; i++) {
 				final Pair<ComparisonState, String[]> childResult = equals(lChilds[i], rChilds[i]);
 				if (childResult.first != ComparisonState.EQUAL) {
 					return childResult;
 				}
 			}
+		} else if (expected instanceof ICPPASTCompoundStatement || expected instanceof ICPPASTInitializerList) {
+			return new Pair<>(ComparisonState.EQUAL, null);
 		} else if (!normalize(expected.getRawSignature()).equals(normalize(actual.getRawSignature()))) {
-			if (!(expected.getRawSignature().matches("(\\(|\\{)(\\s|\\n)*(\\)|\\})")
-					&& actual.getRawSignature().matches("(\\(|\\{)(\\s|\\n)*(\\)|\\})"))) {
-				return new Pair<>(ComparisonState.DIFFERENT_SIGNATURE, new String[] { expected.getRawSignature(),
-						actual.getRawSignature(), String.valueOf(actual.getFileLocation().getStartingLineNumber()) });
-			}
+			return new Pair<>(ComparisonState.DIFFERENT_SIGNATURE, description);
 		}
 		return new Pair<>(ComparisonState.EQUAL, null);
 	}

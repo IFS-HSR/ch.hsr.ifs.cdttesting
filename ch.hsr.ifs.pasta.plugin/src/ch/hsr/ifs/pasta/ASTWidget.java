@@ -4,32 +4,25 @@ import java.util.LinkedList;
 
 import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
-import org.eclipse.cdt.core.dom.ast.IASTNodeSelector;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorIncludeStatement;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTTranslationUnit;
 import org.eclipse.cdt.ui.CUIPlugin;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.DragDetectEvent;
-import org.eclipse.swt.events.DragDetectListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -40,48 +33,43 @@ import ch.hsr.ifs.pasta.tree.NodeVisitor;
 
 public class ASTWidget extends ScrolledComposite {
 
+	private static final Color GOLDEN_YELLOW = new Color(Display.getCurrent(), 255, 168, 0);
+	private static final Color WHITE = Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
+
 	private static final int DEFAULT_NODE_HEIGHT = 20;
 	private static final float SIBLING_DISTANCE = 4;
 	private static final float BRANCH_DISTANCE = 15;
-	private static final int CURSOR_SIZE = 38;
 	private static final int GAP_SIZE = 20;
 
-	private final Canvas canvas;
-	private int treeHeight;
-	private int treeWidth;
+	private final ASTScrolledCanvas canvas;
 	private int nodeHeight = DEFAULT_NODE_HEIGHT;
-	private Point dragSource = null;
-	private boolean dragFlag = false;
+
 
 	private NodeSelectionListener listener;
 	private Node<Pair<Button, IASTNode>> root;
 	private Node<Pair<Button, IASTNode>> lastControl = null;
 
 	private final IPreferenceStore prefStore;
-	private IASTTranslationUnit localASTCopy;
 
 	public ASTWidget(final Composite parent) {
-		super(parent, SWT.V_SCROLL | SWT.H_SCROLL | SWT.MULTI);
+		super(parent, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
 
 		prefStore = PastaPlugin.getDefault().getPreferenceStore();
-		canvas = new Canvas(this, SWT.BACKGROUND);
+		canvas = new ASTScrolledCanvas(this, SWT.BACKGROUND);
 
 		setupScrolledComposite(parent);
-
 		setupCanvas();
-
-
 	}
 
-	void showSelectedNode(final ITextSelection selection) {
+	void showSelectedNode(final IASTNode sParent) {
+
+		IASTNode parent = sParent;
 
 		if (!root.isTreatedAsLeaf()) {
 			buildChildrenAndRefresh(root);
 		}
 
-		final IASTNodeSelector selector = localASTCopy.getNodeSelector(localASTCopy.getFilePath());
 		final LinkedList<IASTNode> nodeList = new LinkedList<>();
-		IASTNode parent = selector.findEnclosingNode(selection.getOffset(), selection.getLength());
 		while (parent.getParent() != null) {
 			nodeList.add(parent);
 			parent = parent.getParent();
@@ -100,75 +88,23 @@ public class ASTWidget extends ScrolledComposite {
 			}
 		}
 		buildChildrenAndRefresh(currentNode);
-
 	}
 
 	private void setupScrolledComposite(final Composite parent) {
 		setAlwaysShowScrollBars(true);
-		parent.setBackground(getColorWhite());
-		setBackground(getColorWhite());
+		setBackground(WHITE);
 		setContent(canvas);
 		setExpandHorizontal(true);
 		setExpandVertical(true);
 	}
 
 	private void setupCanvas() {
-		final ImageData grabImage = new ImageData(ASTWidget.class.getResourceAsStream("/icons/closedhand.gif"));
-		final Cursor grabCursor = new Cursor(getDisplay(),
-				grabImage.scaledTo(ASTWidget.CURSOR_SIZE, ASTWidget.CURSOR_SIZE), ASTWidget.CURSOR_SIZE / 2,
-				ASTWidget.CURSOR_SIZE / 4);
-
-		final ImageData openImage = new ImageData(ASTWidget.class.getResourceAsStream("/icons/openhand.gif"));
-		final Cursor openCursor = new Cursor(getDisplay(),
-				openImage.scaledTo(ASTWidget.CURSOR_SIZE, ASTWidget.CURSOR_SIZE), ASTWidget.CURSOR_SIZE / 2,
-				ASTWidget.CURSOR_SIZE / 4);
-
-		canvas.setCursor(openCursor);
-		canvas.setBackground(getColorWhite());
-		canvas.addMouseListener(new MouseAdapter() {
-
-			@Override
-			public void mouseDown(final MouseEvent e) {
-				dragSource = new Point(e.x, e.y);
-				canvas.setCursor(grabCursor);
-			}
-
-			@Override
-			public void mouseUp(final MouseEvent e) {
-				dragFlag = false;
-				dragSource = null;
-				canvas.setCursor(openCursor);
-			}
-
-		});
-
-		canvas.addMouseMoveListener(new MouseMoveListener() {
-
-			@Override
-			public void mouseMove(final MouseEvent e) {
-				if (dragFlag) {
-					ASTWidget.this.setOrigin(ASTWidget.this.getOrigin().x + (dragSource.x - e.x),
-							ASTWidget.this.getOrigin().y + (dragSource.y - e.y));
-				}
-			}
-
-		});
-
-		canvas.addDragDetectListener(new DragDetectListener() {
-
-			@Override
-			public void dragDetected(final DragDetectEvent e) {
-				dragFlag = true;
-			}
-
-		});
-
+		resizeCanvas();
+		canvas.setBackground(WHITE);
 		canvas.addPaintListener(new PaintListener() {
 
 			@Override
 			public void paintControl(final PaintEvent e) {
-				ASTWidget.this.setMinWidth(treeWidth);
-				ASTWidget.this.setMinHeight(treeHeight);
 				if (lastControl != null) {
 					adjustView(lastControl);
 				}
@@ -176,7 +112,7 @@ public class ASTWidget extends ScrolledComposite {
 					root.visit(node -> {
 						if (node.data().getFirst().isVisible()) {
 							if (node.parent() != null) {
-								drawLineToParent(e, node);
+								drawArrowFromParent(e.gc, node);
 							}
 							return NodeVisitor.AfterVisitBehaviour.Continue;
 						}
@@ -189,24 +125,26 @@ public class ASTWidget extends ScrolledComposite {
 
 	}
 
-	private Color getColorWhite() {
-		return Display.getCurrent().getSystemColor(SWT.COLOR_WHITE);
-	}
-
-	private void setMinTreeSize() {
-		treeWidth = getBounds().width;
-		treeHeight = getBounds().height;
+	protected void resizeCanvas() {
+		final Point widgetSize = getSize();
+		final Point computedSize = canvas.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+		final Point newSize = new Point(Math.max(computedSize.x, widgetSize.x), Math.max(computedSize.y, widgetSize.y));
+		setMinSize(newSize);
+		canvas.setSize(newSize);
+		final Point size = canvas.getSize();
+		System.out.println(size);
 	}
 
 	public void drawAST(final IASTTranslationUnit ast) {
 		clear();
-		localASTCopy = ast;
-		root = constructTree(localASTCopy, canvas);
+		root = constructTree(ast, canvas);
 		root.adjust(ASTWidget.SIBLING_DISTANCE, ASTWidget.BRANCH_DISTANCE);
 		setOrigin(0, 0);
-		setMinTreeSize();
 		updateNodePositions(root);
-		root.data().getFirst().setVisible(true);
+		resizeCanvas();
+		final Button rootButton = root.data().getFirst();
+		rootButton.setLocation(new Point(getSize().x / 2 - rootButton.getBounds().x / 2, 0));
+		rootButton.setVisible(true);
 		refresh();
 	}
 
@@ -221,51 +159,53 @@ public class ASTWidget extends ScrolledComposite {
 		}
 	}
 
-	private void drawLineToParent(final PaintEvent e, final Node<?> node) {
+	private void drawArrowFromParent(final GC gc, final Node<?> node) {
 		final int parentX = (int) (getXCoord(node.parent()) + ((node.parent().width()) / 2));
 		final int parentY = getYCoord(node.parent()) + nodeHeight;
 		final int nodeX = (int) (getXCoord(node) + ((node.width()) / 2));
 		final int nodeY = getYCoord(node);
-		e.gc.drawLine(nodeX, nodeY, parentX, parentY);
-		drawArrowHead(e.gc, nodeX, nodeY, parentX, parentY);
+		drawArrow(gc, parentX, parentY, nodeX, nodeY);
 	}
 
-	private void drawArrowHead(final GC gc, final double tipX, final double tipY, final double tailX,
-			final double tailY) {
-		final double phi = Math.toRadians(20);
-		final int barb = 10;
-		final double dy = tipY - tailY;
-		final double dx = tipX - tailX;
-		final double theta = Math.atan2(dy, dx);
-		double x, y, rho = theta + phi;
-		for (int j = 0; j < 2; j++) {
-			x = tipX - barb * Math.cos(rho);
-			y = tipY - barb * Math.sin(rho);
-			gc.drawLine((int) tipX, (int) tipY, (int) x, (int) y);
-			rho = theta - phi;
+	public static void drawArrow(final GC gc, final int x1, final int y1, int x2, final int y2) {
+		final double arrowAngle = Math.toRadians(30.0);
+		final double arrowLength = 8.0;
+		double theta = Math.atan2(y2 - y1, x2 - x1);
+
+		/* Arrow line */
+		if (Math.abs(x1 - x2) > GAP_SIZE) {
+			final int centerY = (y1 + y2) / 2;
+			if (x1 > x2) {
+				gc.drawArc(x1 - 30, y1 - GAP_SIZE/2, 30, GAP_SIZE, 0, -90);
+				gc.drawLine(x1 - 15, centerY, x2 + 15, centerY);
+				gc.drawArc(x2, y1 + GAP_SIZE/2, 30, GAP_SIZE, 180, -90);
+				theta = Math.toRadians(124);
+				x2--;
+			} else {
+				gc.drawArc(x1, y1 - GAP_SIZE/2, 30, GAP_SIZE, 180, 90);
+				gc.drawLine(x1 + 15, centerY, x2 - 15, centerY);
+				gc.drawArc(x2 - 30, y1 + GAP_SIZE/2, 30, GAP_SIZE, 90, -90);
+				theta = Math.toRadians(60);
+				x2++;
+			}
+		} else {
+			gc.drawLine(x1, y1, x2, y2);
 		}
+		/* Arrow head */
+		gc.drawLine((int) (x2 - arrowLength * Math.cos(theta - arrowAngle)),
+				(int) (y2 - arrowLength * Math.sin(theta - arrowAngle)), x2, y2);
+		gc.drawLine((int) (x2 - arrowLength * Math.cos(theta + arrowAngle)),
+				(int) (y2 - arrowLength * Math.sin(theta + arrowAngle)), x2, y2);
 	}
 
 	private void updateNodePositions(final Node<Pair<Button, IASTNode>> node) {
 		if (node.parent() != null && !node.parent().data().getFirst().isVisible()) {
 			node.data().getFirst().setVisible(false);
 		}
-
-		if (getXCoord(node) + node.width() > treeWidth) {
-			treeWidth = (int) (getXCoord(node) + node.width());
-		}
-		if (getYCoord(node) + nodeHeight >= treeHeight) {
-			treeHeight = getYCoord(node) + nodeHeight;
-		}
 		node.data().getFirst().setBounds(getXCoord(node), getYCoord(node), (int) (node.width()), nodeHeight);
 		for (final Node<Pair<Button, IASTNode>> child : node.getChildren()) {
 			updateNodePositions(child);
 		}
-	}
-
-	private void refresh() {
-		canvas.redraw();
-		canvas.update();
 	}
 
 	private int getYCoord(final Node<?> node) {
@@ -274,6 +214,11 @@ public class ASTWidget extends ScrolledComposite {
 
 	private int getXCoord(final Node<?> node) {
 		return (int) node.x();
+	}
+
+	private void refresh() {
+		canvas.redraw();
+		canvas.update();
 	}
 
 	private void adjustView(final Node<Pair<Button, IASTNode>> node) {
@@ -343,7 +288,7 @@ public class ASTWidget extends ScrolledComposite {
 		node.treatAsLeaf(true);
 
 		if (astNode instanceof ICPPASTTranslationUnit) {
-			button.setBackground(new Color(Display.getCurrent(), 255, 168, 0));
+			button.setBackground(GOLDEN_YELLOW);
 			button.getFont().getFontData()[0].setStyle(SWT.BOLD);
 		}
 
@@ -376,14 +321,6 @@ public class ASTWidget extends ScrolledComposite {
 
 			@Override
 			public void mouseHover(final MouseEvent e) {
-			}
-
-			@Override
-			public void mouseExit(final MouseEvent e) {
-			}
-
-			@Override
-			public void mouseEnter(final MouseEvent e) {
 				if (prefStore.getString(PreferenceConstants.P_HOW_TO_SELECT)
 						.equals(PreferenceConstants.P_SELECT_BY_MOUSE_OVER)) {
 					setNodeInNodeView(astNode);
@@ -398,7 +335,14 @@ public class ASTWidget extends ScrolledComposite {
 						fileLocation.getNodeLength());
 				CUIPlugin.getActivePage().getActiveEditor().getEditorSite().getSelectionProvider()
 				.setSelection(textSelection);
+			}
 
+			@Override
+			public void mouseExit(final MouseEvent e) {
+			}
+
+			@Override
+			public void mouseEnter(final MouseEvent e) {
 			}
 
 		});
@@ -430,8 +374,8 @@ public class ASTWidget extends ScrolledComposite {
 			root.adjust(ASTWidget.SIBLING_DISTANCE, ASTWidget.BRANCH_DISTANCE);
 		}
 		updateNodePositions(root);
+		resizeCanvas();
 		refresh();
 	}
-
 
 }

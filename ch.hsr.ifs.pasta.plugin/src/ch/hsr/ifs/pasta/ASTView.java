@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
+import org.eclipse.cdt.core.dom.ast.IASTNodeSelector;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.index.IIndex;
 import org.eclipse.cdt.core.model.ITranslationUnit;
@@ -82,7 +83,9 @@ public class ASTView extends ViewPart {
 				final ISelection selection = (ISelection) event.getProperty(PastaEventConstants.SELECTION);
 				if (selection instanceof ITextSelection) {
 					treeView.drawAST(getAST());
-					treeView.showSelectedNode((ITextSelection) selection);
+					final IASTNodeSelector selector = getAST().getNodeSelector(getAST().getFilePath());
+					treeView.showSelectedNode(selector.findEnclosingNode(((ITextSelection) selection).getOffset(),
+							((ITextSelection) selection).getLength()));
 				}
 			}
 		});
