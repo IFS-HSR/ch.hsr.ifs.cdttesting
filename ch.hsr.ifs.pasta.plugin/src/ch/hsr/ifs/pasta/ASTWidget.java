@@ -81,7 +81,7 @@ public class ASTWidget extends ScrolledComposite {
 			listNode = nodeList.removeLast();
 			buildChildrenAndRefresh(currentNode);
 			for (final Node<Pair<Button, IASTNode>> child : currentNode.getChildren()) {
-				if (child.data().getSecond().equals(listNode)) {
+				if (child.data().getSecond().getRawSignature().equals(listNode.getRawSignature())) {
 					currentNode = child;
 					break;
 				}
@@ -131,8 +131,6 @@ public class ASTWidget extends ScrolledComposite {
 		final Point newSize = new Point(Math.max(computedSize.x, widgetSize.x), Math.max(computedSize.y, widgetSize.y));
 		setMinSize(newSize);
 		canvas.setSize(newSize);
-		final Point size = canvas.getSize();
-		System.out.println(size);
 	}
 
 	public void drawAST(final IASTTranslationUnit ast) {
