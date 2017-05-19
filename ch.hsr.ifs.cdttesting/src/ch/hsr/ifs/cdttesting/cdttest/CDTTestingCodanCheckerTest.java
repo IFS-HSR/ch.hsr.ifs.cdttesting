@@ -47,12 +47,15 @@ public abstract class CDTTestingCodanCheckerTest extends CDTTestingTest {
 		}
 		CodanRuntime.getInstance().getCheckersRegistry().updateProfile(cproject.getProject(), profile);
 	}
+	
+	protected void problemPreferenceSetup(RootProblemPreference preference) {}
 
 	private void enableCodanProblem(final CodanProblem codanProblem) {
 		final IProblemPreference preference = codanProblem.getPreference();
 		if (preference instanceof RootProblemPreference) {
 			final RootProblemPreference rootProblemPreference = (RootProblemPreference) preference;
 			rootProblemPreference.getLaunchModePreference().enableInLaunchModes(CheckerLaunchMode.RUN_ON_FULL_BUILD);
+			problemPreferenceSetup(rootProblemPreference);
 		}
 		codanProblem.setEnabled(true);
 	}
