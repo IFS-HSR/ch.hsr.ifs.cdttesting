@@ -7,7 +7,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ch.hsr.ifs.cdttesting</groupId>
   <artifactId>cdttesting</artifactId>
-  <version>9.2.1-SNAPSHOT</version>
+  <version>9.3.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <properties>
@@ -89,7 +89,7 @@
           <target>
             <artifact>
               <groupId>ch.hsr.ifs.cdttesting</groupId>
-              <artifactId>ch.hsr.ifs.cdttesting.target</artifactId>
+              <artifactId>ch.hsr.ifs.cdttesting.cdt930rc4</artifactId>
               <version>${project.version}</version>
             </artifact>
           </target>

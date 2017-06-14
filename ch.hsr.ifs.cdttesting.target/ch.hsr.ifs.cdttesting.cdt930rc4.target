@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?><target name="Eclipse Oxygen with CDT 9.3 RC4" sequenceNumber="1493023317">
+<locations>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.cdt.sdk.feature.group" version="9.3.0.201706122201"/>
+<repository location="http://download.eclipse.org/tools/cdt/builds/oxygen/milestones/rc4"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.platform.sdk" version="4.7.0.I20170612-0950"/>
+<unit id="org.eclipse.sdk.ide" version="4.7.0.I20170612-0950"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.7milestones/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.launchbar.feature.group" version="2.1.1.201706131403"/>
+<repository location="https://hudson.eclipse.org/cdt/job/launchbar-master/lastSuccessfulBuild/artifact/repo/target/repository/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.tm.terminal.control.feature.feature.group" version="4.3.0.201706140620"/>
+<repository location="http://download.eclipse.org/tm/terminal/builds/development/nightly/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.cdt.testing.feature.group" version="9.3.0.201706122201"/>
+<unit id="org.eclipse.cdt.testing.source.feature.group" version="9.3.0.201706122201"/>
+<repository location="https://hudson.eclipse.org/cdt/job/cdt-master/lastSuccessfulBuild/artifact/releng/org.eclipse.cdt.testing.repo/target/repository/"/>
+</location>
+</locations>
+</target>

@@ -2,7 +2,7 @@
 <feature
       id="ch.hsr.ifs.cdttesting.example.feature"
       label="Example Code"
-      version="9.2.1.qualifier"
+      version="9.3.0.qualifier"
       provider-name="IFS">
 
    <description url="https://github.com/IFS-HSR/ch.hsr.ifs.cdttesting">
