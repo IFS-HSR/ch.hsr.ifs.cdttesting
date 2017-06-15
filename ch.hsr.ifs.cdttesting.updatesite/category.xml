@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
+   <feature url="features/ch.hsr.ifs.pasta.feature_9.3.0.qualifier.jar" id="ch.hsr.ifs.pasta.feature" version="9.3.0.qualifier">
+      <category name="cdt.testing"/>
+   </feature>
    <feature url="features/ch.hsr.ifs.cdttesting.example.feature_9.3.0.qualifier.jar" id="ch.hsr.ifs.cdttesting.example.feature" version="9.3.0.qualifier">
-      <category name="ch.hsr.ifs.cdttesting.category"/>
+      <category name="cdt.testing"/>
    </feature>
    <feature url="features/ch.hsr.ifs.cdttesting.feature_9.3.0.qualifier.jar" id="ch.hsr.ifs.cdttesting.feature" version="9.3.0.qualifier">
-      <category name="ch.hsr.ifs.cdttesting.category"/>
+      <category name="cdt.testing"/>
    </feature>
    <feature url="features/ch.hsr.ifs.cdttesting.tools.feature_9.3.0.qualifier.jar" id="ch.hsr.ifs.cdttesting.tools.feature" version="9.3.0.qualifier">
-      <category name="ch.hsr.ifs.cdttesting.category"/>
+      <category name="cdt.testing"/>
    </feature>
-   <feature url="features/ch.hsr.ifs.pasta.feature_9.3.0.qualifier.jar" id="ch.hsr.ifs.pasta.feature" version="9.3.0.qualifier">
-      <category name="ch.hsr.ifs.cdttesting.category"/>
-   </feature>
-   <category-def name="ch.hsr.ifs.cdttesting.category" label="Testing Features"/>
+   <category-def name="cdt.testing" label="IFS CDT Testing Extension"/>
 </site>

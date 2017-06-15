@@ -106,69 +106,29 @@ This Agreement is governed by the laws of the State of New York and the intellec
       <discovery label="CDT Test Plug-ins" url="https://www.cevelop.com/cdt-test-plugins/mars"/>
    </url>
 
+   <includes
+         id="org.eclipse.cdt.testing"
+         version="0.0.0"/>
+
    <requires>
+      <import plugin="org.eclipse.cdt.ui" version="5.8.1" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.resources" version="3.7.100" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.core" version="5.4.0" match="greaterOrEqual"/>
-      <import plugin="org.junit"/>
-      <import plugin="org.eclipse.core.runtime"/>
-      <import plugin="org.eclipse.ui.ide"/>
-      <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.jface.text" version="3.7.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.core.filesystem"/>
-      <import plugin="org.eclipse.ltk.core.refactoring" version="3.4.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.ui" version="5.5.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.swt"/>
-      <import plugin="org.eclipse.ui.editors"/>
-      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.ltk.core.refactoring"/>
       <import plugin="org.eclipse.ui.workbench.texteditor"/>
-      <import plugin="org.eclipse.help"/>
-      <import plugin="org.eclipse.search"/>
-      <import plugin="org.eclipse.compare"/>
-      <import plugin="org.eclipse.ui.console"/>
-      <import plugin="org.eclipse.core.expressions"/>
-      <import plugin="com.ibm.icu"/>
-      <import plugin="org.eclipse.core.filesystem" version="1.2.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.codan.checkers" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.codan.core" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.codan.core.cxx" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.jface" version="3.6.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.jface.text" version="3.6.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.codan.checkers.ui" version="1.0.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.codan.ui" version="1.1.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.ui.ide" version="3.6.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.cdt.codan.ui.cxx" version="2.0.0" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.ui.editors"/>
+      <import plugin="org.eclipse.cdt.codan.core"/>
+      <import plugin="org.eclipse.ui.ide"/>
       <import plugin="org.eclipse.cdt.codan.ui.cxx" version="3.2.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.text"/>
-      <import plugin="org.eclipse.ltk.ui.refactoring"/>
-      <import plugin="org.eclipse.cdt.ui" version="5.8.1" match="greaterOrEqual"/>
       <import plugin="org.eclipse.cdt" version="8.5.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.ui" version="3.106.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.core.runtime" version="3.10.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.cdt.core" version="5.8.0" match="greaterOrEqual"/>
+      <import plugin="org.junit"/>
       <import plugin="org.eclipse.cdt.core.tests" version="5.4.0" match="greaterOrEqual"/>
       <import plugin="org.eclipse.cdt.ui.tests" version="5.4.0" match="greaterOrEqual"/>
    </requires>
-
-   <plugin
-         id="org.eclipse.cdt.core.tests"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.cdt.ui.tests"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="org.eclipse.cdt.codan.core.tests"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
 
    <plugin
          id="ch.hsr.ifs.cdttesting"
