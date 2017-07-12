@@ -72,7 +72,7 @@ Run TestSuiteAll.java as Eclipse Plug-in test.
          <attribute name="externalSourceLocation" type="string">
             <annotation>
                <documentation>
-                  Describes the base folder of where external test reasources (normally external library headers) reside. Use the &apos;addIncludeDirPath(&quot;aSubFolder&quot;)&apos; method to  add a include directory to the folder &lt;projectRoot&gt;/&lt;externalSourceLocation&gt;/aSubFolder to your project.
+                  Describes the base folder of where external test resources (normally external library headers) reside. Use the &apos;addIncludeDirPath(&quot;aSubFolder&quot;)&apos; method to  add a include directory to the folder &lt;projectRoot&gt;/&lt;externalSourceLocation&gt;/aSubFolder to your project.
 
 Default for this value is &quot;externalTestResource&quot;.
                </documentation>
