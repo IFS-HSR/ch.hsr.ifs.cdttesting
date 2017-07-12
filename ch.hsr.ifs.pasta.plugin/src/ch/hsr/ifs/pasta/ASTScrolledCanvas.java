@@ -19,14 +19,14 @@ public class ASTScrolledCanvas extends Canvas {
 	private boolean dragFlag = false;
 
 	private final ImageData grabImage = AbstractUIPlugin
-			.imageDescriptorFromPlugin(PastaPlugin.PLUGIN_ID, "/icons/closedhand.gif").getImageData();
+			.imageDescriptorFromPlugin(PastaPlugin.PLUGIN_ID, "/icons/closedhand.gif").getImageData(100);
 	private final Cursor grabCursor = new Cursor(getDisplay(), grabImage.scaledTo(CURSOR_SIZE, CURSOR_SIZE),
 			CURSOR_SIZE / 2,
 			CURSOR_SIZE / 4);
 
 	private final ImageData openImage = AbstractUIPlugin
 			.imageDescriptorFromPlugin(PastaPlugin.PLUGIN_ID, "/icons/openhand.gif")
-			.getImageData();
+			.getImageData(100);
 	private final Cursor openCursor = new Cursor(getDisplay(), openImage.scaledTo(CURSOR_SIZE, CURSOR_SIZE),
 			CURSOR_SIZE / 2,
 			CURSOR_SIZE / 4);
