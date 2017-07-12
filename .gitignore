@@ -3,3 +3,4 @@
 /*/target/
 /*/surefire-reports/
 workspace_kepler/
+/*/.polyglot.build.properties
