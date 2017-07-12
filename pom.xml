@@ -89,7 +89,7 @@
           <target>
             <artifact>
               <groupId>ch.hsr.ifs.cdttesting</groupId>
-              <artifactId>ch.hsr.ifs.cdttesting.cdt930rc4</artifactId>
+              <artifactId>ch.hsr.ifs.cdttesting.target</artifactId>
               <version>${project.version}</version>
             </artifact>
           </target>
