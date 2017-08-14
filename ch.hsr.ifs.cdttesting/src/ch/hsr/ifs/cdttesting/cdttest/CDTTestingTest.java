@@ -12,10 +12,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.cdt.core.ToolFactory;
 import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
-import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
-import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTCompoundStatement;
-import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTInitializerList;
 import org.eclipse.cdt.core.formatter.CodeFormatter;
 import org.eclipse.cdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.cdt.core.model.CModelException;
@@ -57,6 +54,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
+import ch.hsr.ifs.cdttesting.cdttest.ASTComparison.ComparisonState;
+import ch.hsr.ifs.cdttesting.cdttest.ASTComparison.Pair;
 import ch.hsr.ifs.cdttesting.helpers.ExternalResourceHelper;
 import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
 import ch.hsr.ifs.cdttesting.rts.junit4.RTSTestCases;
@@ -527,35 +526,13 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	}
 
 	/**
-	 * Normalizes the passed {@link String} by removing all testeditor-comments,
-	 * removing leading/trailing whitespace and line-breaks, replacing all
-	 * remaining line-breaks by ↵ and reducing all groups of whitespace to a
-	 * single space.
-	 *
-	 * @author tstauber
-	 *
-	 * @param in
-	 *            The {@link String} that should be normalized.
-	 *
-	 * @return A normalized copy of the parameter in.
-	 **/
-	public static String normalize(final String in) {
-		//@formatter:off
-		return in.replaceAll("/\\*.*\\*/", "")								//Remove all test-editor-comments
-				.replaceAll("(^((\\r?\\n)|\\s)*|((\\r?\\n)|\\s)*$)", "")	//Remove all leading and trailing linebreaks/whitespace
-				.replaceAll("\\s*(\\r?\\n)+\\s*", "↵")						//Replace all linebreaks with linebreak-symbol
-				.replaceAll("\\s+", " ");									//Reduce all groups of whitespace to a single space
-		//@formatter:on
-	}
-
-	/**
 	 * Performs an assertEquals on the passed parameters after using
 	 * {@link normalize} on them.
 	 *
 	 * @author tstauber
 	 */
 	public static void assertEqualsNormalized(final String expected, final String actual) {
-		assertEquals(normalize(expected), normalize(actual));
+		assertEquals(ASTComparison.normalize(expected), ASTComparison.normalize(actual));
 	}
 
 	/**
@@ -572,7 +549,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 			fail("To use the assertEqualsAST() method, the class must set instantiateExpectedProject=true ");
 		}
 
-		final Pair<ComparisonState, String[]> equals = equals(expectedAST, currentAST);
+		final Pair<ComparisonState, String[]> equals = ASTComparison.equals(expectedAST, currentAST);
 
 		switch (equals.first) {
 		case EQUAL:
@@ -624,48 +601,6 @@ public class CDTTestingTest extends CDTSourceFileTest {
 			return CoreModelUtil.findTranslationUnitForLocation(currentURI, cproject).getAST();
 		} catch (final CoreException ignored) {
 			return null;
-		}
-	}
-
-	// TODO feature to enable failure if node of type CPPASTProblemId occurs
-
-	private Pair<ComparisonState, String[]> equals(final IASTNode expected, final IASTNode actual) {
-		final IASTNode[] lChilds = expected.getChildren();
-		final IASTNode[] rChilds = actual.getChildren();
-		final IASTFileLocation fileLocation = actual.getOriginalNode().getFileLocation();
-		final String lineNo = fileLocation == null ? "?" : String.valueOf(fileLocation.getStartingLineNumber());
-		final String[] description = new String[] { expected.getRawSignature(), actual.getRawSignature(), lineNo };
-
-		if (lChilds.length != rChilds.length) {
-			return new Pair<>(ComparisonState.DIFFERENT_AMOUNT_OF_CHILDREN, description);
-		} else if (!expected.getClass().equals(actual.getClass())) {
-			return new Pair<>(ComparisonState.DIFFERENT_TYPE, description);
-		} else if (lChilds.length != 0) {
-			for (int i = 0; i < lChilds.length; i++) {
-				final Pair<ComparisonState, String[]> childResult = equals(lChilds[i], rChilds[i]);
-				if (childResult.first != ComparisonState.EQUAL) {
-					return childResult;
-				}
-			}
-		} else if (expected instanceof ICPPASTCompoundStatement || expected instanceof ICPPASTInitializerList) {
-			return new Pair<>(ComparisonState.EQUAL, null);
-		} else if (!normalize(expected.getRawSignature()).equals(normalize(actual.getRawSignature()))) {
-			return new Pair<>(ComparisonState.DIFFERENT_SIGNATURE, description);
-		}
-		return new Pair<>(ComparisonState.EQUAL, null);
-	}
-
-	private enum ComparisonState {
-		DIFFERENT_TYPE, DIFFERENT_AMOUNT_OF_CHILDREN, DIFFERENT_SIGNATURE, EQUAL
-	}
-
-	private class Pair<T1, T2> {
-		public T1 first;
-		public T2 second;
-
-		public Pair(final T1 first, final T2 second) {
-			this.first = first;
-			this.second = second;
 		}
 	}
 }
