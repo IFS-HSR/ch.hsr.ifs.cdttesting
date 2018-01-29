@@ -1,0 +1,6 @@
+//!ExampleRefactoringModificationsTest
+//@main.cpp
+int a();
+//=
+int b();
+

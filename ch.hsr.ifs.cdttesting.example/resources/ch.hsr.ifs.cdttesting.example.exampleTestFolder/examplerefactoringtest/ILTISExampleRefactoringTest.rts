@@ -1,0 +1,5 @@
+//!ExampleRefactoringTest
+//@XY.cpp
+int main() { }
+//=
+int main() { }

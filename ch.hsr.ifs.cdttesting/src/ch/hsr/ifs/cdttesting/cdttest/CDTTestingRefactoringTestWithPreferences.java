@@ -9,8 +9,6 @@ import java.util.Properties;
 
 import org.eclipse.cdt.core.model.CoreModel;
 import org.eclipse.cdt.core.model.ICElement;
-import org.eclipse.cdt.internal.ui.refactoring.CRefactoring;
-import org.eclipse.cdt.internal.ui.refactoring.CRefactoringContext;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -21,6 +19,8 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
+import ch.hsr.ifs.iltis.cpp.wrappers.CRefactoring;
+import ch.hsr.ifs.iltis.cpp.wrappers.CRefactoringContext;
 
 /**
  * Most of the code for this class originates from CDT's RefactoringTestBase
@@ -200,6 +200,9 @@ public abstract class CDTTestingRefactoringTestWithPreferences extends CDTTestin
 		RefactoringContext context;
 		if (refactoring instanceof CRefactoring) {
 			context = new CRefactoringContext((CRefactoring) refactoring);
+		} else if (refactoring instanceof org.eclipse.cdt.internal.ui.refactoring.CRefactoring) {
+			context = new org.eclipse.cdt.internal.ui.refactoring.CRefactoringContext(
+					(org.eclipse.cdt.internal.ui.refactoring.CRefactoring) refactoring);
 		} else {
 			context = new RefactoringContext(refactoring);
 		}
