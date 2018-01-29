@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import org.eclipse.cdt.core.ToolFactory;
 import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
+import org.eclipse.cdt.core.dom.ast.IASTProblem;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTCompoundStatement;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTInitializerList;
@@ -22,6 +23,7 @@ import org.eclipse.cdt.core.model.CModelException;
 import org.eclipse.cdt.core.model.CoreModelUtil;
 import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.core.model.ITranslationUnit;
+import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTProblem;
 import org.eclipse.cdt.internal.ui.editor.CEditor;
 import org.eclipse.cdt.internal.ui.util.ExternalEditorInput;
 import org.eclipse.cdt.ui.testplugin.Accessor;
@@ -528,9 +530,8 @@ public class CDTTestingTest extends CDTSourceFileTest {
 
 	/**
 	 * Normalizes the passed {@link String} by removing all testeditor-comments,
-	 * removing leading/trailing whitespace and line-breaks, replacing all
-	 * remaining line-breaks by ↵ and reducing all groups of whitespace to a
-	 * single space.
+	 * removing leading/trailing whitespace and line-breaks, replacing all remaining
+	 * line-breaks by ↵ and reducing all groups of whitespace to a single space.
 	 *
 	 * @author tstauber
 	 *
@@ -540,12 +541,13 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	 * @return A normalized copy of the parameter in.
 	 **/
 	public static String normalize(final String in) {
-		//@formatter:off
-		return in.replaceAll("/\\*.*\\*/", "")								//Remove all test-editor-comments
-				.replaceAll("(^((\\r?\\n)|\\s)*|((\\r?\\n)|\\s)*$)", "")	//Remove all leading and trailing linebreaks/whitespace
-				.replaceAll("\\s*(\\r?\\n)+\\s*", "↵")						//Replace all linebreaks with linebreak-symbol
-				.replaceAll("\\s+", " ");									//Reduce all groups of whitespace to a single space
-		//@formatter:on
+		// @formatter:off
+		return in.replaceAll("/\\*.*\\*/", "") // Remove all test-editor-comments
+				.replaceAll("(^((\\r?\\n)|\\s)*|((\\r?\\n)|\\s)*$)", "") // Remove all leading and trailing
+																			// linebreaks/whitespace
+				.replaceAll("\\s*(\\r?\\n)+\\s*", "↵") // Replace all linebreaks with linebreak-symbol
+				.replaceAll("\\s+", " "); // Reduce all groups of whitespace to a single space
+		// @formatter:on
 	}
 
 	/**
@@ -559,38 +561,60 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	}
 
 	/**
-	 * Compares the {@link IASTTranslationUnit} from the code after the QuickFix
-	 * was applied with the {@link IASTTranslationUnit} from the expected code.
-	 * To use this method the flag {@code instantiateExpectedProject} has to be
-	 * set to true.
+	 * Compares the {@link IASTTranslationUnit} from the code after the QuickFix was
+	 * applied with the {@link IASTTranslationUnit} from the expected code. To use
+	 * this method the flag {@code instantiateExpectedProject} has to be set to
+	 * true. Fails on occurrence of {@link CPPASTProblem}.
 	 *
 	 * @author tstauber
 	 *
 	 */
 	public void assertEqualsAST(final IASTTranslationUnit expectedAST, final IASTTranslationUnit currentAST) {
+		assertEqualsAST(expectedAST,currentAST, true);
+	}
+	
+	/**
+	 * Compares the {@link IASTTranslationUnit} from the code after the QuickFix was
+	 * applied with the {@link IASTTranslationUnit} from the expected code. To use
+	 * this method the flag {@code instantiateExpectedProject} has to be set to
+	 * true.
+	 *
+	 * @author tstauber
+	 *
+	 */
+	public void assertEqualsAST(final IASTTranslationUnit expectedAST, final IASTTranslationUnit currentAST, final boolean failOnProblemNode) {
 		if (!instantiateExpectedProject) {
 			fail("To use the assertEqualsAST() method, the class must set instantiateExpectedProject=true ");
 		}
 
-		final Pair<ComparisonState, String[]> equals = equals(expectedAST, currentAST);
+		final ComparisonResult equals = equals(expectedAST, currentAST, failOnProblemNode);
 
-		switch (equals.first) {
+		switch (equals.state) {
 		case EQUAL:
 			assertTrue(true);
 			break;
 		case DIFFERENT_AMOUNT_OF_CHILDREN:
-			assertEquals("Different amount of children. On line no: " + equals.second[2] + " -> ", equals.second[0],
-					equals.second[1]);
+			assertEquals("Different amount of children.", equals.attributes);
 			break;
 		case DIFFERENT_TYPE:
-			assertEquals("Different type. On line no: " + equals.second[2] + " -> ", equals.second[0],
-					equals.second[1]);
+			assertEquals("Different type.", equals.attributes);
 			break;
 		case DIFFERENT_SIGNATURE:
-			assertEquals("Different normalized signatures. On line no: " + equals.second[2] + " -> ", equals.second[0],
-					equals.second[1]);
+			assertEquals("Different normalized signatures.", equals.attributes);
+			break;
+		case PROBLEM_NODE:
+			assertEquals("Encountered a IASTProblem node.", equals.attributes);
+			break;
+		default:
 			break;
 		}
+	}
+	
+	protected void assertEquals(String msg, Map<ComparisonAttribute, String> attributes) {
+		String lineNo = attributes.get(ComparisonAttribute.LINE_NO);
+		String expected = attributes.get(ComparisonAttribute.EXPECTED);
+		String actual = attributes.get(ComparisonAttribute.ACTUAL);
+		assertEquals(msg + " On line no: " + lineNo + " -> ", expected, actual);
 	}
 
 	/**
@@ -627,45 +651,53 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		}
 	}
 
-	// TODO feature to enable failure if node of type CPPASTProblemId occurs
-
-	private Pair<ComparisonState, String[]> equals(final IASTNode expected, final IASTNode actual) {
+	protected ComparisonResult equals(final IASTNode expected, final IASTNode actual, final boolean failOnProblemNode) {
 		final IASTNode[] lChilds = expected.getChildren();
 		final IASTNode[] rChilds = actual.getChildren();
 		final IASTFileLocation fileLocation = actual.getOriginalNode().getFileLocation();
 		final String lineNo = fileLocation == null ? "?" : String.valueOf(fileLocation.getStartingLineNumber());
-		final String[] description = new String[] { expected.getRawSignature(), actual.getRawSignature(), lineNo };
+		final Map<ComparisonAttribute, String> attributes = new HashMap<>();
+		attributes.put(ComparisonAttribute.EXPECTED, expected.getRawSignature());
+		attributes.put(ComparisonAttribute.ACTUAL, actual.getRawSignature());
+		attributes.put(ComparisonAttribute.LINE_NO, lineNo);
 
 		if (lChilds.length != rChilds.length) {
-			return new Pair<>(ComparisonState.DIFFERENT_AMOUNT_OF_CHILDREN, description);
+			return new ComparisonResult(ComparisonState.DIFFERENT_AMOUNT_OF_CHILDREN, attributes);
 		} else if (!expected.getClass().equals(actual.getClass())) {
-			return new Pair<>(ComparisonState.DIFFERENT_TYPE, description);
+			return new ComparisonResult(ComparisonState.DIFFERENT_TYPE, attributes);
 		} else if (lChilds.length != 0) {
 			for (int i = 0; i < lChilds.length; i++) {
-				final Pair<ComparisonState, String[]> childResult = equals(lChilds[i], rChilds[i]);
-				if (childResult.first != ComparisonState.EQUAL) {
+				if (lChilds[i] instanceof IASTProblem || rChilds[i] instanceof IASTProblem) {
+					return new ComparisonResult(ComparisonState.PROBLEM_NODE, attributes);
+				}
+				final ComparisonResult childResult = equals(lChilds[i], rChilds[i], failOnProblemNode);
+				if (childResult.state != ComparisonState.EQUAL) {
 					return childResult;
 				}
 			}
 		} else if (expected instanceof ICPPASTCompoundStatement || expected instanceof ICPPASTInitializerList) {
-			return new Pair<>(ComparisonState.EQUAL, null);
+			return new ComparisonResult(ComparisonState.EQUAL, null);
 		} else if (!normalize(expected.getRawSignature()).equals(normalize(actual.getRawSignature()))) {
-			return new Pair<>(ComparisonState.DIFFERENT_SIGNATURE, description);
+			return new ComparisonResult(ComparisonState.DIFFERENT_SIGNATURE, attributes);
 		}
-		return new Pair<>(ComparisonState.EQUAL, null);
+		return new ComparisonResult(ComparisonState.EQUAL, null);
 	}
 
-	private enum ComparisonState {
-		DIFFERENT_TYPE, DIFFERENT_AMOUNT_OF_CHILDREN, DIFFERENT_SIGNATURE, EQUAL
+	protected enum ComparisonState {
+		DIFFERENT_TYPE, DIFFERENT_AMOUNT_OF_CHILDREN, DIFFERENT_SIGNATURE, EQUAL, PROBLEM_NODE
 	}
 
-	private class Pair<T1, T2> {
-		public T1 first;
-		public T2 second;
+	protected enum ComparisonAttribute {
+		EXPECTED, ACTUAL, LINE_NO, 
+	}
 
-		public Pair(final T1 first, final T2 second) {
-			this.first = first;
-			this.second = second;
+	protected class ComparisonResult {
+		public ComparisonState state;
+		public Map<ComparisonAttribute, String> attributes;
+
+		public ComparisonResult(final ComparisonState state, final Map<ComparisonAttribute, String> attributes) {
+			this.state = state;
+			this.attributes = attributes;
 		}
 	}
 }
