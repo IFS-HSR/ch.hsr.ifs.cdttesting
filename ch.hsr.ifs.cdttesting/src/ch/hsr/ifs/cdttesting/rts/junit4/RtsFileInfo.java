@@ -49,7 +49,8 @@ public class RtsFileInfo {
 			rtsFileName = rtsFileName.substring(0, rtsFileName.length() - 4);
 		}
 		if (!initRtsFilePathWithName(rtsFileName)) {
-			throw new FileNotFoundException(rtsFileName + RTS_FILE_EXTENSION);
+			throw new FileNotFoundException(rtsFileName + RTS_FILE_EXTENSION
+					+ " (This might happen, if the testplugin has no extension for extension-point \"ch.hsr.ifs.cdttesting.testingPlugin\")");
 		}
 		initReader();
 	}
@@ -70,7 +71,8 @@ public class RtsFileInfo {
 			activeExtension = curElement;
 			String testResourcePrefix = activeExtension.getAttribute(XML_SOURCE_LOCATION);
 			StringBuilder completeRTSPathBuilder = new StringBuilder(testResourcePrefix);
-			completeRTSPathBuilder.append(name.substring(getTestPackagePrefix().length()).replace(".", "/")).append(RTS_FILE_EXTENSION);
+			completeRTSPathBuilder.append(name.substring(getTestPackagePrefix().length()).replace(".", "/"))
+					.append(RTS_FILE_EXTENSION);
 			InputStream resourceAsStream = getActivatorClass().getResourceAsStream(completeRTSPathBuilder.toString());
 			if (resourceAsStream != null) {
 				completeRTSPath = completeRTSPathBuilder.toString();
@@ -92,7 +94,7 @@ public class RtsFileInfo {
 	private boolean initRtsFilePathWithAnnotation(Class<? extends CDTTestingTest> testClass) throws CoreException {
 		RunFor runForAnnotation = testClass.getAnnotation(RunFor.class);
 		if (runForAnnotation != null) {
-			completeRTSPath = runForAnnotation.rtsFile(); 
+			completeRTSPath = runForAnnotation.rtsFile();
 			for (IConfigurationElement curElement : getExtensions()) {
 				activeExtension = curElement;
 				InputStream resourceAsStream = getActivatorClass().getResourceAsStream(completeRTSPath);
