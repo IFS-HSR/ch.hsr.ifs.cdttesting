@@ -15,6 +15,9 @@
  */
 package ch.hsr.ifs.cdttesting.cdttest;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
@@ -52,12 +55,15 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
 import ch.hsr.ifs.cdttesting.helpers.ExternalResourceHelper;
 import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
-import junit.framework.TestCase;
 
-abstract public class CDTProjectTest extends TestCase {
+abstract public class CDTProjectTest {
 	protected static final String EXPECTED_PREFIX = "expected_";
 
 	protected IWorkspace workspace;
@@ -66,6 +72,8 @@ abstract public class CDTProjectTest extends TestCase {
 
 	protected IProject expectedProject;
 	protected ICProject expectedCproject;
+	
+	protected String name;
 
 	protected FileManager fileManager;
 	protected boolean indexDisabled = false;
@@ -90,7 +98,8 @@ abstract public class CDTProjectTest extends TestCase {
 	}
 
 	public CDTProjectTest(final String name) {
-		super(name);
+	//		super(name);
+		this.name = name;
 		init();
 	}
 
@@ -100,9 +109,30 @@ abstract public class CDTProjectTest extends TestCase {
 		inProjectIncudeDirPaths = new ArrayList<>();
 	}
 
-	@Override
+    /**
+     * Gets the name of this TestCase
+     *
+     * @return the name of the TestCase
+     */
+    public String getName() {
+        return name;
+    }
+    
+    /**
+     * Sets the name of this TestCase
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+//    FIXME uncomment at the end!!
+    
+//    public void runTest() throws Throwable{
+//    	// THIS IS JUST HERE SO THE @Overload ANNOTATIONS IN POTENTIAL SUBCLASSES WONT BE A PROBLEM.
+//    }
+    
+	@Before
 	protected void setUp() throws Exception {
-		super.setUp();
 		initProject();
 		setupFiles();
 		initReferencedProjects();
@@ -114,7 +144,7 @@ abstract public class CDTProjectTest extends TestCase {
 
 	protected abstract void setupFiles() throws Exception;
 
-	@Override
+	@After
 	protected void tearDown() throws Exception {
 		closeOpenEditors();
 		TestScannerProvider.clear();

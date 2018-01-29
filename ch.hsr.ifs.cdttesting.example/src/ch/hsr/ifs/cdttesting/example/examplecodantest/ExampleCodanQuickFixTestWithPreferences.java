@@ -1,5 +1,7 @@
 package ch.hsr.ifs.cdttesting.example.examplecodantest;
 
+import static org.junit.Assert.assertEquals;
+
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.junit.Test;
 
@@ -13,7 +15,6 @@ public class ExampleCodanQuickFixTestWithPreferences extends CDTTestingCodanQuic
 		return MyCodanChecker.MY_PROBLEM_ID;
 	}
 
-	@Override
 	@Test
 	public void runTest() throws Throwable {
 		runQuickFix(new MyQuickFix());

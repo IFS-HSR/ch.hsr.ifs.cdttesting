@@ -8,6 +8,8 @@
  ******************************************************************************/
 package ch.hsr.ifs.cdttesting.example.annotationtest;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
@@ -16,7 +18,6 @@ import ch.hsr.ifs.cdttesting.rts.junit4.RunFor;
 @RunFor(rtsFile = "/resources/AnnotationTestNotDefaultLocation.rts")
 public class AnnotationTest extends CDTTestingTest {
 
-	@Override
 	@Test
 	public void runTest() throws Throwable {
 		assertEquals("XY.cpp", activeFileName);

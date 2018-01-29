@@ -14,7 +14,6 @@ public class ExampleRefactoringModificationsTest extends CDTTestingRefactoringTe
 		return new DummyRenameRefactoring(getActiveCElement(), selection, cproject);
 	}
 
-	@Override
 	@Test
 	public void runTest() throws Throwable {
 		openActiveFileInEditor();

@@ -8,6 +8,8 @@
  ******************************************************************************/
 package ch.hsr.ifs.cdttesting.example.someexampletests;
 
+import static org.junit.Assert.assertEquals;
+
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.dom.ast.gnu.c.GCCLanguage;
 import org.eclipse.cdt.core.dom.ast.gnu.cpp.GPPLanguage;
@@ -31,7 +33,6 @@ public class TwoIndexFileForOneFileTest extends CDTTestingTest {
 		index.acquireReadLock();
 	}
 
-	@Override
 	@Test
 	public void runTest() throws Throwable {
 		IIndexFileLocation aHIndexFileLocation = IndexLocationFactory.getIFLExpensive(cproject, makeProjectAbsolutePath("A.h"));

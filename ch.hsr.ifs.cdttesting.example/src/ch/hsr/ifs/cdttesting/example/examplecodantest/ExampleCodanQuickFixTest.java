@@ -1,5 +1,7 @@
 package ch.hsr.ifs.cdttesting.example.examplecodantest;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import ch.hsr.ifs.cdttesting.cdttest.CDTTestingCodanQuickfixTest;
@@ -11,7 +13,6 @@ public class ExampleCodanQuickFixTest extends CDTTestingCodanQuickfixTest {
 		return MyCodanChecker.MY_PROBLEM_ID;
 	}
 
-	@Override
 	@Test
 	public void runTest() throws Throwable {
 		runQuickFix(new MyQuickFix());

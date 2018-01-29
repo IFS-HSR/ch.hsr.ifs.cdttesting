@@ -8,6 +8,11 @@
  ******************************************************************************/
 package ch.hsr.ifs.cdttesting.example.someexampletests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IStatus;
@@ -31,7 +36,6 @@ public class CheckNoUnresolvedInclusionsTest extends CDTTestingTest implements I
 		super.setUp();
 	}
 
-	@Override
 	@Test
 	public void runTest() throws Throwable {
 		//logging by indexer happens in super.setUp() call

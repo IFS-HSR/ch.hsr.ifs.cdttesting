@@ -8,6 +8,9 @@
  ******************************************************************************/
 package ch.hsr.ifs.cdttesting.example.someexampletests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 
 import org.eclipse.cdt.core.model.IIncludeReference;
@@ -25,7 +28,6 @@ public class ExternalIncludeDependencyTestFrameworkTest extends CDTTestingTest {
 		super.setUp();
 	}
 
-	@Override
 	@Test
 	public void runTest() throws Throwable {
 		IIncludeReference[] includeRefs = cproject.getIncludeReferences();

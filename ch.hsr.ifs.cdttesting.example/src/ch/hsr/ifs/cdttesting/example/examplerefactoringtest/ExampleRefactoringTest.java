@@ -1,5 +1,7 @@
 package ch.hsr.ifs.cdttesting.example.examplerefactoringtest;
 
+import static org.junit.Assert.assertTrue;
+
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.junit.Test;
 
@@ -16,7 +18,6 @@ public class ExampleRefactoringTest extends CDTTestingRefactoringTest {
 		return testRefactoring;
 	}
 
-	@Override
 	@Test
 	public void runTest() throws Throwable {
 		openActiveFileInEditor();

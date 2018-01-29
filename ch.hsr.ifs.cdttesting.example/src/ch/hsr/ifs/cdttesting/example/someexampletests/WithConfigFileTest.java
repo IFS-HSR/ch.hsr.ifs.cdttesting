@@ -8,6 +8,9 @@
  ******************************************************************************/
 package ch.hsr.ifs.cdttesting.example.someexampletests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Properties;
 
 import org.junit.Test;
@@ -20,7 +23,6 @@ public class WithConfigFileTest extends CDTTestingTest {
 	private int intProperty;
 	private boolean boolProperty;
 
-	@Override
 	@Test
 	public void runTest() throws Throwable {
 		assertEquals("someValue", stringProperty);

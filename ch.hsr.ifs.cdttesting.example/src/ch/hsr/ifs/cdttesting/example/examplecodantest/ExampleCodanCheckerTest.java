@@ -11,7 +11,6 @@ public class ExampleCodanCheckerTest extends CDTTestingCodanCheckerTest {
 		return MyCodanChecker.MY_PROBLEM_ID;
 	}
 
-	@Override
 	@Test
 	public void runTest() throws Throwable {
 		int markerExpectedOnLine = 1;

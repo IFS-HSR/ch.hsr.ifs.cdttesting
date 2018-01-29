@@ -1,5 +1,7 @@
 package ch.hsr.ifs.cdttesting.cdttest;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URI;

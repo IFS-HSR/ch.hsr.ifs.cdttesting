@@ -8,6 +8,9 @@
  ******************************************************************************/
 package ch.hsr.ifs.cdttesting.example.someexampletests;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import org.eclipse.cdt.core.CCProjectNature;
 import org.eclipse.cdt.core.CProjectNature;
 import org.eclipse.core.resources.IProjectNature;
@@ -23,7 +26,6 @@ public class CProjectTest extends CDTTestingTest {
 		super.setUp();
 	}
 
-	@Override
 	@Test
 	public void runTest() throws Throwable {
 		IProjectNature cCNature = project.getNature(CCProjectNature.CC_NATURE_ID);

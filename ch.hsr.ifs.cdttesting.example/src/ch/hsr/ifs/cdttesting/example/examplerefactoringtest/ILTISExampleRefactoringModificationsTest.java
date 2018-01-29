@@ -14,7 +14,6 @@ public class ILTISExampleRefactoringModificationsTest extends CDTTestingRefactor
 		return new ILTISDummyRenameRefactoring(getActiveCElement(), selection, cproject);
 	}
 
-	@Override
 	@Test
 	public void runTest() throws Throwable {
 		openActiveFileInEditor();

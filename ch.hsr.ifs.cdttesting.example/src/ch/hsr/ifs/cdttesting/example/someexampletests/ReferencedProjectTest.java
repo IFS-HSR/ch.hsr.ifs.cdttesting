@@ -8,6 +8,8 @@
  ******************************************************************************/
 package ch.hsr.ifs.cdttesting.example.someexampletests;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 
 import org.eclipse.cdt.core.model.IIncludeReference;
@@ -29,7 +31,6 @@ public class ReferencedProjectTest extends CDTTestingTest {
 		super.setUp();
 	}
 
-	@Override
 	@Test
 	public void runTest() throws Throwable {
 		assertEquals("[P/otherProject1, P/otherProject2]", Arrays.toString(project.getReferencedProjects()));

@@ -1,5 +1,10 @@
 package ch.hsr.ifs.cdttesting.cdttest;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
@@ -594,23 +599,23 @@ public class CDTTestingTest extends CDTSourceFileTest {
 			assertTrue(true);
 			break;
 		case DIFFERENT_AMOUNT_OF_CHILDREN:
-			assertEquals("Different amount of children.", equals.attributes);
+			assertEqualsWithAttributes("Different amount of children.", equals.attributes);
 			break;
 		case DIFFERENT_TYPE:
-			assertEquals("Different type.", equals.attributes);
+			assertEqualsWithAttributes("Different type.", equals.attributes);
 			break;
 		case DIFFERENT_SIGNATURE:
-			assertEquals("Different normalized signatures.", equals.attributes);
+			assertEqualsWithAttributes("Different normalized signatures.", equals.attributes);
 			break;
 		case PROBLEM_NODE:
-			assertEquals("Encountered a IASTProblem node.", equals.attributes);
+			assertEqualsWithAttributes("Encountered a IASTProblem node.", equals.attributes);
 			break;
 		default:
 			break;
 		}
 	}
 	
-	protected void assertEquals(String msg, Map<ComparisonAttribute, String> attributes) {
+	protected void assertEqualsWithAttributes(String msg, Map<ComparisonAttribute, String> attributes) {
 		String lineNo = attributes.get(ComparisonAttribute.LINE_NO);
 		String expected = attributes.get(ComparisonAttribute.EXPECTED);
 		String actual = attributes.get(ComparisonAttribute.ACTUAL);

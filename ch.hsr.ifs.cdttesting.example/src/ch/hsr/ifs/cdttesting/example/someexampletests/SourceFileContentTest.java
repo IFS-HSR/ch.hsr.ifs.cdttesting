@@ -8,13 +8,14 @@
  ******************************************************************************/
 package ch.hsr.ifs.cdttesting.example.someexampletests;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
 
 public class SourceFileContentTest extends CDTTestingTest {
 
-	@Override
 	@Test
 	public void runTest() throws Throwable {
 		assertEquals("XY.cpp", activeFileName);

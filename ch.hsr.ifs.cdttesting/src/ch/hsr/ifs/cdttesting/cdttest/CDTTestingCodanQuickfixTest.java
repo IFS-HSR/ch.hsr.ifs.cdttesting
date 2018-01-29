@@ -1,5 +1,7 @@
 package ch.hsr.ifs.cdttesting.cdttest;
 
+import static org.junit.Assert.assertEquals;
+
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.ui.IMarkerResolution;
 
