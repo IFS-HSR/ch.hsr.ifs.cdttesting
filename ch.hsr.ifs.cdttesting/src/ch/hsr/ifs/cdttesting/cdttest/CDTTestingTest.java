@@ -9,15 +9,20 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.eclipse.cdt.core.ToolFactory;
 import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
+import org.eclipse.cdt.core.dom.ast.IASTPreprocessorIncludeStatement;
 import org.eclipse.cdt.core.dom.ast.IASTProblem;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTCompoundStatement;
@@ -70,6 +75,9 @@ import ch.hsr.ifs.cdttesting.rts.junit4.RTSTestCases;
 import ch.hsr.ifs.cdttesting.rts.junit4.RtsFileInfo;
 import ch.hsr.ifs.cdttesting.rts.junit4.RtsTestSuite;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
+import ch.hsr.ifs.iltis.core.data.AbstractPair;
+import ch.hsr.ifs.iltis.core.data.Wrapper;
+import ch.hsr.ifs.iltis.core.functional.Functional;
 
 @SuppressWarnings("restriction")
 @RunWith(RtsTestSuite.class)
@@ -575,9 +583,9 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	 *
 	 */
 	public void assertEqualsAST(final IASTTranslationUnit expectedAST, final IASTTranslationUnit currentAST) {
-		assertEqualsAST(expectedAST,currentAST, true);
+		assertEqualsAST(expectedAST, currentAST, true);
 	}
-	
+
 	/**
 	 * Compares the {@link IASTTranslationUnit} from the code after the QuickFix was
 	 * applied with the {@link IASTTranslationUnit} from the expected code. To use
@@ -587,39 +595,62 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	 * @author tstauber
 	 *
 	 */
-	public void assertEqualsAST(final IASTTranslationUnit expectedAST, final IASTTranslationUnit currentAST, final boolean failOnProblemNode) {
+	public void assertEqualsAST(final IASTTranslationUnit expectedAST, final IASTTranslationUnit currentAST,
+			final boolean failOnProblemNode) {
 		if (!instantiateExpectedProject) {
 			fail("To use the assertEqualsAST() method, the class must set instantiateExpectedProject=true ");
 		}
 
-		final ComparisonResult equals = equals(expectedAST, currentAST, failOnProblemNode);
+		ComparisonResult result = equalsIncludes(expectedAST.getIncludeDirectives(), currentAST.getIncludeDirectives(),
+				false);
 
-		switch (equals.state) {
+		switch (result.state) {
+		case EQUAL:
+			assertTrue(true);
+			break;
+		case ADDITIONAL_INCLUDE:
+			assertEqualsWithAttributes("The current AST does have includes in addition to the ones in expected AST.",
+					result.attributes);
+			break;
+		case INCLUDE_ORDER:
+			assertEqualsWithAttributes("The order of the includes are not matching.", result.attributes);
+			break;
+		case MISSING_INCLUDE:
+			assertEqualsWithAttributes("The current AST misses some of the includes from the expected AST.",
+					result.attributes);
+			break;
+		default:
+			break;
+		}
+
+		result = equals(expectedAST, currentAST, failOnProblemNode);
+
+		switch (result.state) {
 		case EQUAL:
 			assertTrue(true);
 			break;
 		case DIFFERENT_AMOUNT_OF_CHILDREN:
-			assertEqualsWithAttributes("Different amount of children.", equals.attributes);
+			assertEqualsWithAttributes("Different amount of children.", result.attributes);
 			break;
 		case DIFFERENT_TYPE:
-			assertEqualsWithAttributes("Different type.", equals.attributes);
+			assertEqualsWithAttributes("Different type.", result.attributes);
 			break;
 		case DIFFERENT_SIGNATURE:
-			assertEqualsWithAttributes("Different normalized signatures.", equals.attributes);
+			assertEqualsWithAttributes("Different normalized signatures.", result.attributes);
 			break;
 		case PROBLEM_NODE:
-			assertEqualsWithAttributes("Encountered a IASTProblem node.", equals.attributes);
+			assertEqualsWithAttributes("Encountered a IASTProblem node.", result.attributes);
 			break;
 		default:
 			break;
 		}
 	}
-	
+
 	protected void assertEqualsWithAttributes(String msg, Map<ComparisonAttribute, String> attributes) {
 		String lineNo = attributes.get(ComparisonAttribute.LINE_NO);
 		String expected = attributes.get(ComparisonAttribute.EXPECTED);
 		String actual = attributes.get(ComparisonAttribute.ACTUAL);
-		assertEquals(msg + " On line no: " + lineNo + " -> ", expected, actual);
+		assertEquals(msg + lineNo != null ? " On line no: " + lineNo : "" + " -> ", expected, actual);
 	}
 
 	/**
@@ -656,6 +687,55 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		}
 	}
 
+	protected ComparisonResult equalsIncludes(final IASTPreprocessorIncludeStatement[] expectedStmt,
+			final IASTPreprocessorIncludeStatement[] actualStmt, final boolean ignoreOrdering) {
+		StringBuffer expectedStr = new StringBuffer();
+		StringBuffer actualStr = new StringBuffer();
+		if (ignoreOrdering) {
+			Set<String> actual = Arrays.stream(actualStmt).map((node) -> node.getRawSignature())
+					.collect(Collectors.toSet());
+			Set<String> expected = Arrays.stream(expectedStmt).map((node) -> node.getRawSignature())
+					.collect(Collectors.toSet());
+			if (actual.equals(expected)) {
+				return new ComparisonResult(ComparisonState.EQUAL);
+			}
+
+			Set<String> onlyInActual = new HashSet<>(actual);
+			onlyInActual.removeAll(expected);
+			Set<String> onlyInExpected = new HashSet<>(expected);
+			onlyInExpected.removeAll(actual);
+
+			final Map<ComparisonAttribute, String> attributes = new HashMap<>();
+			attributes.put(ComparisonAttribute.EXPECTED, onlyInExpected.stream().collect(Collectors.joining("\n")));
+			attributes.put(ComparisonAttribute.ACTUAL, onlyInActual.stream().collect(Collectors.joining("\n")));
+			if (!onlyInActual.isEmpty()) {
+				return new ComparisonResult(ComparisonState.ADDITIONAL_INCLUDE, attributes);
+			} else {
+				return new ComparisonResult(ComparisonState.MISSING_INCLUDE, attributes);
+			}
+
+		} else {
+			Wrapper<Integer> count = new Wrapper<>(0);
+			Functional.zip(expectedStmt, actualStmt)
+					.filter((pair) -> !AbstractPair.allElementEquals(pair, this::equalsRaw)).forEachOrdered((pair) -> {
+						count.wrapped++;
+						expectedStr.append((pair.first() == null ? "---" : pair.first().toString()).concat("\n"));
+						actualStr.append((pair.second() == null ? "---" : pair.second().toString()).concat("\n"));
+					});
+			if (count.wrapped == 0) {
+				return new ComparisonResult(ComparisonState.EQUAL);
+			}
+			final Map<ComparisonAttribute, String> attributes = new HashMap<>();
+			attributes.put(ComparisonAttribute.EXPECTED, expectedStr.toString());
+			attributes.put(ComparisonAttribute.ACTUAL, actualStr.toString());
+			return new ComparisonResult(ComparisonState.INCLUDE_ORDER, attributes);
+		}
+	}
+
+	private boolean equalsRaw(IASTNode left, IASTNode right) {
+		return left.getRawSignature().equals(right.getRawSignature());
+	}
+
 	protected ComparisonResult equals(final IASTNode expected, final IASTNode actual, final boolean failOnProblemNode) {
 		final IASTNode[] lChilds = expected.getChildren();
 		final IASTNode[] rChilds = actual.getChildren();
@@ -681,19 +761,19 @@ public class CDTTestingTest extends CDTSourceFileTest {
 				}
 			}
 		} else if (expected instanceof ICPPASTCompoundStatement || expected instanceof ICPPASTInitializerList) {
-			return new ComparisonResult(ComparisonState.EQUAL, null);
+			return new ComparisonResult(ComparisonState.EQUAL);
 		} else if (!normalize(expected.getRawSignature()).equals(normalize(actual.getRawSignature()))) {
 			return new ComparisonResult(ComparisonState.DIFFERENT_SIGNATURE, attributes);
 		}
-		return new ComparisonResult(ComparisonState.EQUAL, null);
+		return new ComparisonResult(ComparisonState.EQUAL);
 	}
 
 	protected enum ComparisonState {
-		DIFFERENT_TYPE, DIFFERENT_AMOUNT_OF_CHILDREN, DIFFERENT_SIGNATURE, EQUAL, PROBLEM_NODE
+		DIFFERENT_TYPE, DIFFERENT_AMOUNT_OF_CHILDREN, DIFFERENT_SIGNATURE, EQUAL, PROBLEM_NODE, ADDITIONAL_INCLUDE, MISSING_INCLUDE, INCLUDE_ORDER
 	}
 
 	protected enum ComparisonAttribute {
-		EXPECTED, ACTUAL, LINE_NO, 
+		EXPECTED, ACTUAL, LINE_NO
 	}
 
 	protected class ComparisonResult {
@@ -703,6 +783,11 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		public ComparisonResult(final ComparisonState state, final Map<ComparisonAttribute, String> attributes) {
 			this.state = state;
 			this.attributes = attributes;
+		}
+
+		public ComparisonResult(final ComparisonState state) {
+			this.state = state;
+			this.attributes = new HashMap<>();
 		}
 	}
 }
