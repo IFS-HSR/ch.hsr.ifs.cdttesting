@@ -56,9 +56,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 
 import ch.hsr.ifs.cdttesting.helpers.ExternalResourceHelper;
 import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
@@ -125,12 +123,12 @@ abstract public class CDTProjectTest {
         this.name = name;
     }
     
-//    FIXME uncomment at the end!!
+    @Deprecated
+    public void runTest() throws Throwable{
+    	// THIS IS JUST HERE SO THE @Overload ANNOTATIONS IN POTENTIAL SUBCLASSES WONT BE A PROBLEM.
+    }
     
-//    public void runTest() throws Throwable{
-//    	// THIS IS JUST HERE SO THE @Overload ANNOTATIONS IN POTENTIAL SUBCLASSES WONT BE A PROBLEM.
-//    }
-    
+//  @BeforeEach
 	@Before
 	protected void setUp() throws Exception {
 		initProject();
@@ -144,11 +142,14 @@ abstract public class CDTProjectTest {
 
 	protected abstract void setupFiles() throws Exception;
 
+//	@AfterEach
 	@After
 	protected void tearDown() throws Exception {
 		closeOpenEditors();
 		TestScannerProvider.clear();
 		deleteReferencedProjects();
+		
+		
 		fileManager.closeAllFiles();
 		disposeProjMembers();
 		disposeCDTAstCache();
