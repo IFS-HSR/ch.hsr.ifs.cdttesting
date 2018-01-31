@@ -8,7 +8,7 @@ location "http://download.eclipse.org/eclipse/updates/4.7" {
 }
 
 location "http://download.eclipse.org/releases/oxygen" {
-	org.eclipse.cdt.sdk.feature.group [9.3.0,9.4.0)
+	org.eclipse.cdt.sdk.feature.group [9.4.0,9.5.0)
 	org.eclipse.emf.sdk.feature.group lazy
 }
 
@@ -17,7 +17,7 @@ location "https://hudson.eclipse.org/cdt/job/cdt-9.3/lastSuccessfulBuild/artifac
 	org.eclipse.cdt.testing.feature.group [9.3.0,9.4.0)
 }
 
-location "http://download.eclipse.org/tools/orbit/downloads/drops/S20160916162009/repository/" {
+location "http://download.eclipse.org/tools/orbit/downloads/drops/S20180119201206/repository/" {
 	org.freemarker lazy
 	com.google.gson lazy
 }
@@ -26,4 +26,9 @@ location "https://hudson.eclipse.org/cdt/job/tools-templates-master/lastSuccessf
 	org.eclipse.tools.templates.freemarker lazy
 	org.eclipse.tools.templates.core lazy
 	org.eclipse.tools.templates.ui lazy
+}
+
+location "https://www.cevelop.com/iltis" {
+//	ch.hsr.ifs.iltis.core.feature.feature.group lazy
+	ch.hsr.ifs.iltis.cpp.feature.feature.group lazy
 }
