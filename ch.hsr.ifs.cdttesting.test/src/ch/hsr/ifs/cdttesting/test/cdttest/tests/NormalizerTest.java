@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
+import ch.hsr.ifs.cdttesting.cdttest.ASTComparison;
 
 /**
  * @author tstauber
@@ -22,7 +22,7 @@ public class NormalizerTest {
 		final String should = "#include <cstdint>";
 		//@formatter:on
 
-		assertEquals(should, CDTTestingTest.normalize(input));
+		assertEquals(should, ASTComparison.normalize(input));
 	}
 
 	@Test
@@ -33,7 +33,7 @@ public class NormalizerTest {
 		final String should = "#include <cstdint>";
 		//@formatter:on
 
-		assertEquals(should, CDTTestingTest.normalize(input));
+		assertEquals(should, ASTComparison.normalize(input));
 	}
 
 	@Test
@@ -44,7 +44,7 @@ public class NormalizerTest {
 		final String should = "int foo {42};";
 		//@formatter:on
 
-		assertEquals(should, CDTTestingTest.normalize(input));
+		assertEquals(should, ASTComparison.normalize(input));
 	}
 
 	@Test
@@ -55,7 +55,7 @@ public class NormalizerTest {
 		final String should = "int foo {42};";
 		//@formatter:on
 
-		assertEquals(should, CDTTestingTest.normalize(input));
+		assertEquals(should, ASTComparison.normalize(input));
 	}
 
 	@Test
@@ -66,7 +66,7 @@ public class NormalizerTest {
 		final String should = "int foo {42};";
 		//@formatter:on
 
-		assertEquals(should, CDTTestingTest.normalize(input));
+		assertEquals(should, ASTComparison.normalize(input));
 	}
 
 	@Test
@@ -83,7 +83,7 @@ public class NormalizerTest {
 				 			  "}";
 		//@formatter:on
 
-		assertEquals(should, CDTTestingTest.normalize(input));
+		assertEquals(should, ASTComparison.normalize(input));
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public class NormalizerTest {
 		final String should = "#include <cstdint>";
 		//@formatter:on
 
-		assertEquals(should, CDTTestingTest.normalize(input));
+		assertEquals(should, ASTComparison.normalize(input));
 	}
 
 }

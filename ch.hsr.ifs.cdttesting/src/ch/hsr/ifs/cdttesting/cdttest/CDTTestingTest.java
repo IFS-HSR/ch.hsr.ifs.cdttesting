@@ -25,8 +25,6 @@ import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorIncludeStatement;
 import org.eclipse.cdt.core.dom.ast.IASTProblem;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
-import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTCompoundStatement;
-import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTInitializerList;
 import org.eclipse.cdt.core.formatter.CodeFormatter;
 import org.eclipse.cdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.cdt.core.model.CModelException;
@@ -69,6 +67,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
+import ch.hsr.ifs.cdttesting.cdttest.ASTComparison.ComparisonState;
+import ch.hsr.ifs.cdttesting.cdttest.ASTComparison.Pair;
 import ch.hsr.ifs.cdttesting.helpers.ExternalResourceHelper;
 import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
 import ch.hsr.ifs.cdttesting.rts.junit4.RTSTestCases;
@@ -570,7 +570,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	 * @author tstauber
 	 */
 	public static void assertEqualsNormalized(final String expected, final String actual) {
-		assertEquals(normalize(expected), normalize(actual));
+		assertEquals(ASTComparison.normalize(expected), ASTComparison.normalize(actual));
 	}
 
 	/**
