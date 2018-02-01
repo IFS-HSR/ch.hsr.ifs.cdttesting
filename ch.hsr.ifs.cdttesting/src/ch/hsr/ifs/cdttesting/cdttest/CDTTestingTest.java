@@ -2,28 +2,20 @@ package ch.hsr.ifs.cdttesting.cdttest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.eclipse.cdt.core.ToolFactory;
 import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
-import org.eclipse.cdt.core.dom.ast.IASTNode;
-import org.eclipse.cdt.core.dom.ast.IASTPreprocessorIncludeStatement;
-import org.eclipse.cdt.core.dom.ast.IASTProblem;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.formatter.CodeFormatter;
 import org.eclipse.cdt.core.formatter.DefaultCodeFormatterConstants;
@@ -67,17 +59,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
-import ch.hsr.ifs.cdttesting.cdttest.ASTComparison.ComparisonState;
-import ch.hsr.ifs.cdttesting.cdttest.ASTComparison.Pair;
 import ch.hsr.ifs.cdttesting.helpers.ExternalResourceHelper;
 import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
 import ch.hsr.ifs.cdttesting.rts.junit4.RTSTestCases;
 import ch.hsr.ifs.cdttesting.rts.junit4.RtsFileInfo;
 import ch.hsr.ifs.cdttesting.rts.junit4.RtsTestSuite;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
-import ch.hsr.ifs.iltis.core.data.AbstractPair;
-import ch.hsr.ifs.iltis.core.data.Wrapper;
-import ch.hsr.ifs.iltis.core.functional.Functional;
 
 @SuppressWarnings("restriction")
 @RunWith(RtsTestSuite.class)
@@ -600,57 +587,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		if (!instantiateExpectedProject) {
 			fail("To use the assertEqualsAST() method, the class must set instantiateExpectedProject=true ");
 		}
-
-		ComparisonResult result = equalsIncludes(expectedAST.getIncludeDirectives(), currentAST.getIncludeDirectives(),
-				false);
-
-		switch (result.state) {
-		case EQUAL:
-			assertTrue(true);
-			break;
-		case ADDITIONAL_INCLUDE:
-			assertEqualsWithAttributes("The current AST does have includes in addition to the ones in expected AST.",
-					result.attributes);
-			break;
-		case INCLUDE_ORDER:
-			assertEqualsWithAttributes("The order of the includes are not matching.", result.attributes);
-			break;
-		case MISSING_INCLUDE:
-			assertEqualsWithAttributes("The current AST misses some of the includes from the expected AST.",
-					result.attributes);
-			break;
-		default:
-			break;
-		}
-
-		result = equals(expectedAST, currentAST, failOnProblemNode);
-
-		switch (result.state) {
-		case EQUAL:
-			assertTrue(true);
-			break;
-		case DIFFERENT_AMOUNT_OF_CHILDREN:
-			assertEqualsWithAttributes("Different amount of children.", result.attributes);
-			break;
-		case DIFFERENT_TYPE:
-			assertEqualsWithAttributes("Different type.", result.attributes);
-			break;
-		case DIFFERENT_SIGNATURE:
-			assertEqualsWithAttributes("Different normalized signatures.", result.attributes);
-			break;
-		case PROBLEM_NODE:
-			assertEqualsWithAttributes("Encountered a IASTProblem node.", result.attributes);
-			break;
-		default:
-			break;
-		}
-	}
-
-	protected void assertEqualsWithAttributes(String msg, Map<ComparisonAttribute, String> attributes) {
-		String lineNo = attributes.get(ComparisonAttribute.LINE_NO);
-		String expected = attributes.get(ComparisonAttribute.EXPECTED);
-		String actual = attributes.get(ComparisonAttribute.ACTUAL);
-		assertEquals(msg + lineNo != null ? " On line no: " + lineNo : "" + " -> ", expected, actual);
+		ASTComparison.assertEqualsAST(expectedAST, currentAST, failOnProblemNode);
 	}
 
 	/**
@@ -687,107 +624,4 @@ public class CDTTestingTest extends CDTSourceFileTest {
 		}
 	}
 
-	protected ComparisonResult equalsIncludes(final IASTPreprocessorIncludeStatement[] expectedStmt,
-			final IASTPreprocessorIncludeStatement[] actualStmt, final boolean ignoreOrdering) {
-		StringBuffer expectedStr = new StringBuffer();
-		StringBuffer actualStr = new StringBuffer();
-		if (ignoreOrdering) {
-			Set<String> actual = Arrays.stream(actualStmt).map((node) -> node.getRawSignature())
-					.collect(Collectors.toSet());
-			Set<String> expected = Arrays.stream(expectedStmt).map((node) -> node.getRawSignature())
-					.collect(Collectors.toSet());
-			if (actual.equals(expected)) {
-				return new ComparisonResult(ComparisonState.EQUAL);
-			}
-
-			Set<String> onlyInActual = new HashSet<>(actual);
-			onlyInActual.removeAll(expected);
-			Set<String> onlyInExpected = new HashSet<>(expected);
-			onlyInExpected.removeAll(actual);
-
-			final Map<ComparisonAttribute, String> attributes = new HashMap<>();
-			attributes.put(ComparisonAttribute.EXPECTED, onlyInExpected.stream().collect(Collectors.joining("\n")));
-			attributes.put(ComparisonAttribute.ACTUAL, onlyInActual.stream().collect(Collectors.joining("\n")));
-			if (!onlyInActual.isEmpty()) {
-				return new ComparisonResult(ComparisonState.ADDITIONAL_INCLUDE, attributes);
-			} else {
-				return new ComparisonResult(ComparisonState.MISSING_INCLUDE, attributes);
-			}
-
-		} else {
-			Wrapper<Integer> count = new Wrapper<>(0);
-			Functional.zip(expectedStmt, actualStmt)
-					.filter((pair) -> !AbstractPair.allElementEquals(pair, this::equalsRaw)).forEachOrdered((pair) -> {
-						count.wrapped++;
-						expectedStr.append((pair.first() == null ? "---" : pair.first().toString()).concat("\n"));
-						actualStr.append((pair.second() == null ? "---" : pair.second().toString()).concat("\n"));
-					});
-			if (count.wrapped == 0) {
-				return new ComparisonResult(ComparisonState.EQUAL);
-			}
-			final Map<ComparisonAttribute, String> attributes = new HashMap<>();
-			attributes.put(ComparisonAttribute.EXPECTED, expectedStr.toString());
-			attributes.put(ComparisonAttribute.ACTUAL, actualStr.toString());
-			return new ComparisonResult(ComparisonState.INCLUDE_ORDER, attributes);
-		}
-	}
-
-	private boolean equalsRaw(IASTNode left, IASTNode right) {
-		return left.getRawSignature().equals(right.getRawSignature());
-	}
-
-	protected ComparisonResult equals(final IASTNode expected, final IASTNode actual, final boolean failOnProblemNode) {
-		final IASTNode[] lChilds = expected.getChildren();
-		final IASTNode[] rChilds = actual.getChildren();
-		final IASTFileLocation fileLocation = actual.getOriginalNode().getFileLocation();
-		final String lineNo = fileLocation == null ? "?" : String.valueOf(fileLocation.getStartingLineNumber());
-		final Map<ComparisonAttribute, String> attributes = new HashMap<>();
-		attributes.put(ComparisonAttribute.EXPECTED, expected.getRawSignature());
-		attributes.put(ComparisonAttribute.ACTUAL, actual.getRawSignature());
-		attributes.put(ComparisonAttribute.LINE_NO, lineNo);
-
-		if (lChilds.length != rChilds.length) {
-			return new ComparisonResult(ComparisonState.DIFFERENT_AMOUNT_OF_CHILDREN, attributes);
-		} else if (!expected.getClass().equals(actual.getClass())) {
-			return new ComparisonResult(ComparisonState.DIFFERENT_TYPE, attributes);
-		} else if (lChilds.length != 0) {
-			for (int i = 0; i < lChilds.length; i++) {
-				if (lChilds[i] instanceof IASTProblem || rChilds[i] instanceof IASTProblem) {
-					return new ComparisonResult(ComparisonState.PROBLEM_NODE, attributes);
-				}
-				final ComparisonResult childResult = equals(lChilds[i], rChilds[i], failOnProblemNode);
-				if (childResult.state != ComparisonState.EQUAL) {
-					return childResult;
-				}
-			}
-		} else if (expected instanceof ICPPASTCompoundStatement || expected instanceof ICPPASTInitializerList) {
-			return new ComparisonResult(ComparisonState.EQUAL);
-		} else if (!normalize(expected.getRawSignature()).equals(normalize(actual.getRawSignature()))) {
-			return new ComparisonResult(ComparisonState.DIFFERENT_SIGNATURE, attributes);
-		}
-		return new ComparisonResult(ComparisonState.EQUAL);
-	}
-
-	protected enum ComparisonState {
-		DIFFERENT_TYPE, DIFFERENT_AMOUNT_OF_CHILDREN, DIFFERENT_SIGNATURE, EQUAL, PROBLEM_NODE, ADDITIONAL_INCLUDE, MISSING_INCLUDE, INCLUDE_ORDER
-	}
-
-	protected enum ComparisonAttribute {
-		EXPECTED, ACTUAL, LINE_NO
-	}
-
-	protected class ComparisonResult {
-		public ComparisonState state;
-		public Map<ComparisonAttribute, String> attributes;
-
-		public ComparisonResult(final ComparisonState state, final Map<ComparisonAttribute, String> attributes) {
-			this.state = state;
-			this.attributes = attributes;
-		}
-
-		public ComparisonResult(final ComparisonState state) {
-			this.state = state;
-			this.attributes = new HashMap<>();
-		}
-	}
 }
