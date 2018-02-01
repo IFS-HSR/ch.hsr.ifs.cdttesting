@@ -96,7 +96,6 @@ abstract public class CDTProjectTest {
 	}
 
 	public CDTProjectTest(final String name) {
-	//		super(name);
 		this.name = name;
 		init();
 	}
@@ -123,11 +122,7 @@ abstract public class CDTProjectTest {
         this.name = name;
     }
     
-    @Deprecated
-    public void runTest() throws Throwable{
-    	// THIS IS JUST HERE SO THE @Overload ANNOTATIONS IN POTENTIAL SUBCLASSES WONT BE A PROBLEM.
-    }
-    
+
 //  @BeforeEach
 	@Before
 	protected void setUp() throws Exception {

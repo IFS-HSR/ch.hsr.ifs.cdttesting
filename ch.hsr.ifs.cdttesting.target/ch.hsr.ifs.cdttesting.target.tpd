@@ -1,4 +1,4 @@
-target "Eclipse Oxygen with CDT 9.3"
+target "Eclipse Oxygen with CDT 9.4"
 
 with source requirements
 
@@ -29,6 +29,5 @@ location "https://hudson.eclipse.org/cdt/job/tools-templates-master/lastSuccessf
 }
 
 location "https://www.cevelop.com/iltis" {
-//	ch.hsr.ifs.iltis.core.feature.feature.group lazy
 	ch.hsr.ifs.iltis.cpp.feature.feature.group lazy
 }
