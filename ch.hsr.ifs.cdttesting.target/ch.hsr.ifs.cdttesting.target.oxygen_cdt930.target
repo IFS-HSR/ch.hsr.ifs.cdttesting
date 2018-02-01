@@ -1,37 +1,35 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?pde?>
-<!-- generated with https://github.com/mbarbero/fr.obeo.releng.targetplatform -->
-<target name="Eclipse Oxygen with CDT 9.3" sequenceNumber="1517494677">
-  <locations>
-    <location includeMode="planner" includeAllPlatforms="false" includeSource="true" includeConfigurePhase="false" type="InstallableUnit">
-      <unit id="org.eclipse.platform.sdk" version="4.7.2.M20171130-0510"/>
-      <unit id="org.eclipse.sdk.ide" version="4.7.2.M20171130-0510"/>
-      <repository location="http://download.eclipse.org/eclipse/updates/4.7"/>
-    </location>
-    <location includeMode="planner" includeAllPlatforms="false" includeSource="true" includeConfigurePhase="false" type="InstallableUnit">
-      <unit id="org.eclipse.cdt.sdk.feature.group" version="9.3.2.201709131603"/>
-      <unit id="org.eclipse.emf.sdk.feature.group" version="0.0.0"/>
-      <repository location="http://download.eclipse.org/releases/oxygen"/>
-    </location>
-    <location includeMode="planner" includeAllPlatforms="false" includeSource="true" includeConfigurePhase="false" type="InstallableUnit">
-      <unit id="org.eclipse.cdt.testing.source.feature.group" version="9.3.3.201801131000"/>
-      <unit id="org.eclipse.cdt.testing.feature.group" version="9.3.3.201801131000"/>
-      <repository location="https://hudson.eclipse.org/cdt/job/cdt-9.3/lastSuccessfulBuild/artifact/releng/org.eclipse.cdt.testing.repo/target/repository/"/>
-    </location>
-    <location includeMode="planner" includeAllPlatforms="false" includeSource="true" includeConfigurePhase="false" type="InstallableUnit">
-      <unit id="org.freemarker" version="0.0.0"/>
-      <unit id="com.google.gson" version="0.0.0"/>
-      <repository location="http://download.eclipse.org/tools/orbit/downloads/drops/S20180119201206/repository/"/>
-    </location>
-    <location includeMode="planner" includeAllPlatforms="false" includeSource="true" includeConfigurePhase="false" type="InstallableUnit">
-      <unit id="org.eclipse.tools.templates.freemarker" version="0.0.0"/>
-      <unit id="org.eclipse.tools.templates.core" version="0.0.0"/>
-      <unit id="org.eclipse.tools.templates.ui" version="0.0.0"/>
-      <repository location="https://hudson.eclipse.org/cdt/job/tools-templates-master/lastSuccessfulBuild/artifact/repo/target/repository/"/>
-    </location>
-    <location includeMode="planner" includeAllPlatforms="false" includeSource="true" includeConfigurePhase="false" type="InstallableUnit">
-      <unit id="ch.hsr.ifs.iltis.cpp.feature.feature.group" version="0.0.0"/>
-      <repository location="https://www.cevelop.com/iltis"/>
-    </location>
-  </locations>
+<?pde version="3.8"?><target name="Eclipse Oxygen with CDT 9.3.0" sequenceNumber="1517494677">
+<locations>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.platform.sdk" version="4.7.2.M20171130-0510"/>
+<unit id="org.eclipse.sdk.ide" version="4.7.2.M20171130-0510"/>
+<repository location="http://download.eclipse.org/eclipse/updates/4.7"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.cdt.sdk.feature.group" version="9.3.2.201709131603"/>
+<unit id="org.eclipse.emf.sdk.feature.group" version="0.0.0"/>
+<repository location="http://download.eclipse.org/releases/oxygen"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.cdt.testing.source.feature.group" version="9.3.3.201801131000"/>
+<unit id="org.eclipse.cdt.testing.feature.group" version="9.3.3.201801131000"/>
+<repository location="https://hudson.eclipse.org/cdt/job/cdt-9.3/lastSuccessfulBuild/artifact/releng/org.eclipse.cdt.testing.repo/target/repository/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.freemarker" version="0.0.0"/>
+<unit id="com.google.gson" version="0.0.0"/>
+<repository location="http://download.eclipse.org/tools/orbit/downloads/drops/S20180119201206/repository/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="org.eclipse.tools.templates.freemarker" version="0.0.0"/>
+<unit id="org.eclipse.tools.templates.core" version="0.0.0"/>
+<unit id="org.eclipse.tools.templates.ui" version="0.0.0"/>
+<repository location="https://hudson.eclipse.org/cdt/job/tools-templates-master/lastSuccessfulBuild/artifact/repo/target/repository/"/>
+</location>
+<location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="planner" includeSource="true" type="InstallableUnit">
+<unit id="ch.hsr.ifs.iltis.cpp.feature.feature.group" version="0.0.0"/>
+<repository location="https://www.cevelop.com/iltis"/>
+</location>
+</locations>
 </target>
