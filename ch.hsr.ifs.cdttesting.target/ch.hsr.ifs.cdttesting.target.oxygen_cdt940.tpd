@@ -1,4 +1,4 @@
-target "Eclipse Oxygen with CDT 9.4"
+target "Eclipse Oxygen with CDT 9.3"
 
 with source requirements
 
@@ -8,7 +8,7 @@ location "http://download.eclipse.org/eclipse/updates/4.7" {
 }
 
 location "http://download.eclipse.org/releases/oxygen" {
-	org.eclipse.cdt.sdk.feature.group [9.4.0,9.5.0)
+	org.eclipse.cdt.sdk.feature.group [9.3.0,9.4.0)
 	org.eclipse.emf.sdk.feature.group lazy
 }
 
