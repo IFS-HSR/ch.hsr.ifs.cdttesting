@@ -557,7 +557,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 	 * @author tstauber
 	 */
 	public static void assertEqualsNormalized(final String expected, final String actual) {
-		assertEquals(ASTComparison.normalize(expected), ASTComparison.normalize(actual));
+		assertEquals(ASTComparison.normalizeCPP(expected), ASTComparison.normalizeCPP(actual));
 	}
 
 	/**

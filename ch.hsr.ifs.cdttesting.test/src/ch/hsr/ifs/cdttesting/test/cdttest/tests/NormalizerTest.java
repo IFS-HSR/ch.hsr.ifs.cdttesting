@@ -22,7 +22,7 @@ public class NormalizerTest {
 		final String should = "#include <cstdint>";
 		//@formatter:on
 
-		assertEquals(should, ASTComparison.normalize(input));
+		assertEquals(should, ASTComparison.normalizeCPP(input));
 	}
 
 	@Test
@@ -33,7 +33,7 @@ public class NormalizerTest {
 		final String should = "#include <cstdint>";
 		//@formatter:on
 
-		assertEquals(should, ASTComparison.normalize(input));
+		assertEquals(should, ASTComparison.normalizeCPP(input));
 	}
 
 	@Test
@@ -44,7 +44,7 @@ public class NormalizerTest {
 		final String should = "int foo {42};";
 		//@formatter:on
 
-		assertEquals(should, ASTComparison.normalize(input));
+		assertEquals(should, ASTComparison.normalizeCPP(input));
 	}
 
 	@Test
@@ -55,7 +55,7 @@ public class NormalizerTest {
 		final String should = "int foo {42};";
 		//@formatter:on
 
-		assertEquals(should, ASTComparison.normalize(input));
+		assertEquals(should, ASTComparison.normalizeCPP(input));
 	}
 
 	@Test
@@ -66,7 +66,7 @@ public class NormalizerTest {
 		final String should = "int foo {42};";
 		//@formatter:on
 
-		assertEquals(should, ASTComparison.normalize(input));
+		assertEquals(should, ASTComparison.normalizeCPP(input));
 	}
 
 	@Test
@@ -83,7 +83,7 @@ public class NormalizerTest {
 				 			  "}";
 		//@formatter:on
 
-		assertEquals(should, ASTComparison.normalize(input));
+		assertEquals(should, ASTComparison.normalizeCPP(input));
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public class NormalizerTest {
 		final String should = "#include <cstdint>";
 		//@formatter:on
 
-		assertEquals(should, ASTComparison.normalize(input));
+		assertEquals(should, ASTComparison.normalizeCPP(input));
 	}
 
 }
