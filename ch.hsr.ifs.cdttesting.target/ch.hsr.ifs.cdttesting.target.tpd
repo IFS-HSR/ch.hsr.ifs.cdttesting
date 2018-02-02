@@ -7,8 +7,8 @@ location "http://download.eclipse.org/eclipse/updates/4.7" {
 	org.eclipse.sdk.ide [4.7.0,4.8.0)
 }
 
-location "http://download.eclipse.org/tools/cdt/builds/9.4/rc4c" {
-	org.eclipse.cdt.sdk.feature.group [9.4.0,9.5.0)
+location "http://download.eclipse.org/tools/cdt/releases/9.4/" {
+		org.eclipse.cdt.sdk.feature.group lazy
 }
 
 location "http://download.eclipse.org/releases/oxygen" {
