@@ -3,11 +3,10 @@ package ch.hsr.ifs.cdttesting.cdttest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,6 +21,7 @@ import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTInitializerList;
 import ch.hsr.ifs.iltis.core.data.AbstractPair;
 import ch.hsr.ifs.iltis.core.data.Wrapper;
 import ch.hsr.ifs.iltis.core.functional.Functional;
+import ch.hsr.ifs.iltis.core.functional.OptionalUtil;
 
 
 /**
@@ -39,8 +39,10 @@ public class ASTComparison {
     * this method the flag {@code instantiateExpectedProject} has to be set to
     * true.
     * 
-    * @param expectedAST The expected translation unit
-    * @param actualAST The actual translation unit
+    * @param expectedAST
+    *        The expected translation unit
+    * @param actualAST
+    *        The actual translation unit
     * @param failOnProblemNode
     *        When {@code true}, comparison fails on syntactically invalid code.
     *
@@ -50,52 +52,20 @@ public class ASTComparison {
    public static void assertEqualsAST(final IASTTranslationUnit expectedAST, final IASTTranslationUnit actualAST, final boolean failOnProblemNode) {
 
       ComparisonResult result = equalsIncludes(expectedAST.getIncludeDirectives(), actualAST.getIncludeDirectives(), false);
-
-      switch (result.state) {
-      case EQUAL:
-         assertTrue(true);
-         break;
-      case ADDITIONAL_INCLUDE:
-         assertEqualsWithAttributes("Additional includes found.", result.attributes);
-         break;
-      case INCLUDE_ORDER:
-         assertEqualsWithAttributes("The order of the includes are not matching.", result.attributes);
-         break;
-      case MISSING_INCLUDE:
-         assertEqualsWithAttributes("Includes are missing.", result.attributes);
-         break;
-      default:
-         break;
-      }
-
+      assertEqualsWithAttributes(result);
       result = equals(expectedAST, actualAST, failOnProblemNode);
-
-      switch (result.state) {
-      case EQUAL:
-         assertTrue(true);
-         break;
-      case DIFFERENT_AMOUNT_OF_CHILDREN:
-         assertEqualsWithAttributes("Different amount of children.", result.attributes);
-         break;
-      case DIFFERENT_TYPE:
-         assertEqualsWithAttributes("Different type.", result.attributes);
-         break;
-      case DIFFERENT_SIGNATURE:
-         assertEqualsWithAttributes("Different normalized signatures.", result.attributes);
-         break;
-      case PROBLEM_NODE:
-         assertEqualsWithAttributes("Encountered a IASTProblem node.", result.attributes);
-         break;
-      default:
-         break;
-      }
+      assertEqualsWithAttributes(result);
    }
 
-   protected static void assertEqualsWithAttributes(String msg, Map<ComparisonAttribute, String> attributes) {
-      String lineNo = attributes.get(ComparisonAttribute.LINE_NO);
-      String expected = attributes.get(ComparisonAttribute.EXPECTED);
-      String actual = attributes.get(ComparisonAttribute.ACTUAL);
-      assertEquals(msg + lineNo != null ? " On line no: " + lineNo : "" + " -> ", expected, actual);
+   protected static void assertEqualsWithAttributes(ComparisonResult result) {
+      String lineNo = result.getAttributeString(ComparisonAttrID.LINE_NO);
+      String expected = result.getAttributeString(ComparisonAttrID.EXPECTED);
+      String actual = result.getAttributeString(ComparisonAttrID.ACTUAL);
+      if (result.state == ComparisonState.EQUAL) {
+         assertTrue(true);
+      } else {
+         assertEquals(result.getStateDecription() + lineNo, expected, actual);
+      }
    }
 
    /**
@@ -109,8 +79,8 @@ public class ASTComparison {
     * @param ignoreOrdering
     *        When {@code true} the includes ordering will be ignored.
     * @return A {@link ComparisonResult} containing
-    *         {@link ComparisonAttribute.EXPECTED} and
-    *         {@link ComparisonAttribute.ACTUAL}
+    *         {@link ComparisonAttrID.EXPECTED} and
+    *         {@link ComparisonAttrID.ACTUAL}
     */
    public static ComparisonResult equalsIncludes(final IASTPreprocessorIncludeStatement[] expectedStmt,
          final IASTPreprocessorIncludeStatement[] actualStmt, final boolean ignoreOrdering) {
@@ -126,9 +96,8 @@ public class ASTComparison {
          Set<String> onlyInExpected = new HashSet<>(expected);
          onlyInExpected.removeAll(actual);
 
-         final Map<ComparisonAttribute, String> attributes = new HashMap<>();
-         attributes.put(ComparisonAttribute.EXPECTED, onlyInExpected.stream().collect(Collectors.joining("\n")));
-         attributes.put(ComparisonAttribute.ACTUAL, onlyInActual.stream().collect(Collectors.joining("\n")));
+         ComparisonAttribute[] attributes = { new ComparisonAttribute(ComparisonAttrID.EXPECTED, onlyInExpected.stream().collect(Collectors.joining(
+               "\n"))), new ComparisonAttribute(ComparisonAttrID.ACTUAL, onlyInActual.stream().collect(Collectors.joining("\n"))) };
          if (!onlyInActual.isEmpty()) {
             return new ComparisonResult(ComparisonState.ADDITIONAL_INCLUDE, attributes);
          } else {
@@ -144,9 +113,8 @@ public class ASTComparison {
             actualStr.append((pair.second() == null ? "---" : pair.second().toString()).concat("\n"));
          });
          if (count.wrapped == 0) { return new ComparisonResult(ComparisonState.EQUAL); }
-         final Map<ComparisonAttribute, String> attributes = new HashMap<>();
-         attributes.put(ComparisonAttribute.EXPECTED, expectedStr.toString());
-         attributes.put(ComparisonAttribute.ACTUAL, actualStr.toString());
+         ComparisonAttribute[] attributes = { new ComparisonAttribute(ComparisonAttrID.EXPECTED, expectedStr.toString()), new ComparisonAttribute(
+               ComparisonAttrID.ACTUAL, actualStr.toString()) };
          return new ComparisonResult(ComparisonState.INCLUDE_ORDER, attributes);
       }
    }
@@ -171,10 +139,8 @@ public class ASTComparison {
       final IASTNode[] rChilds = actual.getChildren();
       final IASTFileLocation fileLocation = actual.getOriginalNode().getFileLocation();
       final String lineNo = fileLocation == null ? "?" : String.valueOf(fileLocation.getStartingLineNumber());
-      final Map<ComparisonAttribute, String> attributes = new HashMap<>();
-      attributes.put(ComparisonAttribute.EXPECTED, expected.getRawSignature());
-      attributes.put(ComparisonAttribute.ACTUAL, actual.getRawSignature());
-      attributes.put(ComparisonAttribute.LINE_NO, lineNo);
+      ComparisonAttribute[] attributes = { new ComparisonAttribute(ComparisonAttrID.EXPECTED, expected.getRawSignature()), new ComparisonAttribute(
+            ComparisonAttrID.ACTUAL, actual.getRawSignature()), new ComparisonAttribute(ComparisonAttrID.LINE_NO, lineNo) };
 
       if (lChilds.length != rChilds.length) {
          return new ComparisonResult(ComparisonState.DIFFERENT_AMOUNT_OF_CHILDREN, attributes);
@@ -216,37 +182,80 @@ public class ASTComparison {
    }
 
    protected enum ComparisonState {
-      DIFFERENT_TYPE, DIFFERENT_AMOUNT_OF_CHILDREN, DIFFERENT_SIGNATURE, EQUAL, PROBLEM_NODE, ADDITIONAL_INCLUDE, MISSING_INCLUDE, INCLUDE_ORDER
+      //@formatter:off
+      DIFFERENT_TYPE("Different type."), DIFFERENT_AMOUNT_OF_CHILDREN("Different amount of children."),
+      DIFFERENT_SIGNATURE("Different normalized signatures."), EQUAL(""),
+      PROBLEM_NODE("Encountered a IASTProblem node."), ADDITIONAL_INCLUDE("Additional includes found."),
+      MISSING_INCLUDE("Includes are missing."), INCLUDE_ORDER("The order of the includes differs.");
+      //@formatter:on
+
+      String desc;
+
+      ComparisonState(String desc) {
+         this.desc = desc;
+      }
    }
 
-   protected enum ComparisonAttribute {
-      EXPECTED, ACTUAL, LINE_NO
+   protected enum ComparisonAttrID {
+      //@formatter:off
+      EXPECTED(""), ACTUAL(""), LINE_NO(" On line no: ");
+      //@formatter:on
+
+      String prefix;
+
+      ComparisonAttrID(String prefix) {
+         this.prefix = prefix;
+      }
+   }
+
+   /**
+    * 
+    * @author tstauber
+    *
+    */
+   protected static class ComparisonAttribute {
+
+      public ComparisonAttrID id;
+      public String           value;
+
+      public ComparisonAttribute(final ComparisonAttrID id, String value) {
+         this.id = id;
+         this.value = value;
+      }
+
+      public String toString() {
+         return " " + id.prefix + " " + this.value;
+      }
    }
 
    /**
     * A helper class holding a {@link ComparisonResult} and a map of
-    * {@link ComparisonAttribute} -> {@link String}
+    * {@link ComparisonAttrID} -> {@link String}
     * 
     * @author tstauber
     *
     */
    protected static class ComparisonResult {
 
-      public ComparisonState                  state;
-      public Map<ComparisonAttribute, String> attributes;
+      public ComparisonState           state;
+      public List<ComparisonAttribute> attributes;
 
-      public Optional<String> getAttribute(ComparisonAttribute attr) {
-         return Optional.ofNullable(attributes.get(attr));
-      }
-
-      public ComparisonResult(final ComparisonState state, final Map<ComparisonAttribute, String> attributes) {
+      public ComparisonResult(final ComparisonState state, final ComparisonAttribute... attributes) {
          this.state = state;
-         this.attributes = attributes;
+         this.attributes = Arrays.asList(attributes);
       }
 
       public ComparisonResult(final ComparisonState state) {
          this.state = state;
-         this.attributes = new HashMap<>();
+         this.attributes = new ArrayList<>();
+      }
+
+      public String getAttributeString(ComparisonAttrID id) {
+         return OptionalUtil.returnIfPresentElse(attributes.stream().filter((attr) -> attr.id == id).findFirst(), (o) -> o.toString(), "");
+      }
+
+      public String getStateDecription() {
+         return state.desc;
       }
    }
 }
