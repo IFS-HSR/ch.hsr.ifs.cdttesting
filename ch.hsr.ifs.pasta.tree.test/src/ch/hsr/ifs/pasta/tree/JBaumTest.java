@@ -1,13 +1,11 @@
 package ch.hsr.ifs.pasta.tree;
 
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.awt.geom.Point2D;
 
 import org.junit.Test;
-
-import ch.hsr.ifs.pasta.tree.Node;
 
 public class JBaumTest {
 

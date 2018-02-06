@@ -1,8 +1,10 @@
 package name.graf.emanuel.testfileeditor.ui;
 
-import org.eclipse.jface.viewers.*;
-import java.util.*;
-import org.eclipse.swt.widgets.*;
+import java.util.Vector;
+
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Tree;
 
 public class OutlineTreeViewer extends TreeViewer
 {

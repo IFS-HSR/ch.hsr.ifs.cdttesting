@@ -1,10 +1,5 @@
 package name.graf.emanuel.testfileeditor.ui;
 
-import name.graf.emanuel.testfileeditor.Activator;
-import name.graf.emanuel.testfileeditor.model.node.Node;
-import name.graf.emanuel.testfileeditor.ui.support.outline.TestFileLabelProvider;
-import name.graf.emanuel.testfileeditor.ui.support.outline.TestFileTreeNodeContentProvider;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -19,6 +14,11 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.progress.UIJob;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
+
+import name.graf.emanuel.testfileeditor.Activator;
+import name.graf.emanuel.testfileeditor.model.node.Node;
+import name.graf.emanuel.testfileeditor.ui.support.outline.TestFileLabelProvider;
+import name.graf.emanuel.testfileeditor.ui.support.outline.TestFileTreeNodeContentProvider;
 
 public class OutlinePage extends ContentOutlinePage
 {

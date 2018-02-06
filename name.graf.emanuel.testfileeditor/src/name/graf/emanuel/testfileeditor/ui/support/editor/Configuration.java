@@ -1,13 +1,21 @@
 package name.graf.emanuel.testfileeditor.ui.support.editor;
 
-import org.eclipse.jface.text.source.*;
+import org.eclipse.jface.text.ITextDoubleClickStrategy;
+import org.eclipse.jface.text.TextAttribute;
+import org.eclipse.jface.text.presentation.IPresentationDamager;
+import org.eclipse.jface.text.presentation.IPresentationReconciler;
+import org.eclipse.jface.text.presentation.IPresentationRepairer;
+import org.eclipse.jface.text.presentation.PresentationReconciler;
+import org.eclipse.jface.text.reconciler.IReconciler;
+import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
+import org.eclipse.jface.text.reconciler.MonoReconciler;
+import org.eclipse.jface.text.source.DefaultAnnotationHover;
+import org.eclipse.jface.text.source.IAnnotationHover;
+import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.SourceViewerConfiguration;
 
 import name.graf.emanuel.testfileeditor.model.TestFile;
 import name.graf.emanuel.testfileeditor.ui.Editor;
-
-import org.eclipse.jface.text.*;
-import org.eclipse.jface.text.presentation.*;
-import org.eclipse.jface.text.reconciler.*;
 
 public class Configuration extends SourceViewerConfiguration
 {

@@ -1,6 +1,6 @@
 package name.graf.emanuel.testfileeditor.ui.support.editor;
 
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.graphics.RGB;
 
 public interface Colors
 {

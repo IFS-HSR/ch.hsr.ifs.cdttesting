@@ -1,6 +1,6 @@
 package name.graf.emanuel.testfileeditor.model.node;
 
-import org.eclipse.jface.text.*;
+import org.eclipse.jface.text.Position;
 
 public class Language implements Node
 {

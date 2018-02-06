@@ -1,11 +1,13 @@
 package name.graf.emanuel.testfileeditor.ui.support.editor;
 
-import org.eclipse.jface.text.*;
-import org.eclipse.jface.text.reconciler.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.reconciler.DirtyRegion;
+import org.eclipse.jface.text.reconciler.IReconcilingStrategy;
+import org.eclipse.jface.text.reconciler.IReconcilingStrategyExtension;
 
 import name.graf.emanuel.testfileeditor.ui.Editor;
-
-import org.eclipse.core.runtime.*;
 
 public class ReconcilingStrategy implements IReconcilingStrategy, IReconcilingStrategyExtension
 {

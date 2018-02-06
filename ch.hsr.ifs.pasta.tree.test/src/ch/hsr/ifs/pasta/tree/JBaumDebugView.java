@@ -10,10 +10,6 @@ import java.util.Random;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-import ch.hsr.ifs.pasta.tree.JBaum;
-import ch.hsr.ifs.pasta.tree.Node;
-import ch.hsr.ifs.pasta.tree.NodeVisitor;
-
 public class JBaumDebugView extends JPanel {
 
     private static final long serialVersionUID = -1390313572685631394L;

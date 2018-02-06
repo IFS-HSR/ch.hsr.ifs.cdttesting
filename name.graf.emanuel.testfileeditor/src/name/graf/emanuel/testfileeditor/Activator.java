@@ -1,16 +1,16 @@
 package name.graf.emanuel.testfileeditor;
 
-import org.eclipse.ui.plugin.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
-import org.osgi.framework.*;
+import org.osgi.framework.BundleContext;
 
 import name.graf.emanuel.testfileeditor.ui.support.editor.PartitionScanner;
-
-import org.eclipse.swt.widgets.*;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.resource.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 
 public class Activator extends AbstractUIPlugin {
     public static final String PLUGIN_ID = "name.graf.emanuel.testfileeditor";

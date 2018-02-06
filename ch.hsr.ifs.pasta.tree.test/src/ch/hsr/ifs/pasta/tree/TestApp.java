@@ -2,9 +2,6 @@ package ch.hsr.ifs.pasta.tree;
 
 import javax.swing.JFrame;
 
-import ch.hsr.ifs.pasta.tree.JBaum;
-import ch.hsr.ifs.pasta.tree.Node;
-
 public class TestApp {
 
     public static void main(String[] args) {
