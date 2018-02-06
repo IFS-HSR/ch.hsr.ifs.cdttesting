@@ -9,13 +9,13 @@
     <parent>
       <artifactId>ch.hsr.ifs.cdttesting.parent</artifactId>
       <groupId>ch.hsr.ifs.cdttesting</groupId>
-      <version>9.3.0-SNAPSHOT</version>
+      <version>9.4.0-SNAPSHOT</version>
       <relativePath>..</relativePath>
     </parent>
 
     <groupId>ch.hsr.ifs.cdttesting</groupId>
     <artifactId>ch.hsr.ifs.cdttesting.target.oxygen_cdt940</artifactId>
-    <version>9.3.0-SNAPSHOT</version>
+    <version>9.4.0-SNAPSHOT</version>
     <packaging>eclipse-target-definition</packaging>
 
 </project>

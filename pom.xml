@@ -6,8 +6,8 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>ch.hsr.ifs.cdttesting</groupId>
+  <version>9.4.0-SNAPSHOT</version>
   <artifactId>ch.hsr.ifs.cdttesting.parent</artifactId>
-  <version>9.3.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <properties>
