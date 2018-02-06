@@ -5,6 +5,8 @@ import org.eclipse.cdt.core.dom.ast.IASTDeclaration;
 import org.eclipse.cdt.core.dom.ast.IASTFunctionDefinition;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 
+import ch.hsr.ifs.iltis.cpp.ast.checker.helper.IProblemId;
+
 
 /**
  * Note that this class should actually not be contained in the
@@ -14,13 +16,28 @@ import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 public class MyCodanChecker extends AbstractIndexAstChecker {
 
    /**
+    * Note that this is/must be the same problem-id as defined in plugin.xml
+    */
+   public enum MyProblemId implements IProblemId {
+      EXAMPLE_ID("ch.hsr.ifs.myCodanProblemId");
+
+      String id;
+
+      MyProblemId(String id) {
+         this.id = id;
+      }
+
+      @Override
+      public String getId() {
+         return id;
+      }
+
+   }
+
+   /**
     * Note that this is/must be the same checker-id as defined in plugin.xml
     */
    public static final String MY_CHECKER_ID = "ch.hsr.ifs.myCodanCheckerId";
-   /**
-    * Note that this is/must be the same problem-id as defined in plugin.xml
-    */
-   public static final String MY_PROBLEM_ID = "ch.hsr.ifs.myCodanProblemId";
 
    @Override
    public void processAst(IASTTranslationUnit ast) {
@@ -30,7 +47,7 @@ public class MyCodanChecker extends AbstractIndexAstChecker {
          IASTFunctionDefinition functionDecl = (IASTFunctionDefinition) firstDecl;
          name = functionDecl.getDeclarator().getName().getRawSignature();
       }
-      reportProblem(MY_PROBLEM_ID, firstDecl, name); // note that the name-string is inserted into the
+      reportProblem(MyProblemId.EXAMPLE_ID.getId(), firstDecl, name); // note that the name-string is inserted into the
       // "messagePattern" by replacing the "{0}" of the pattern.
    }
 }

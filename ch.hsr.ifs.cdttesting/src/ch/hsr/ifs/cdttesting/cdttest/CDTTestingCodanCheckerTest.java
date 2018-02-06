@@ -24,11 +24,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Before;
 
+import ch.hsr.ifs.iltis.cpp.ast.checker.helper.IProblemId;
+
 
 @SuppressWarnings("restriction")
 public abstract class CDTTestingCodanCheckerTest extends CDTTestingTest {
 
-   protected abstract String getProblemId();
+   protected abstract IProblemId getProblemId();
 
    @Override
    @Before
@@ -39,12 +41,12 @@ public abstract class CDTTestingCodanCheckerTest extends CDTTestingTest {
    }
 
    private void enableChecker() {
-      final String acriveProblemId = getProblemId();
+      final IProblemId activeProblemId = getProblemId();
       final IProblemProfile profile = CodanRuntime.getInstance().getCheckersRegistry().getWorkspaceProfile();
       final IProblem[] problems = profile.getProblems();
       for (final IProblem p : problems) {
          final CodanProblem codanProblem = (CodanProblem) p;
-         if (codanProblem.getId().equals(acriveProblemId)) {
+         if (codanProblem.getId().equals(activeProblemId.getId())) {
             enableCodanProblem(codanProblem);
          } else {
             codanProblem.setEnabled(false);
