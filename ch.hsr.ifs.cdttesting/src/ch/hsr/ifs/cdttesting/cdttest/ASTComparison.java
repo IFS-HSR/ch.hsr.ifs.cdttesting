@@ -18,7 +18,6 @@ import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTCompoundStatement;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTInitializerList;
 
-import ch.hsr.ifs.cdttesting.cdttest.ASTComparison.ComparisonAttrID;
 import ch.hsr.ifs.iltis.core.data.AbstractPair;
 import ch.hsr.ifs.iltis.core.data.Wrapper;
 import ch.hsr.ifs.iltis.core.functional.Functional;
