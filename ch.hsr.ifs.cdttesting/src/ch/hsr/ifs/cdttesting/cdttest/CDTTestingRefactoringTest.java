@@ -17,10 +17,9 @@ import org.eclipse.ltk.core.refactoring.RefactoringContext;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 
+import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 import ch.hsr.ifs.iltis.cpp.wrappers.CRefactoring;
 import ch.hsr.ifs.iltis.cpp.wrappers.CRefactoringContext;
-
-import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
 /**
  * Most of the code for this class originates from CDT's RefactoringTestBase
