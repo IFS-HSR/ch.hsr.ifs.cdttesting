@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2011 Institute for Software, HSR Hochschule fuer Technik  
+ * Copyright (c) 2011 Institute for Software, HSR Hochschule fuer Technik
  * Rapperswil, University of applied sciences and others
  * All rights reserved.
  * 
  * Contributors:
- *     Institute for Software - initial API and implementation
+ * Institute for Software - initial API and implementation
  ******************************************************************************/
 package ch.hsr.ifs.cdttesting.example;
 
@@ -21,18 +21,13 @@ import ch.hsr.ifs.cdttesting.example.examplerefactoringtest.ILTISExampleRefactor
 import ch.hsr.ifs.cdttesting.example.examplerefactoringtest.ILTISExampleRefactoringTest;
 import ch.hsr.ifs.cdttesting.example.someexampletests.SomeExampleTestsSuite;
 
+
 @RunWith(Suite.class)
 @SuiteClasses({
-//@formatter:off
-	SomeExampleTestsSuite.class,
-	SomeExampleAnnotationTestsSuite.class,
-	ExampleRefactoringTest.class,
-	ExampleRefactoringModificationsTest.class,
-	ILTISExampleRefactoringTest.class,
-	ILTISExampleRefactoringModificationsTest.class,
-	ExampleCodanCheckerTest.class,
-	ExampleCodanQuickFixTest.class,
-//@formatter:on
+      // @formatter:off
+		SomeExampleTestsSuite.class, SomeExampleAnnotationTestsSuite.class, ExampleRefactoringTest.class,
+		ExampleRefactoringModificationsTest.class, ILTISExampleRefactoringTest.class,
+		ILTISExampleRefactoringModificationsTest.class, ExampleCodanCheckerTest.class, ExampleCodanQuickFixTest.class,
+		// @formatter:on
 })
-public class TestSuiteAll {
-}
+public class TestSuiteAll {}

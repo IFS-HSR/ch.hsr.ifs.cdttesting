@@ -11,60 +11,64 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+
 public class SelectionDialog extends Dialog {
-	private final InputHandler handler;
-	private int from;
-	private int to;
 
-	public SelectionDialog(Shell parent, InputHandler handler) {
-		super(parent);
-		this.handler = handler;
-	}
+   private final InputHandler handler;
+   private int                from;
+   private int                to;
 
-	@Override
-	protected Control createDialogArea(Composite parent) {
-		Composite composite = (Composite) super.createDialogArea(parent);
+   public SelectionDialog(Shell parent, InputHandler handler) {
+      super(parent);
+      this.handler = handler;
+   }
 
-		FillLayout thisLayout = new FillLayout(SWT.HORIZONTAL);
-		thisLayout.marginWidth = 10;
-		thisLayout.marginHeight = 10;
-		thisLayout.spacing = 5;
-		composite.setLayout(thisLayout);
-		Label fromLabel = new Label(composite, SWT.NONE);
-		fromLabel.setText("&From:");
-		final Text fromText = new Text(composite, SWT.BORDER);
-		fromText.setSize(50, 50);
-		Label toLabel = new Label(composite, SWT.NONE);
-		toLabel.setText("&To:");
-		final Text toText = new Text(composite, SWT.BORDER);
-		toText.setSize(50, 50);
+   @Override
+   protected Control createDialogArea(Composite parent) {
+      Composite composite = (Composite) super.createDialogArea(parent);
 
-		fromText.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				from = Integer.parseInt(fromText.getText());
-			}
-		});
+      FillLayout thisLayout = new FillLayout(SWT.HORIZONTAL);
+      thisLayout.marginWidth = 10;
+      thisLayout.marginHeight = 10;
+      thisLayout.spacing = 5;
+      composite.setLayout(thisLayout);
+      Label fromLabel = new Label(composite, SWT.NONE);
+      fromLabel.setText("&From:");
+      final Text fromText = new Text(composite, SWT.BORDER);
+      fromText.setSize(50, 50);
+      Label toLabel = new Label(composite, SWT.NONE);
+      toLabel.setText("&To:");
+      final Text toText = new Text(composite, SWT.BORDER);
+      toText.setSize(50, 50);
 
-		toText.addModifyListener(new ModifyListener() {
-			@Override
-			public void modifyText(ModifyEvent e) {
-				to = Integer.parseInt(toText.getText());
-			}
-		});
-		return composite;
-	}
+      fromText.addModifyListener(new ModifyListener() {
 
-	@Override
-	protected void okPressed() {
-		super.okPressed();
-		handler.setInput(from, to);
-	}
+         @Override
+         public void modifyText(ModifyEvent e) {
+            from = Integer.parseInt(fromText.getText());
+         }
+      });
 
-	@Override
-	protected void configureShell(Shell newShell) {
-		super.configureShell(newShell);
-		newShell.setText("Input Selection");
-	}
+      toText.addModifyListener(new ModifyListener() {
+
+         @Override
+         public void modifyText(ModifyEvent e) {
+            to = Integer.parseInt(toText.getText());
+         }
+      });
+      return composite;
+   }
+
+   @Override
+   protected void okPressed() {
+      super.okPressed();
+      handler.setInput(from, to);
+   }
+
+   @Override
+   protected void configureShell(Shell newShell) {
+      super.configureShell(newShell);
+      newShell.setText("Input Selection");
+   }
 
 }

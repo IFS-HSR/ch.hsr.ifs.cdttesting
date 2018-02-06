@@ -14,44 +14,45 @@ import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import ch.hsr.ifs.iltis.cpp.wrappers.CRefactoring;
 import ch.hsr.ifs.iltis.cpp.wrappers.ModificationCollector;
 
+
 @SuppressWarnings("restriction")
 public class ILTISTestRefactoring extends CRefactoring {
 
+   private boolean collectModificationsCalled;
+   private boolean checkInitialConditionsCalled;
+   private boolean checkFinalConditionsCalled;
 
-	private boolean collectModificationsCalled;
-	private boolean checkInitialConditionsCalled;
-	private boolean checkFinalConditionsCalled;
+   public ILTISTestRefactoring(ICElement element, ISelection selection, ICProject project) {
+      super(element, selection, project);
+   }
 
-	public ILTISTestRefactoring(ICElement element, ISelection selection, ICProject project) {
-		super(element, selection, project);
-	}
+   @Override
+   protected RefactoringDescriptor getRefactoringDescriptor() {
+      return null;
+   }
 
-	@Override
-	protected RefactoringDescriptor getRefactoringDescriptor() {
-		return null;
-	}
+   @Override
+   public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+      RefactoringStatus result = super.checkInitialConditions(pm);
+      checkInitialConditionsCalled = true;
+      return result;
+   }
 
-	@Override
-	public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-		RefactoringStatus result = super.checkInitialConditions(pm);
-		checkInitialConditionsCalled = true;
-		return result;
-	}
+   @Override
+   protected void collectModifications(IProgressMonitor pm, ModificationCollector collector) throws CoreException, OperationCanceledException {
+      IASTTranslationUnit ast = refactoringContext.getAST(tu, pm);
+      collectModificationsCalled = ast != null;
+   }
 
-	@Override
-	protected void collectModifications(IProgressMonitor pm, ModificationCollector collector) throws CoreException, OperationCanceledException {
-		IASTTranslationUnit ast = refactoringContext.getAST(tu, pm);
-		collectModificationsCalled = ast != null;
-	}
+   @Override
+   protected RefactoringStatus checkFinalConditions(IProgressMonitor subProgressMonitor, CheckConditionsContext checkContext) throws CoreException,
+         OperationCanceledException {
+      RefactoringStatus result = super.checkFinalConditions(subProgressMonitor, checkContext);
+      checkFinalConditionsCalled = true;
+      return result;
+   }
 
-	@Override
-	protected RefactoringStatus checkFinalConditions(IProgressMonitor subProgressMonitor, CheckConditionsContext checkContext) throws CoreException, OperationCanceledException {
-		RefactoringStatus result = super.checkFinalConditions(subProgressMonitor, checkContext);
-		checkFinalConditionsCalled = true;
-		return result;
-	}
-
-	public boolean wasRefactoringSuccessful() {
-		return checkInitialConditionsCalled && checkFinalConditionsCalled && collectModificationsCalled;
-	}
+   public boolean wasRefactoringSuccessful() {
+      return checkInitialConditionsCalled && checkFinalConditionsCalled && collectModificationsCalled;
+   }
 }

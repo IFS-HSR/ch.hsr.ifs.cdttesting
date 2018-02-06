@@ -18,38 +18,39 @@ import org.osgi.service.event.EventAdmin;
 import ch.hsr.ifs.pasta.ASTView;
 import ch.hsr.ifs.pasta.events.PastaEventConstants;
 
+
 public class ShowInPASTAHandler extends AbstractHandler {
 
-	@Override
-	public Object execute(final ExecutionEvent event) throws ExecutionException {
+   @Override
+   public Object execute(final ExecutionEvent event) throws ExecutionException {
 
-		final ISelection selection = getSelection();
-		if (selection instanceof ITextSelection) {
-			sendEvent(selection);
-		}
-		return null;
+      final ISelection selection = getSelection();
+      if (selection instanceof ITextSelection) {
+         sendEvent(selection);
+      }
+      return null;
 
-	}
+   }
 
-	private ISelection getSelection() {
-		return CUIPlugin.getActivePage().getActiveEditor().getEditorSite().getSelectionProvider().getSelection();
-	}
+   private ISelection getSelection() {
+      return CUIPlugin.getActivePage().getActiveEditor().getEditorSite().getSelectionProvider().getSelection();
+   }
 
-	private void sendEvent(final Object data) {
-		final Event selectionEvent = new Event(PastaEventConstants.SHOW_SELECTION, createMap(data));
-		final BundleContext ctx = FrameworkUtil.getBundle(ASTView.class).getBundleContext();
-		final ServiceReference<?> ref = ctx.getServiceReference(EventAdmin.class.getName());
-		if (ref != null) {
-			final EventAdmin admin = (EventAdmin) ctx.getService(ref);
-			admin.sendEvent(selectionEvent);
-			ctx.ungetService(ref);
-		}
-	}
+   private void sendEvent(final Object data) {
+      final Event selectionEvent = new Event(PastaEventConstants.SHOW_SELECTION, createMap(data));
+      final BundleContext ctx = FrameworkUtil.getBundle(ASTView.class).getBundleContext();
+      final ServiceReference<?> ref = ctx.getServiceReference(EventAdmin.class.getName());
+      if (ref != null) {
+         final EventAdmin admin = (EventAdmin) ctx.getService(ref);
+         admin.sendEvent(selectionEvent);
+         ctx.ungetService(ref);
+      }
+   }
 
-	private Map<String, Object> createMap(final Object data) {
-		final Map<String, Object> map = new HashMap<>();
-		map.put(PastaEventConstants.SELECTION, data);
-		return map;
-	}
+   private Map<String, Object> createMap(final Object data) {
+      final Map<String, Object> map = new HashMap<>();
+      map.put(PastaEventConstants.SELECTION, data);
+      return map;
+   }
 
 }

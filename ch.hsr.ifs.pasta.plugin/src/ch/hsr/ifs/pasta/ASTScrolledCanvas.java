@@ -12,75 +12,69 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+
 public class ASTScrolledCanvas extends Canvas {
-	private static final int CURSOR_SIZE = 38;
 
-	private Point dragSource = null;
-	private boolean dragFlag = false;
+   private static final int CURSOR_SIZE = 38;
 
-	private final ImageData grabImage = AbstractUIPlugin
-			.imageDescriptorFromPlugin(PastaPlugin.PLUGIN_ID, "/icons/closedhand.gif").getImageData(100);
-	private final Cursor grabCursor = new Cursor(getDisplay(), grabImage.scaledTo(CURSOR_SIZE, CURSOR_SIZE),
-			CURSOR_SIZE / 2,
-			CURSOR_SIZE / 4);
+   private Point   dragSource = null;
+   private boolean dragFlag   = false;
 
-	private final ImageData openImage = AbstractUIPlugin
-			.imageDescriptorFromPlugin(PastaPlugin.PLUGIN_ID, "/icons/openhand.gif")
-			.getImageData(100);
-	private final Cursor openCursor = new Cursor(getDisplay(), openImage.scaledTo(CURSOR_SIZE, CURSOR_SIZE),
-			CURSOR_SIZE / 2,
-			CURSOR_SIZE / 4);
+   private final ImageData grabImage  = AbstractUIPlugin.imageDescriptorFromPlugin(PastaPlugin.PLUGIN_ID, "/icons/closedhand.gif").getImageData(100);
+   private final Cursor    grabCursor = new Cursor(getDisplay(), grabImage.scaledTo(CURSOR_SIZE, CURSOR_SIZE), CURSOR_SIZE / 2, CURSOR_SIZE / 4);
 
-	ASTScrolledCanvas(final ScrolledComposite parent, final int style) {
-		super(parent, style);
-		setCursor(openCursor);
-		addDragFunctionality();
-	}
+   private final ImageData openImage  = AbstractUIPlugin.imageDescriptorFromPlugin(PastaPlugin.PLUGIN_ID, "/icons/openhand.gif").getImageData(100);
+   private final Cursor    openCursor = new Cursor(getDisplay(), openImage.scaledTo(CURSOR_SIZE, CURSOR_SIZE), CURSOR_SIZE / 2, CURSOR_SIZE / 4);
 
-	@Override
-	public ScrolledComposite getParent() {
-		return (ScrolledComposite) super.getParent();
-	}
+   ASTScrolledCanvas(final ScrolledComposite parent, final int style) {
+      super(parent, style);
+      setCursor(openCursor);
+      addDragFunctionality();
+   }
 
-	private void addDragFunctionality() {
-		addMouseListener(new MouseAdapter() {
+   @Override
+   public ScrolledComposite getParent() {
+      return (ScrolledComposite) super.getParent();
+   }
 
-			@Override
-			public void mouseDown(final MouseEvent e) {
-				dragSource = new Point(e.x, e.y);
-				setCursor(grabCursor);
-			}
+   private void addDragFunctionality() {
+      addMouseListener(new MouseAdapter() {
 
-			@Override
-			public void mouseUp(final MouseEvent e) {
-				dragFlag = false;
-				dragSource = null;
-				setCursor(openCursor);
-			}
+         @Override
+         public void mouseDown(final MouseEvent e) {
+            dragSource = new Point(e.x, e.y);
+            setCursor(grabCursor);
+         }
 
-		});
+         @Override
+         public void mouseUp(final MouseEvent e) {
+            dragFlag = false;
+            dragSource = null;
+            setCursor(openCursor);
+         }
 
-		addMouseMoveListener(new MouseMoveListener() {
+      });
 
-			@Override
-			public void mouseMove(final MouseEvent e) {
-				if (dragFlag) {
-					ASTScrolledCanvas.this.getParent().setOrigin(
-							ASTScrolledCanvas.this.getParent().getOrigin().x + (dragSource.x - e.x),
-							ASTScrolledCanvas.this.getParent().getOrigin().y + (dragSource.y - e.y));
-				}
-			}
+      addMouseMoveListener(new MouseMoveListener() {
 
-		});
+         @Override
+         public void mouseMove(final MouseEvent e) {
+            if (dragFlag) {
+               ASTScrolledCanvas.this.getParent().setOrigin(ASTScrolledCanvas.this.getParent().getOrigin().x + (dragSource.x - e.x),
+                     ASTScrolledCanvas.this.getParent().getOrigin().y + (dragSource.y - e.y));
+            }
+         }
 
-		addDragDetectListener(new DragDetectListener() {
+      });
 
-			@Override
-			public void dragDetected(final DragDetectEvent e) {
-				dragFlag = true;
-			}
+      addDragDetectListener(new DragDetectListener() {
 
-		});
-	}
+         @Override
+         public void dragDetected(final DragDetectEvent e) {
+            dragFlag = true;
+         }
+
+      });
+   }
 
 }

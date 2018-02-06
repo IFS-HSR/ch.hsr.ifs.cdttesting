@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *     Institute for Software - initial API and implementation
+ * Institute for Software - initial API and implementation
  ******************************************************************************/
 package ch.hsr.ifs.cdttesting.rts.junit4;
 
@@ -26,102 +26,97 @@ import org.osgi.framework.Bundle;
 import ch.hsr.ifs.cdttesting.TestingPlugin;
 import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
 
+
 public class RtsFileInfo {
 
-	private static final String XML_ACTIVATOR_CLASS = "activatorClass";
-	private static final String XML_SOURCE_LOCATION = "sourceLocation";
-	private static final String RTS_FILE_EXTENSION = ".rts";
-	private static final String XML_EXTERNAL_SOURCE_LOCATION = "externalSourceLocation";
-	private static final String XML_EXTERNAL_SOURCE_LOCATION_DEFAULT = "externalTestResource/";
-	private String completeRTSPath;
-	private BufferedReader rtsFileReader;
-	private IConfigurationElement activeExtension;
+   private static final String   XML_ACTIVATOR_CLASS                  = "activatorClass";
+   private static final String   XML_SOURCE_LOCATION                  = "sourceLocation";
+   private static final String   RTS_FILE_EXTENSION                   = ".rts";
+   private static final String   XML_EXTERNAL_SOURCE_LOCATION         = "externalSourceLocation";
+   private static final String   XML_EXTERNAL_SOURCE_LOCATION_DEFAULT = "externalTestResource/";
+   private String                completeRTSPath;
+   private BufferedReader        rtsFileReader;
+   private IConfigurationElement activeExtension;
 
-	public RtsFileInfo(Class<? extends CDTTestingTest> testClass) throws FileNotFoundException, CoreException {
-		if (!initRtsFilePathWithAnnotation(testClass) && !initRtsFilePathWithName(testClass.getName())) {
-			throw new FileNotFoundException(testClass.getSimpleName() + RTS_FILE_EXTENSION);
-		}
-		initReader();
-	}
+   public RtsFileInfo(Class<? extends CDTTestingTest> testClass) throws FileNotFoundException, CoreException {
+      if (!initRtsFilePathWithAnnotation(testClass) && !initRtsFilePathWithName(testClass.getName())) { throw new FileNotFoundException(testClass
+            .getSimpleName() + RTS_FILE_EXTENSION); }
+      initReader();
+   }
 
-	public RtsFileInfo(String rtsFileName) throws CoreException, FileNotFoundException {
-		if (rtsFileName.endsWith(RTS_FILE_EXTENSION)) {
-			rtsFileName = rtsFileName.substring(0, rtsFileName.length() - 4);
-		}
-		if (!initRtsFilePathWithName(rtsFileName)) {
-			throw new FileNotFoundException(rtsFileName + RTS_FILE_EXTENSION
-					+ " (This might happen, if the testplugin has no extension for extension-point \"ch.hsr.ifs.cdttesting.testingPlugin\")");
-		}
-		initReader();
-	}
+   public RtsFileInfo(String rtsFileName) throws CoreException, FileNotFoundException {
+      if (rtsFileName.endsWith(RTS_FILE_EXTENSION)) {
+         rtsFileName = rtsFileName.substring(0, rtsFileName.length() - 4);
+      }
+      if (!initRtsFilePathWithName(rtsFileName)) { throw new FileNotFoundException(rtsFileName + RTS_FILE_EXTENSION +
+                                                                                   " (This might happen, if the testplugin has no extension for extension-point \"ch.hsr.ifs.cdttesting.testingPlugin\")"); }
+      initReader();
+   }
 
-	public void closeReaderStream() throws IOException {
-		if (rtsFileReader != null) {
-			rtsFileReader.close();
-		}
-	}
+   public void closeReaderStream() throws IOException {
+      if (rtsFileReader != null) {
+         rtsFileReader.close();
+      }
+   }
 
-	private void initReader() throws CoreException {
-		InputStream resourceAsStream = getActivatorClass().getResourceAsStream(completeRTSPath);
-		rtsFileReader = new BufferedReader(new InputStreamReader(resourceAsStream));
-	}
+   private void initReader() throws CoreException {
+      InputStream resourceAsStream = getActivatorClass().getResourceAsStream(completeRTSPath);
+      rtsFileReader = new BufferedReader(new InputStreamReader(resourceAsStream));
+   }
 
-	private boolean initRtsFilePathWithName(String name) throws CoreException {
-		for (IConfigurationElement curElement : getExtensions()) {
-			activeExtension = curElement;
-			String testResourcePrefix = activeExtension.getAttribute(XML_SOURCE_LOCATION);
-			StringBuilder completeRTSPathBuilder = new StringBuilder(testResourcePrefix);
-			completeRTSPathBuilder.append(name.substring(getTestPackagePrefix().length()).replace(".", "/"))
-					.append(RTS_FILE_EXTENSION);
-			InputStream resourceAsStream = getActivatorClass().getResourceAsStream(completeRTSPathBuilder.toString());
-			if (resourceAsStream != null) {
-				completeRTSPath = completeRTSPathBuilder.toString();
-				return true;
-			}
-		}
-		return false;
-	}
+   private boolean initRtsFilePathWithName(String name) throws CoreException {
+      for (IConfigurationElement curElement : getExtensions()) {
+         activeExtension = curElement;
+         String testResourcePrefix = activeExtension.getAttribute(XML_SOURCE_LOCATION);
+         StringBuilder completeRTSPathBuilder = new StringBuilder(testResourcePrefix);
+         completeRTSPathBuilder.append(name.substring(getTestPackagePrefix().length()).replace(".", "/")).append(RTS_FILE_EXTENSION);
+         InputStream resourceAsStream = getActivatorClass().getResourceAsStream(completeRTSPathBuilder.toString());
+         if (resourceAsStream != null) {
+            completeRTSPath = completeRTSPathBuilder.toString();
+            return true;
+         }
+      }
+      return false;
+   }
 
-	private String getTestPackagePrefix() throws CoreException {
-		return getActivatorClass().getPackage().getName();
-	}
+   private String getTestPackagePrefix() throws CoreException {
+      return getActivatorClass().getPackage().getName();
+   }
 
-	private Class<? extends AbstractUIPlugin> getActivatorClass() throws CoreException {
-		AbstractUIPlugin activator = (AbstractUIPlugin) activeExtension.createExecutableExtension(XML_ACTIVATOR_CLASS);
-		return activator.getClass();
-	}
+   private Class<? extends AbstractUIPlugin> getActivatorClass() throws CoreException {
+      AbstractUIPlugin activator = (AbstractUIPlugin) activeExtension.createExecutableExtension(XML_ACTIVATOR_CLASS);
+      return activator.getClass();
+   }
 
-	private boolean initRtsFilePathWithAnnotation(Class<? extends CDTTestingTest> testClass) throws CoreException {
-		RunFor runForAnnotation = testClass.getAnnotation(RunFor.class);
-		if (runForAnnotation != null) {
-			completeRTSPath = runForAnnotation.rtsFile();
-			for (IConfigurationElement curElement : getExtensions()) {
-				activeExtension = curElement;
-				InputStream resourceAsStream = getActivatorClass().getResourceAsStream(completeRTSPath);
-				if (resourceAsStream != null) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+   private boolean initRtsFilePathWithAnnotation(Class<? extends CDTTestingTest> testClass) throws CoreException {
+      RunFor runForAnnotation = testClass.getAnnotation(RunFor.class);
+      if (runForAnnotation != null) {
+         completeRTSPath = runForAnnotation.rtsFile();
+         for (IConfigurationElement curElement : getExtensions()) {
+            activeExtension = curElement;
+            InputStream resourceAsStream = getActivatorClass().getResourceAsStream(completeRTSPath);
+            if (resourceAsStream != null) { return true; }
+         }
+      }
+      return false;
+   }
 
-	public BufferedReader getRtsFileReader() {
-		return rtsFileReader;
-	}
+   public BufferedReader getRtsFileReader() {
+      return rtsFileReader;
+   }
 
-	private IConfigurationElement[] getExtensions() {
-		IExtensionRegistry reg = Platform.getExtensionRegistry();
-		IConfigurationElement[] extensions = reg.getConfigurationElementsFor(TestingPlugin.XML_EXTENSION_POINT_ID);
-		return extensions;
-	}
+   private IConfigurationElement[] getExtensions() {
+      IExtensionRegistry reg = Platform.getExtensionRegistry();
+      IConfigurationElement[] extensions = reg.getConfigurationElementsFor(TestingPlugin.XML_EXTENSION_POINT_ID);
+      return extensions;
+   }
 
-	public Bundle getBundle() {
-		return Platform.getBundle(activeExtension.getContributor().getName());
-	}
+   public Bundle getBundle() {
+      return Platform.getBundle(activeExtension.getContributor().getName());
+   }
 
-	public String getexternalTextResourcePath() {
-		String result = activeExtension.getAttribute(XML_EXTERNAL_SOURCE_LOCATION);
-		return result != null ? result : XML_EXTERNAL_SOURCE_LOCATION_DEFAULT;
-	}
+   public String getexternalTextResourcePath() {
+      String result = activeExtension.getAttribute(XML_EXTERNAL_SOURCE_LOCATION);
+      return result != null ? result : XML_EXTERNAL_SOURCE_LOCATION_DEFAULT;
+   }
 }

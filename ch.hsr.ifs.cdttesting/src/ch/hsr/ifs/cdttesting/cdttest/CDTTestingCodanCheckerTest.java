@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Before;
 
+
 @SuppressWarnings("restriction")
 public abstract class CDTTestingCodanCheckerTest extends CDTTestingTest {
 
@@ -68,8 +69,7 @@ public abstract class CDTTestingCodanCheckerTest extends CDTTestingTest {
       assertProblemMarkerMessages(IProblemReporter.GENERIC_CODE_ANALYSIS_MARKER_TYPE, expectedMarkerMessages);
    }
 
-   protected void assertProblemMarkerMessages(final String expectedMarkerId, final String[] expectedMarkerMessages)
-            throws CoreException {
+   protected void assertProblemMarkerMessages(final String expectedMarkerId, final String[] expectedMarkerMessages) throws CoreException {
       final List<String> expectedList = new ArrayList<>(Arrays.asList(expectedMarkerMessages));
       final IMarker[] markers = findMarkers(expectedMarkerId);
       for (final IMarker curMarker : markers) {
@@ -85,7 +85,8 @@ public abstract class CDTTestingCodanCheckerTest extends CDTTestingTest {
 
    protected void assertProblemMarker(final String expectedMsg, final int expectedLine) throws CoreException {
       final IMarker[] markers = findMarkers();
-      final String msg = "assertProblemMarker(String, int) is only intended when there is exactly one marker. Use assertProblemMarker(String, int, IMarker) and findMarkers(...) otherwise.";
+      final String msg =
+                       "assertProblemMarker(String, int) is only intended when there is exactly one marker. Use assertProblemMarker(String, int, IMarker) and findMarkers(...) otherwise.";
       assertEquals(msg, 1, markers.length);
       assertProblemMarker(expectedMsg, expectedLine, markers[0]);
    }

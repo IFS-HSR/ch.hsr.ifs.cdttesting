@@ -14,31 +14,31 @@ import org.osgi.service.event.EventHandler;
 
 import ch.hsr.ifs.pasta.events.PastaEventConstants;
 
+
 public class NodeView extends ViewPart {
 
-	@Override
-	public void createPartControl(final Composite parent) {
-		final NodeWidget nodeWidget = new NodeWidget(parent);
-		registerEventHandler(PastaEventConstants.ASTNODE, new EventHandler() {
+   @Override
+   public void createPartControl(final Composite parent) {
+      final NodeWidget nodeWidget = new NodeWidget(parent);
+      registerEventHandler(PastaEventConstants.ASTNODE, new EventHandler() {
 
-			@Override
-			public void handleEvent(final Event event) {
-				final IASTNode astNode = (IASTNode) event.getProperty(PastaEventConstants.ASTNODE);
-				if (astNode != null) {
-					nodeWidget.displayNode(astNode);
-				}
-			}
-		});
-	}
+         @Override
+         public void handleEvent(final Event event) {
+            final IASTNode astNode = (IASTNode) event.getProperty(PastaEventConstants.ASTNODE);
+            if (astNode != null) {
+               nodeWidget.displayNode(astNode);
+            }
+         }
+      });
+   }
 
-	@Override
-	public void setFocus() {
-	}
+   @Override
+   public void setFocus() {}
 
-	private void registerEventHandler(final String topic, final EventHandler handler) {
-		final BundleContext ctx = FrameworkUtil.getBundle(ASTView.class).getBundleContext();
-		final Dictionary<String, String> props = new Hashtable<>();
-		props.put(EventConstants.EVENT_TOPIC, topic);
-		ctx.registerService(EventHandler.class.getName(), handler, props);
-	}
+   private void registerEventHandler(final String topic, final EventHandler handler) {
+      final BundleContext ctx = FrameworkUtil.getBundle(ASTView.class).getBundleContext();
+      final Dictionary<String, String> props = new Hashtable<>();
+      props.put(EventConstants.EVENT_TOPIC, topic);
+      ctx.registerService(EventHandler.class.getName(), handler, props);
+   }
 }

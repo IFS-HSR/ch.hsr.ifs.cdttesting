@@ -35,102 +35,101 @@ import org.osgi.service.event.EventHandler;
 
 import ch.hsr.ifs.pasta.events.PastaEventConstants;
 
+
 public class ASTView extends ViewPart {
 
-	@Override
-	public void createPartControl(final Composite parent) {
+   @Override
+   public void createPartControl(final Composite parent) {
 
-		final ASTWidget treeView = new ASTWidget(parent);
+      final ASTWidget treeView = new ASTWidget(parent);
 
-		getViewSite().getActionBars().getToolBarManager().add(new Action() {
+      getViewSite().getActionBars().getToolBarManager().add(new Action() {
 
-			@Override
-			public void run() {
-				treeView.drawAST(getAST());
-			}
+         @Override
+         public void run() {
+            treeView.drawAST(getAST());
+         }
 
-			@Override
-			public ImageDescriptor getImageDescriptor() {
-				final Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-				final URL url = FileLocator.find(bundle, new Path("icons/refresh.gif"), null);
-				return ImageDescriptor.createFromURL(url);
-			}
+         @Override
+         public ImageDescriptor getImageDescriptor() {
+            final Bundle bundle = FrameworkUtil.getBundle(this.getClass());
+            final URL url = FileLocator.find(bundle, new Path("icons/refresh.gif"), null);
+            return ImageDescriptor.createFromURL(url);
+         }
 
-			@Override
-			public String getText() {
-				return "refresh";
-			}
+         @Override
+         public String getText() {
+            return "refresh";
+         }
 
-		});
+      });
 
-		treeView.drawAST(getAST());
-		treeView.setListener(new NodeSelectionListener() {
+      treeView.drawAST(getAST());
+      treeView.setListener(new NodeSelectionListener() {
 
-			@Override
-			public void nodeSelected(final IASTNode node) {
-				final Map<String, Object> map = new HashMap<>();
-				map.put(PastaEventConstants.ASTNODE, node);
-				doPostEvent(PastaEventConstants.ASTNODE, map);
-			}
+         @Override
+         public void nodeSelected(final IASTNode node) {
+            final Map<String, Object> map = new HashMap<>();
+            map.put(PastaEventConstants.ASTNODE, node);
+            doPostEvent(PastaEventConstants.ASTNODE, map);
+         }
 
-		});
+      });
 
-		registerEventHandler(PastaEventConstants.SHOW_SELECTION, new EventHandler() {
+      registerEventHandler(PastaEventConstants.SHOW_SELECTION, new EventHandler() {
 
-			@Override
-			public void handleEvent(final Event event) {
+         @Override
+         public void handleEvent(final Event event) {
 
-				final ISelection selection = (ISelection) event.getProperty(PastaEventConstants.SELECTION);
-				if (selection instanceof ITextSelection) {
-					treeView.drawAST(getAST());
-					final IASTNodeSelector selector = getAST().getNodeSelector(getAST().getFilePath());
-					treeView.showSelectedNode(selector.findEnclosingNode(((ITextSelection) selection).getOffset(),
-							((ITextSelection) selection).getLength()));
-				}
-			}
-		});
-	}
+            final ISelection selection = (ISelection) event.getProperty(PastaEventConstants.SELECTION);
+            if (selection instanceof ITextSelection) {
+               treeView.drawAST(getAST());
+               final IASTNodeSelector selector = getAST().getNodeSelector(getAST().getFilePath());
+               treeView.showSelectedNode(selector.findEnclosingNode(((ITextSelection) selection).getOffset(), ((ITextSelection) selection)
+                     .getLength()));
+            }
+         }
+      });
+   }
 
-	private void registerEventHandler(final String topic, final EventHandler handler) {
-		final BundleContext ctx = FrameworkUtil.getBundle(ASTView.class).getBundleContext();
-		final Dictionary<String, String> props = new Hashtable<>();
-		props.put(EventConstants.EVENT_TOPIC, topic);
-		ctx.registerService(EventHandler.class.getName(), handler, props);
-	}
+   private void registerEventHandler(final String topic, final EventHandler handler) {
+      final BundleContext ctx = FrameworkUtil.getBundle(ASTView.class).getBundleContext();
+      final Dictionary<String, String> props = new Hashtable<>();
+      props.put(EventConstants.EVENT_TOPIC, topic);
+      ctx.registerService(EventHandler.class.getName(), handler, props);
+   }
 
-	private IASTTranslationUnit getAST() {
-		final IEditorInput editorInput = CUIPlugin.getActivePage().getActiveEditor().getEditorInput();
-		final IWorkingCopy workingCopy = CUIPlugin.getDefault().getWorkingCopyManager().getWorkingCopy(editorInput);
-		IIndex index;
-		try {
-			index = CCorePlugin.getIndexManager().getIndex(workingCopy.getCProject());
-		} catch (final CoreException e) {
-			throw new RuntimeException(e);
-		}
-		try {
-			index.acquireReadLock();
-			return workingCopy.getAST(index, ITranslationUnit.AST_SKIP_ALL_HEADERS)
-					.copy(IASTNode.CopyStyle.withoutLocations);
-		} catch (final CoreException | InterruptedException e) {
-			throw new RuntimeException(e);
-		} finally {
-			index.releaseReadLock();
-		}
-	}
+   private IASTTranslationUnit getAST() {
+      final IEditorInput editorInput = CUIPlugin.getActivePage().getActiveEditor().getEditorInput();
+      final IWorkingCopy workingCopy = CUIPlugin.getDefault().getWorkingCopyManager().getWorkingCopy(editorInput);
+      IIndex index;
+      try {
+         index = CCorePlugin.getIndexManager().getIndex(workingCopy.getCProject());
+      } catch (final CoreException e) {
+         throw new RuntimeException(e);
+      }
+      try {
+         index.acquireReadLock();
+         return workingCopy.getAST(index, ITranslationUnit.AST_SKIP_ALL_HEADERS).copy(IASTNode.CopyStyle.withoutLocations);
+      } catch (final CoreException | InterruptedException e) {
+         throw new RuntimeException(e);
+      } finally {
+         index.releaseReadLock();
+      }
+   }
 
-	private void doPostEvent(final String topic, final Map<String, Object> map) {
-		final Event event = new Event(topic, map);
-		final BundleContext ctx = FrameworkUtil.getBundle(ASTView.class).getBundleContext();
-		final ServiceReference<?> ref = ctx.getServiceReference(EventAdmin.class.getName());
-		if (ref != null) {
-			final EventAdmin admin = (EventAdmin) ctx.getService(ref);
-			admin.sendEvent(event);
-			ctx.ungetService(ref);
-		}
-	}
+   private void doPostEvent(final String topic, final Map<String, Object> map) {
+      final Event event = new Event(topic, map);
+      final BundleContext ctx = FrameworkUtil.getBundle(ASTView.class).getBundleContext();
+      final ServiceReference<?> ref = ctx.getServiceReference(EventAdmin.class.getName());
+      if (ref != null) {
+         final EventAdmin admin = (EventAdmin) ctx.getService(ref);
+         admin.sendEvent(event);
+         ctx.ungetService(ref);
+      }
+   }
 
-	@Override
-	public void setFocus() {
-	}
+   @Override
+   public void setFocus() {}
 
 }

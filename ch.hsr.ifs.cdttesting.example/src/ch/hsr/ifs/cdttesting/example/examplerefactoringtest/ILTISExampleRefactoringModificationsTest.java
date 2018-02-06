@@ -6,17 +6,17 @@ import org.junit.Test;
 import ch.hsr.ifs.cdttesting.cdttest.CDTTestingRefactoringTest;
 import ch.hsr.ifs.cdttesting.example.examplerefactoringtest.refactorings.ILTISDummyRenameRefactoring;
 
+
 public class ILTISExampleRefactoringModificationsTest extends CDTTestingRefactoringTest {
 
+   @Override
+   protected Refactoring createRefactoring() {
+      return new ILTISDummyRenameRefactoring(getActiveCElement(), selection, cproject);
+   }
 
-	@Override
-	protected Refactoring createRefactoring() {
-		return new ILTISDummyRenameRefactoring(getActiveCElement(), selection, cproject);
-	}
-
-	@Test
-	public void runTest() throws Throwable {
-		openActiveFileInEditor();
-		runRefactoringAndAssertSuccess();
-	}
+   @Test
+   public void runTest() throws Throwable {
+      openActiveFileInEditor();
+      runRefactoringAndAssertSuccess();
+   }
 }

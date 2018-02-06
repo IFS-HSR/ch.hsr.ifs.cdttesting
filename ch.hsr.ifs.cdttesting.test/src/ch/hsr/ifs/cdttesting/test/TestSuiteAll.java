@@ -7,12 +7,14 @@ import org.junit.runners.Suite.SuiteClasses;
 import ch.hsr.ifs.cdttesting.test.cdttest.tests.ASTComparisonTest;
 import ch.hsr.ifs.cdttesting.test.cdttest.tests.NormalizerTest;
 
+
 @RunWith(Suite.class)
-//@formatter:off
-@SuiteClasses({
-	NormalizerTest.class,
-	ASTComparisonTest.class,
-	})
+// @formatter:off
+@SuiteClasses({ 
+   NormalizerTest.class,
+   ASTComparisonTest.class, 
+   })
+// @formatter:on
 public class TestSuiteAll {
 
 }

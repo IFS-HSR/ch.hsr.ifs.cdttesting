@@ -6,127 +6,127 @@ import org.eclipse.jface.text.Position;
 
 import name.graf.emanuel.testfileeditor.model.TestFile;
 
+
 public class Test implements Node {
-	private final String name;
-	private final Position pos;
-	private final Position head;
-	private final TestFile parent;
-	private Language lang;
-	private Expected exp;
-	private Class className;
-	private final Vector<File> fileDefs;
 
-	public Test(final String name, final Position pos, final Position head, final TestFile file) {
-		super();
-		lang = null;
-		exp = null;
-		className = null;
-		fileDefs = new Vector<>();
-		this.name = name;
-		this.pos = pos;
-		this.head = head;
-		parent = file;
-	}
+   private final String       name;
+   private final Position     pos;
+   private final Position     head;
+   private final TestFile     parent;
+   private Language           lang;
+   private Expected           exp;
+   private Class              className;
+   private final Vector<File> fileDefs;
 
-	@Override
-	public Position getPosition() {
-		return pos;
-	}
+   public Test(final String name, final Position pos, final Position head, final TestFile file) {
+      super();
+      lang = null;
+      exp = null;
+      className = null;
+      fileDefs = new Vector<>();
+      this.name = name;
+      this.pos = pos;
+      this.head = head;
+      parent = file;
+   }
 
-	public Position getHeadPosition() {
-		return head;
-	}
+   @Override
+   public Position getPosition() {
+      return pos;
+   }
 
-	public boolean containsOffset(final int offset) {
-		return pos.overlapsWith(offset, 1);
-	}
+   public Position getHeadPosition() {
+      return head;
+   }
 
-	public boolean containsFile(final String name) {
-		return getFile(name) != null;
-	}
+   public boolean containsOffset(final int offset) {
+      return pos.overlapsWith(offset, 1);
+   }
 
-	public File getFile(final String name) {
-		for (final File file : fileDefs) {
-			if (file.toString().equals(name)) {
-				return file;
-			}
-		}
-		return null;
-	}
+   public boolean containsFile(final String name) {
+      return getFile(name) != null;
+   }
 
-	@Override
-	public String toString() {
-		return name;
-	}
+   public File getFile(final String name) {
+      for (final File file : fileDefs) {
+         if (file.toString().equals(name)) { return file; }
+      }
+      return null;
+   }
 
-	@Override
-	public int hashCode() {
-		return name.hashCode();
-	}
+   @Override
+   public String toString() {
+      return name;
+   }
 
-	@Override
-	public Node[] getChildren() {
-		final int length = howManyChildren();
-		final Node[] children = new Node[length];
-		int index = 0;
-		if (className != null) {
-			children[index++] = className;
-		}
-		if (lang != null) {
-			children[index++] = lang;
-		}
-		if (exp != null) {
-			children[index++] = exp;
-		}
-		for (final Node node : fileDefs) {
-			children[index++] = node;
-		}
-		return children;
-	}
+   @Override
+   public int hashCode() {
+      return name.hashCode();
+   }
 
-	private int howManyChildren() {
-		int length = 0;
-		if (lang != null) {
-			++length;
-		}
-		if (exp != null) {
-			++length;
-		}
-		if (className != null) {
-			++length;
-		}
-		length += fileDefs.size();
-		return length;
-	}
+   @Override
+   public Node[] getChildren() {
+      final int length = howManyChildren();
+      final Node[] children = new Node[length];
+      int index = 0;
+      if (className != null) {
+         children[index++] = className;
+      }
+      if (lang != null) {
+         children[index++] = lang;
+      }
+      if (exp != null) {
+         children[index++] = exp;
+      }
+      for (final Node node : fileDefs) {
+         children[index++] = node;
+      }
+      return children;
+   }
 
-	@Override
-	public Object getParent() {
-		return parent;
-	}
+   private int howManyChildren() {
+      int length = 0;
+      if (lang != null) {
+         ++length;
+      }
+      if (exp != null) {
+         ++length;
+      }
+      if (className != null) {
+         ++length;
+      }
+      length += fileDefs.size();
+      return length;
+   }
 
-	@Override
-	public boolean hasChildren() {
-		return howManyChildren() > 0;
-	}
+   @Override
+   public Object getParent() {
+      return parent;
+   }
 
-	public void setLang(final Language lang) {
-		this.lang = lang;
-	}
+   @Override
+   public boolean hasChildren() {
+      return howManyChildren() > 0;
+   }
 
-	public void setExpected(final Expected exp) {
-		this.exp = exp;
-	}
+   public void setLang(final Language lang) {
+      this.lang = lang;
+   }
 
-	public void setClassname(final Class className) {
-		this.className = className;
-	}
+   public void setExpected(final Expected exp) {
+      this.exp = exp;
+   }
 
-	public void addFile(final File file) {
-		fileDefs.add(file);
-	}
+   public void setClassname(final Class className) {
+      this.className = className;
+   }
 
-	@Override
-	public boolean equals(final Object obj) {
-		return hashCode() == obj.hashCode();
-	}
+   public void addFile(final File file) {
+      fileDefs.add(file);
+   }
+
+   @Override
+   public boolean equals(final Object obj) {
+      return hashCode() == obj.hashCode();
+   }
 }

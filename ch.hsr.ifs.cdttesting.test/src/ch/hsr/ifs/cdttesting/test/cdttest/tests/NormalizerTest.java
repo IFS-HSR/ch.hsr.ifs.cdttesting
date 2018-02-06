@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import ch.hsr.ifs.cdttesting.cdttest.ASTComparison;
 
+
 /**
  * @author tstauber
  *
@@ -14,88 +15,81 @@ import ch.hsr.ifs.cdttesting.cdttest.ASTComparison;
  */
 public class NormalizerTest {
 
-	@Test
-	public void leadingLineBreaks() {
-		//@formatter:off
+   @Test
+   public void leadingLineBreaks() {
+      // @formatter:off
 		final String input = "\n\n\n#include <cstdint>";
 
 		final String should = "#include <cstdint>";
-		//@formatter:on
+		// @formatter:on
 
-		assertEquals(should, ASTComparison.normalizeCPP(input));
-	}
+      assertEquals(should, ASTComparison.normalizeCPP(input));
+   }
 
-	@Test
-	public void trailingLineBreaks() {
-		//@formatter:off
+   @Test
+   public void trailingLineBreaks() {
+      // @formatter:off
 		final String input = "#include <cstdint>\n\n\n";
 
 		final String should = "#include <cstdint>";
-		//@formatter:on
+		// @formatter:on
 
-		assertEquals(should, ASTComparison.normalizeCPP(input));
-	}
+      assertEquals(should, ASTComparison.normalizeCPP(input));
+   }
 
-	@Test
-	public void shortenMultipleSpaces() {
-		//@formatter:off
+   @Test
+   public void shortenMultipleSpaces() {
+      // @formatter:off
 		final String input = "int      foo   {42};";
 
 		final String should = "int foo {42};";
-		//@formatter:on
+		// @formatter:on
 
-		assertEquals(should, ASTComparison.normalizeCPP(input));
-	}
+      assertEquals(should, ASTComparison.normalizeCPP(input));
+   }
 
-	@Test
-	public void removeLeadingSpaces() {
-		//@formatter:off
+   @Test
+   public void removeLeadingSpaces() {
+      // @formatter:off
 		final String input = "    int foo {42};";
 
 		final String should = "int foo {42};";
-		//@formatter:on
+		// @formatter:on
 
-		assertEquals(should, ASTComparison.normalizeCPP(input));
-	}
+      assertEquals(should, ASTComparison.normalizeCPP(input));
+   }
 
-	@Test
-	public void removeTrailingSpaces() {
-		//@formatter:off
+   @Test
+   public void removeTrailingSpaces() {
+      // @formatter:off
 		final String input = "int foo {42};    ";
 
 		final String should = "int foo {42};";
-		//@formatter:on
+		// @formatter:on
 
-		assertEquals(should, ASTComparison.normalizeCPP(input));
-	}
+      assertEquals(should, ASTComparison.normalizeCPP(input));
+   }
 
-	@Test
-	public void replaceLineBreaks() {
-		//@formatter:off
-		final String input = "#include <cstdint>\n"+
-							 "int main() {\r\n" +
-							 "  int foo = 42;\n" +
-							 "}";
+   @Test
+   public void replaceLineBreaks() {
+      // @formatter:off
+		final String input = "#include <cstdint>\n" + "int main() {\r\n" + "  int foo = 42;\n" + "}";
 
-		final String should = "#include <cstdint>↵"+
-				 			  "int main() {↵" +
-				 			  "int foo = 42;↵" +
-				 			  "}";
-		//@formatter:on
+		final String should = "#include <cstdint>↵" + "int main() {↵" + "int foo = 42;↵" + "}";
+		// @formatter:on
 
-		assertEquals(should, ASTComparison.normalizeCPP(input));
-	}
+      assertEquals(should, ASTComparison.normalizeCPP(input));
+   }
 
-	@Test
-	public void removeRTSComments() {
-		//@formatter:off
-		final String input = "#include <cstdint>\n" +
-							 "/*TODO write more tests */";
+   @Test
+   public void removeRTSComments() {
+      // @formatter:off
+		final String input = "#include <cstdint>\n" + "/*TODO write more tests */";
 
 		final String should = "#include <cstdint>";
-		//@formatter:on
+		// @formatter:on
 
-		assertEquals(should, ASTComparison.normalizeCPP(input));
-	}
+      assertEquals(should, ASTComparison.normalizeCPP(input));
+   }
 
 }
