@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
@@ -45,14 +46,22 @@ public class ASTComparison {
     *        The actual translation unit
     * @param failOnProblemNode
     *        When {@code true}, comparison fails on syntactically invalid code.
+    * @param ignoreIncludes
+    *        When {@code true}, includes will not be compared.
     *
     * @author tstauber
     *
     */
-   public static void assertEqualsAST(final IASTTranslationUnit expectedAST, final IASTTranslationUnit actualAST, final boolean failOnProblemNode) {
+   public static void assertEqualsAST(final IASTTranslationUnit expectedAST, final IASTTranslationUnit actualAST, final boolean failOnProblemNode,
+         final boolean ignoreIncludes) {
+      ComparisonResult result;
 
-      ComparisonResult result = equalsIncludes(expectedAST.getIncludeDirectives(), actualAST.getIncludeDirectives(), false);
-      assertEqualsWithAttributes(result);
+      if (!ignoreIncludes) {
+         result = equalsIncludes(Arrays.stream(expectedAST.getIncludeDirectives()).filter(
+               IASTPreprocessorIncludeStatement::isPartOfTranslationUnitFile), Arrays.stream(actualAST.getIncludeDirectives()).filter(
+                     IASTPreprocessorIncludeStatement::isPartOfTranslationUnitFile), false);
+         assertEqualsWithAttributes(result);
+      }
       result = equals(expectedAST, actualAST, failOnProblemNode);
       assertEqualsWithAttributes(result);
    }
@@ -61,6 +70,7 @@ public class ASTComparison {
       String lineNo = result.getAttributeString(ComparisonAttrID.LINE_NO);
       String expected = result.getAttributeString(ComparisonAttrID.EXPECTED);
       String actual = result.getAttributeString(ComparisonAttrID.ACTUAL);
+
       if (result.state == ComparisonState.EQUAL) {
          assertTrue(true);
       } else {
@@ -82,13 +92,13 @@ public class ASTComparison {
     *         {@link ComparisonAttrID.EXPECTED} and
     *         {@link ComparisonAttrID.ACTUAL}
     */
-   public static ComparisonResult equalsIncludes(final IASTPreprocessorIncludeStatement[] expectedStmt,
-         final IASTPreprocessorIncludeStatement[] actualStmt, final boolean ignoreOrdering) {
+   public static ComparisonResult equalsIncludes(final Stream<IASTPreprocessorIncludeStatement> expectedStmt,
+         final Stream<IASTPreprocessorIncludeStatement> actualStmt, final boolean ignoreOrdering) {
       StringBuffer expectedStr = new StringBuffer();
       StringBuffer actualStr = new StringBuffer();
       if (ignoreOrdering) {
-         Set<String> actual = Arrays.stream(actualStmt).map((node) -> node.getRawSignature()).collect(Collectors.toSet());
-         Set<String> expected = Arrays.stream(expectedStmt).map((node) -> node.getRawSignature()).collect(Collectors.toSet());
+         Set<String> actual = actualStmt.map((node) -> node.getRawSignature()).collect(Collectors.toSet());
+         Set<String> expected = expectedStmt.map((node) -> node.getRawSignature()).collect(Collectors.toSet());
          if (actual.equals(expected)) { return new ComparisonResult(ComparisonState.EQUAL); }
 
          Set<String> onlyInActual = new HashSet<>(actual);
@@ -135,13 +145,15 @@ public class ASTComparison {
     * @return
     */
    public static ComparisonResult equals(final IASTNode expected, final IASTNode actual, final boolean failOnProblemNode) {
-      final IASTNode[] lChilds = expected.getChildren();
-      final IASTNode[] rChilds = actual.getChildren();
+      final IASTNode[] lChilds = Arrays.stream(expected.getChildren()).filter(IASTNode::isPartOfTranslationUnitFile).toArray(IASTNode[]::new);
+      final IASTNode[] rChilds = Arrays.stream(actual.getChildren()).filter(IASTNode::isPartOfTranslationUnitFile).toArray(IASTNode[]::new);
       final IASTFileLocation fileLocation = actual.getOriginalNode().getFileLocation();
       final String lineNo = fileLocation == null ? "?" : String.valueOf(fileLocation.getStartingLineNumber());
       ComparisonAttribute[] attributes = { new ComparisonAttribute(ComparisonAttrID.EXPECTED, expected.getRawSignature()), new ComparisonAttribute(
             ComparisonAttrID.ACTUAL, actual.getRawSignature()), new ComparisonAttribute(ComparisonAttrID.LINE_NO, lineNo) };
 
+      
+      
       if (lChilds.length != rChilds.length) {
          return new ComparisonResult(ComparisonState.DIFFERENT_AMOUNT_OF_CHILDREN, attributes);
       } else if (!expected.getClass().equals(actual.getClass())) {

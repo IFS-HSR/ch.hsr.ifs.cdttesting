@@ -26,7 +26,7 @@ public class ASTComparisonTest extends AST2TestBase {
       CharSequence[] sections = getContents(2);
       IASTTranslationUnit first = parse(sections[0].toString(), ParserLanguage.CPP, true);
       IASTTranslationUnit second = parse(sections[1].toString(), ParserLanguage.CPP, true);
-      ASTComparison.assertEqualsAST(first, second, true);
+      ASTComparison.assertEqualsAST(first, second, true, false);
    }
 
    // int i = 1 + 1;
