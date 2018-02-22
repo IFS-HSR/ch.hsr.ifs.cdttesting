@@ -32,6 +32,8 @@
      </category>
   </extension>
   <extension
+         id="ch.hsr.ifs.cdttesting.markerResolution"
+         name="%extensionMarkerResolution.name"
          point="org.eclipse.cdt.codan.ui.codanMarkerResolution">
       <resolution
             class="ch.hsr.ifs.cdttesting.example.examplecodantest.MyQuickFix"
