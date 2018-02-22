@@ -144,9 +144,7 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 
    protected void compareFiles() throws Exception {
       for (final TestSourceFile testFile : fileMap.values()) {
-         final String expectedSource = testFile.getExpectedSource();
-         final String actualSource = getCurrentSource(testFile.getName());
-         assertEquals(expectedSource, actualSource);
+         assertEqualsAST(getExpectedAST(testFile.getName()), getCurrentAST(testFile.getName()));
       }
    }
 
