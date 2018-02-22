@@ -59,6 +59,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
+import ch.hsr.ifs.iltis.core.resources.FileUtil;
+
 import ch.hsr.ifs.cdttesting.helpers.ExternalResourceHelper;
 import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
 import ch.hsr.ifs.cdttesting.rts.junit4.RTSTestCases;
@@ -67,8 +69,9 @@ import ch.hsr.ifs.cdttesting.rts.junit4.RtsTestSuite;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
 
-@SuppressWarnings("restriction")
+
 @RunWith(RtsTestSuite.class)
+@SuppressWarnings("restriction")
 public class CDTTestingTest extends CDTSourceFileTest {
 
    public static final String  NL           = System.getProperty("line.separator");
@@ -216,7 +219,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
    @After
    @Override
    public void tearDown() throws Exception {
-      FileHelper.clean();
+      FileCache.clean();
       super.tearDown();
    }
 
@@ -231,7 +234,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
    }
 
    protected void closeEditorsWithoutSaving() throws Exception {
-      FileHelper.clean(); // make sure we are not holding any reference to the
+      FileCache.clean(); // make sure we are not holding any reference to the
       // open IDocument anymore (otherwise, local changes
       // in dirty editors
       // won't get lost).
@@ -314,7 +317,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 
          @Override
          protected void runSave() throws Exception {
-            final ExternalEditorInput input = new ExternalEditorInput(FileHelper.stringToUri(absolutePath), project);
+            final ExternalEditorInput input = new ExternalEditorInput(FileUtil.stringToUri(absolutePath), project);
             IDE.openEditor(getActivePage(), input, "org.eclipse.cdt.ui.editor.CEditor", true);
             runEventLoop();
          }
@@ -334,12 +337,12 @@ public class CDTTestingTest extends CDTSourceFileTest {
    }
 
    protected IDocument getDocument(final IFile file) {
-      return FileHelper.getDocument(file);
+      return FileCache.getDocument(file);
    }
 
    protected IDocument getDocument(final String absoluteFilePath) {
-      final URI uri = FileHelper.stringToUri(absoluteFilePath);
-      return FileHelper.getDocument(uri);
+      final URI uri = FileUtil.stringToUri(absoluteFilePath);
+      return FileCache.getDocument(uri);
    }
 
    protected String getCurrentSource() {
@@ -367,9 +370,9 @@ public class CDTTestingTest extends CDTSourceFileTest {
    }
 
    protected String getExpectedSourceFromAbsolutePath(final String absoluteFilePath) {
-      final URI uri = FileHelper.stringToUri(absoluteFilePath);
+      final URI uri = FileUtil.stringToUri(absoluteFilePath);
 
-      final IDocument doc = FileHelper.getDocument(uri);
+      final IDocument doc = FileCache.getDocument(uri);
 
       if (expectedCproject instanceof ICProject) {
          final Map<String, Object> options = new HashMap<>(expectedCproject.getOptions(true));
@@ -565,19 +568,45 @@ public class CDTTestingTest extends CDTSourceFileTest {
       if (!instantiateExpectedProject) {
          fail("To use the assertEqualsAST() method, the class must set instantiateExpectedProject=true ");
       }
-      ASTComparison.assertEqualsAST(expectedAST, currentAST, failOnProblemNode);
+      ASTComparison.assertEqualsAST(expectedAST, currentAST, failOnProblemNode, false);
    }
 
    /**
-    * Get the AST of the expected result
+    * Compares the {@link IASTTranslationUnit} from the code after the QuickFix was
+    * applied with the {@link IASTTranslationUnit} from the expected code. To use
+    * this method the flag {@code instantiateExpectedProject} has to be set to
+    * true.
+    *
+    * @author tstauber
+    *
+    */
+   public void assertEqualsAST(final IASTTranslationUnit expectedAST, final IASTTranslationUnit currentAST, final boolean failOnProblemNode, final boolean ignoreIncludes) {
+      if (!instantiateExpectedProject) {
+         fail("To use the assertEqualsAST() method, the class must set instantiateExpectedProject=true ");
+      }
+      ASTComparison.assertEqualsAST(expectedAST, currentAST, failOnProblemNode, ignoreIncludes);
+   }
+   
+   /**
+    * Get the expected AST of the active file
     *
     * @author tstauber
     *
     * @return The expected AST or null, if an exception occurred.
     */
    public IASTTranslationUnit getExpectedAST() {
-      final String absoluteExpectedPath = makeProjectAbsolutePath(activeFileName, expectedProject);
-      final URI expectedURI = FileHelper.stringToUri(absoluteExpectedPath);
+      return getExpectedAST(activeFileName);
+   }
+   
+   /**
+    * Get the expected AST of the file
+    *
+    * @author tstauber
+    *
+    * @return The expected AST or null, if an exception occurred.
+    */
+   public IASTTranslationUnit getExpectedAST(String fileName) {
+      final URI expectedURI = FileUtil.stringToUri(makeProjectAbsolutePath(fileName, expectedProject));
       try {
          return CoreModelUtil.findTranslationUnitForLocation(expectedURI, expectedCproject).getAST();
       } catch (final CoreException ignored) {
@@ -586,20 +615,32 @@ public class CDTTestingTest extends CDTSourceFileTest {
    }
 
    /**
-    * Get the AST of the current result after the quickfix
+    * Get the current AST of the active file
     *
     * @author tstauber
     *
     * @return The current AST or null, if an exception occurred.
     */
    public IASTTranslationUnit getCurrentAST() {
-      final String absoluteCurrentPath = makeProjectAbsolutePath(activeFileName);
-      final URI currentURI = FileHelper.stringToUri(absoluteCurrentPath);
+      return getCurrentAST(activeFileName);
+   }
+   
+   /**
+    * Get the current AST of the file
+    *
+    * @author tstauber
+    *
+    * @return The current AST or null, if an exception occurred.
+    */
+   public IASTTranslationUnit getCurrentAST(String fileName) {
+      final URI currentURI = FileUtil.stringToUri(makeProjectAbsolutePath(fileName));
       try {
          return CoreModelUtil.findTranslationUnitForLocation(currentURI, cproject).getAST();
       } catch (final CoreException ignored) {
          return null;
       }
    }
+   
+   
 
 }
