@@ -46,7 +46,7 @@ public class ExternalResourceHelper {
             deleteFolder(externalTextResourceAbsolutePath);
             createFolder(externalTextResourceAbsolutePath);
             try {
-               Enumeration<?> externalFilesEnumeration = testInfo.getBundle().findEntries(externalTextResourceRelativePath, "*", true);
+               Enumeration<?> externalFilesEnumeration = testInfo.getBundleOfActiveExtension().findEntries(externalTextResourceRelativePath, "*", true);
                createFiles(rootPath, externalFilesEnumeration, externalTextResourceAbsolutePath);
             } finally {
                testInfo.closeReaderStream();

@@ -59,20 +59,19 @@ Run TestSuiteAll.java as Eclipse Plug-in test.
                </documentation>
             </annotation>
          </attribute>
-         <attribute name="activatorClass" type="string" use="required">
+         <attribute name="testPackage" type="string">
             <annotation>
                <documentation>
-                  Use your TestPlugin&apos;s activator class here. The provided activator will be used to retrive *.rts files.
+                  If the tests are located in a package with a non-default name, this package name can be stated here.
+
+If the plugin &quot;ch.hsr.ifs.examplator.plugin&quot; is tested, then it will be asumed that the tests are located in a package named  &quot;ch.hsr.ifs.examplator.plugin.tests&quot;. It does hereby not matter, if the bundle is a host or a fragment.
                </documentation>
-               <appinfo>
-                  <meta.attribute kind="java" basedOn="org.eclipse.ui.plugin.AbstractUIPlugin:"/>
-               </appinfo>
             </annotation>
          </attribute>
          <attribute name="externalSourceLocation" type="string">
             <annotation>
                <documentation>
-                  Describes the base folder of where external test resources (normally external library headers) reside. Use the &apos;addIncludeDirPath(&quot;aSubFolder&quot;)&apos; method to  add a include directory to the folder &lt;projectRoot&gt;/&lt;externalSourceLocation&gt;/aSubFolder to your project.
+                  Describes the base folder of where external test resources (normally external library headers) reside. Use the &apos;addIncludeDirPath(&quot;aSubFolder&quot;)&apos; method to add a include directory to the folder &lt;projectRoot&gt;/&lt;externalSourceLocation&gt;/aSubFolder to your project.
 
 Default for this value is &quot;externalTestResource&quot;.
                </documentation>

@@ -4,7 +4,7 @@
    <extension point="ch.hsr.ifs.cdttesting.testingPlugin">
 	   <testResouresLocation
 	         sourceLocation="/resources/ch.hsr.ifs.cdttesting.example.exampleTestFolder/"
-	         activatorClass="ch.hsr.ifs.cdttesting.example.MyTestPlugin"
+	         testPackage="ch.hsr.ifs.cdttesting.example"
 	         externalSourceLocation="/ch.hsr.ifs.cdttesting.example.externalTestResource/"/>
    </extension>
    
@@ -31,13 +31,10 @@
            name="My Checker Category Name">
      </category>
   </extension>
-  <extension
-         id="ch.hsr.ifs.cdttesting.markerResolution"
-         name="%extensionMarkerResolution.name"
-         point="org.eclipse.cdt.codan.ui.codanMarkerResolution">
-      <resolution
-            class="ch.hsr.ifs.cdttesting.example.examplecodantest.MyQuickFix"
-            problemId="ch.hsr.ifs.myCodanProblemId">
-      </resolution>
+  <extension id="ch.hsr.ifs.cdttesting.markerResolution"
+         	 name="%extensionMarkerResolution.name"
+         	 point="org.eclipse.cdt.codan.ui.codanMarkerResolution">
+      <resolution class="ch.hsr.ifs.cdttesting.example.examplecodantest.MyQuickFix" 
+      			  problemId="ch.hsr.ifs.myCodanProblemId"/>
    </extension>
 </plugin>
