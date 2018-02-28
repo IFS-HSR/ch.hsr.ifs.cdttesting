@@ -275,7 +275,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
    }
 
    protected void openFileInEditor(final String fileName) throws Exception {
-      openFileInEditor(project.getFile(fileName));
+      openFileInEditor(currentProject.getFile(fileName));
    }
 
    public static void closeWelcomeScreen() throws Exception {
@@ -317,7 +317,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 
          @Override
          protected void runSave() throws Exception {
-            final ExternalEditorInput input = new ExternalEditorInput(FileUtil.stringToUri(absolutePath), project);
+            final ExternalEditorInput input = new ExternalEditorInput(FileUtil.stringToUri(absolutePath), currentProject);
             IDE.openEditor(getActivePage(), input, "org.eclipse.cdt.ui.editor.CEditor", true);
             runEventLoop();
          }
@@ -329,7 +329,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
    }
 
    protected IFile getIFile(final String relativePath) {
-      return project.getFile(relativePath);
+      return currentProject.getFile(relativePath);
    }
 
    protected IDocument getActiveDocument() throws Exception {
@@ -506,30 +506,8 @@ public class CDTTestingTest extends CDTSourceFileTest {
    }
 
    private String getTestSourceAbsolutePath(final String absoluteFilePath) throws IOException {
-      final IPath projectRelativePath = new Path(absoluteFilePath).makeRelativeTo(project.getLocation());
+      final IPath projectRelativePath = new Path(absoluteFilePath).makeRelativeTo(currentProject.getLocation());
       return getTestSource(projectRelativePath.toOSString());
-   }
-
-   /**
-    * Normalizes the passed {@link String} by removing all testeditor-comments,
-    * removing leading/trailing whitespace and line-breaks, replacing all remaining
-    * line-breaks by ↵ and reducing all groups of whitespace to a single space.
-    *
-    * @author tstauber
-    *
-    * @param in
-    *        The {@link String} that should be normalized.
-    *
-    * @return A normalized copy of the parameter in.
-    **/
-   public static String normalize(final String in) {
-      // @formatter:off
-		return in.replaceAll("/\\*.*\\*/", "") // Remove all test-editor-comments
-				.replaceAll("(^((\\r?\\n)|\\s)*|((\\r?\\n)|\\s)*$)", "") // Remove all leading and trailing
-																			// linebreaks/whitespace
-				.replaceAll("\\s*(\\r?\\n)+\\s*", "↵") // Replace all linebreaks with linebreak-symbol
-				.replaceAll("\\s+", " "); // Reduce all groups of whitespace to a single space
-		// @formatter:on
    }
 
    /**
@@ -635,7 +613,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
    public IASTTranslationUnit getCurrentAST(String fileName) {
       final URI currentURI = FileUtil.stringToUri(makeProjectAbsolutePath(fileName));
       try {
-         return CoreModelUtil.findTranslationUnitForLocation(currentURI, cproject).getAST();
+         return CoreModelUtil.findTranslationUnitForLocation(currentURI, currentCproject).getAST();
       } catch (final CoreException ignored) {
          return null;
       }

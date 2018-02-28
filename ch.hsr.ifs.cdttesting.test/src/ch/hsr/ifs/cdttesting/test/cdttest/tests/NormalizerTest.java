@@ -73,9 +73,9 @@ public class NormalizerTest {
    @Test
    public void replaceLineBreaks() {
       // @formatter:off
-		final String input = "#include <cstdint>\n" + "int main() {\r\n" + "  int foo = 42;\n" + "}";
+		final String input = "#include <cstdint>\n" + "int main()  {\r\n" + "           int foo = 42; \n\n\n" + "}";
 
-		final String should = "#include <cstdint>↵" + "int main() {↵" + "int foo = 42;↵" + "}";
+		final String should = "#include <cstdint>\n" + "int main() {\n" + "int foo = 42;\n" + "}";
 		// @formatter:on
 
       assertEquals(should, ASTComparison.normalizeCPP(input));

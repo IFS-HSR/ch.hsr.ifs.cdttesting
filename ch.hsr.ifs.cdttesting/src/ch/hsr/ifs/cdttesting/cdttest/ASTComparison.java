@@ -187,9 +187,10 @@ public class ASTComparison {
    public static String normalizeCPP(final String in) {
       // @formatter:off
 		return in.replaceAll("/\\*.*\\*/", "") // Remove all test-editor-comments
-				.replaceAll("(^((\\r?\\n)|\\s)*|((\\r?\\n)|\\s)*$)", "") // Remove all leading and trailing linebreaks/whitespace
+		      .replaceAll("(^\\s*|\\s*$)", "") // Remove all leading and trailing linebreaks
+//				.replaceAll("(^((\\r?\\n)|\\s)*|((\\r?\\n)|\\s)*$)", "") // Remove all leading and trailing linebreaks/whitespace
 				.replaceAll("\\s*(\\r?\\n)+\\s*", "\n") // Replace all linebreaks with simple newline
-				.replaceAll("\\s+", " "); // Reduce all groups of whitespace to a single space
+				.replaceAll(" +", " "); // Reduce all groups of whitespace to a single space
 		// @formatter:on
    }
 
