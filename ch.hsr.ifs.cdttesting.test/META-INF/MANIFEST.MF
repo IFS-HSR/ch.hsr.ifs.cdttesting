@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Testfileeditor
 Bundle-SymbolicName: ch.hsr.ifs.cdttesting.tests;singleton:=true
 Bundle-Version: 9.4.0.qualifier
-Bundle-Activator: ch.hsr.ifs.cdttesting.test.Activator
+Fragment-Host: ch.hsr.ifs.cdttesting
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
@@ -15,7 +15,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.core,
  org.eclipse.jdt,
  org.eclipse.ui.ide,
- ch.hsr.ifs.cdttesting,
  org.eclipse.ui.browser,
  org.eclipse.cdt.core.tests,
  org.eclipse.cdt.core
