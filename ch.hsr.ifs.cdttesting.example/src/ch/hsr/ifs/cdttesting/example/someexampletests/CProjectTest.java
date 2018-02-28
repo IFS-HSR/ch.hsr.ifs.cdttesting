@@ -29,9 +29,9 @@ public class CProjectTest extends CDTTestingTest {
 
    @Test
    public void runTest() throws Throwable {
-      IProjectNature cCNature = project.getNature(CCProjectNature.CC_NATURE_ID);
+      IProjectNature cCNature = currentProject.getNature(CCProjectNature.CC_NATURE_ID);
       assertNull(cCNature); // should be null since we created a non-c++ project
-      IProjectNature cNature = project.getNature(CProjectNature.C_NATURE_ID);
+      IProjectNature cNature = currentProject.getNature(CProjectNature.C_NATURE_ID);
       assertNotNull(cNature);
    }
 }

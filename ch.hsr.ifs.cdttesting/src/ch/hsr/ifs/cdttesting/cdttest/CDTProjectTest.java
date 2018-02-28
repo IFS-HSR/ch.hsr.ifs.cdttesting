@@ -64,19 +64,18 @@ import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
 
 abstract public class CDTProjectTest {
 
-   protected static final String EXPECTED_PREFIX = "expected_";
+   protected static final String EXPECTED_PROJECT_SUFFIX = "expected_";
 
    protected IWorkspace workspace;
-   protected IProject   project;
-   protected ICProject  cproject;
+   protected IProject   currentProject;
+   protected ICProject  currentCproject;
 
    protected IProject  expectedProject;
    protected ICProject expectedCproject;
 
-   protected String name;
+   protected String testcaseName;
 
    protected FileManager fileManager;
-   protected boolean     indexDisabled        = false;
    /**
     * If set to false, a C project will be created instead of a (default) C++
     * project
@@ -98,7 +97,7 @@ abstract public class CDTProjectTest {
    }
 
    public CDTProjectTest(final String name) {
-      this.name = name;
+      this.testcaseName = name;
       init();
    }
 
@@ -114,14 +113,14 @@ abstract public class CDTProjectTest {
     * @return the name of the TestCase
     */
    public String getName() {
-      return name;
+      return testcaseName;
    }
 
    /**
     * Sets the name of this TestCase
     */
    public void setName(String name) {
-      this.name = name;
+      this.testcaseName = name;
    }
 
    //  @BeforeEach
@@ -149,32 +148,31 @@ abstract public class CDTProjectTest {
       disposeProjMembers();
       disposeCDTAstCache();
    }
-
+   
    private void initProject() {
-      if (project != null && expectedProject != null) { return; }
       if (CCorePlugin.getDefault() != null && CCorePlugin.getDefault().getCoreModel() != null) {
          final String projectName = makeProjectName();
          workspace = ResourcesPlugin.getWorkspace();
          try {
             if (instantiateCCProject) {
-               cproject = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ //$NON-NLS-2$
+               currentCproject = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ //$NON-NLS-2$
                if (instantiateExpectedProject) {
-                  expectedCproject = CProjectHelper.createCCProject(EXPECTED_PREFIX.concat(projectName), "bin", //$NON-NLS-1$ //$NON-NLS-2$
+                  expectedCproject = CProjectHelper.createCCProject(projectName.concat(EXPECTED_PROJECT_SUFFIX), "bin", //$NON-NLS-1$ //$NON-NLS-2$
                         IPDOMManager.ID_NO_INDEXER);
                }
             } else {
-               cproject = CProjectHelper.createCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ //$NON-NLS-2$
+               currentCproject = CProjectHelper.createCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ //$NON-NLS-2$
                if (instantiateExpectedProject) {
-                  expectedCproject = CProjectHelper.createCProject(EXPECTED_PREFIX.concat(projectName), "bin", //$NON-NLS-1$ //$NON-NLS-2$
+                  expectedCproject = CProjectHelper.createCProject(EXPECTED_PROJECT_SUFFIX.concat(projectName), "bin", //$NON-NLS-1$ //$NON-NLS-2$
                         IPDOMManager.ID_NO_INDEXER);
                }
             }
-            project = cproject.getProject();
+            currentProject = currentCproject.getProject();
             if (instantiateExpectedProject) {
                expectedProject = expectedCproject.getProject();
             }
          } catch (final CoreException ignored) {}
-         if (project == null || (instantiateExpectedProject && expectedProject == null)) {
+         if (currentProject == null || (instantiateExpectedProject && expectedProject == null)) {
             fail("Unable to create project"); //$NON-NLS-1$
          }
          fileManager = new FileManager();
@@ -187,16 +185,16 @@ abstract public class CDTProjectTest {
 
    public void cleanupProject() throws Exception {
       try {
-         project.delete(true, true, new NullProgressMonitor());
+         currentProject.delete(true, true, new NullProgressMonitor());
          expectedProject.delete(true, true, new NullProgressMonitor());
       } catch (final Throwable ignored) {} finally {
-         project = null;
+         currentProject = null;
          expectedProject = null;
       }
    }
 
    private void disposeProjMembers() throws CoreException {
-      disposeProjMembers(project);
+      disposeProjMembers(currentProject);
       disposeProjMembers(expectedProject);
    }
 
@@ -223,7 +221,7 @@ abstract public class CDTProjectTest {
 
    private void setupProjectReferences() throws CoreException {
       if (referencedProjects.size() > 0) {
-         final ICProjectDescription des = CCorePlugin.getDefault().getProjectDescription(project, true);
+         final ICProjectDescription des = CCorePlugin.getDefault().getProjectDescription(currentProject, true);
          final ICConfigurationDescription cfgs[] = des.getConfigurations();
          for (final ICConfigurationDescription config : cfgs) {
             final Map<String, String> refMap = config.getReferenceInfo();
@@ -232,18 +230,25 @@ abstract public class CDTProjectTest {
             }
             config.setReferenceInfo(refMap);
          }
-         CCorePlugin.getDefault().setProjectDescription(project, des);
+         CCorePlugin.getDefault().setProjectDescription(currentProject, des);
+      }
+   }
+   
+   private void setUpIndex() throws CoreException {
+      setUpIndex(currentCproject);
+      if (instantiateExpectedProject) {
+         setUpIndex(expectedCproject);
       }
    }
 
-   private void setUpIndex() throws CoreException {
+   private void setUpIndex(ICProject proj) throws CoreException {
       disposeCDTAstCache();
-      project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+      proj.getProject().refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
       ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, new NullProgressMonitor());
       // reindexing will happen automatically after call of setIndexerId
-      CCorePlugin.getIndexManager().setIndexerId(cproject, IPDOMManager.ID_FAST_INDEXER);
-      for (final ICProject curProj : referencedProjects) {
-         CCorePlugin.getIndexManager().setIndexerId(curProj, IPDOMManager.ID_FAST_INDEXER);
+      CCorePlugin.getIndexManager().setIndexerId(proj, IPDOMManager.ID_FAST_INDEXER);
+      for (final ICProject p : referencedProjects) {
+         CCorePlugin.getIndexManager().setIndexerId(p, IPDOMManager.ID_FAST_INDEXER);
       }
       ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, new NullProgressMonitor());
 
@@ -256,7 +261,7 @@ abstract public class CDTProjectTest {
          }
       }
       try {
-         BaseTestCase.waitForIndexer(cproject);
+         BaseTestCase.waitForIndexer(proj);
       } catch (final InterruptedException e) {
          System.err.println("Wait for indexer has been interrupted.");
       }
@@ -304,7 +309,7 @@ abstract public class CDTProjectTest {
 
    private void addIncludeRefs(final String[] pathsToAdd, final int externalProjectOffset) {
       try {
-         final IPathEntry[] allPathEntries = cproject.getRawPathEntries();
+         final IPathEntry[] allPathEntries = currentCproject.getRawPathEntries();
          final IPathEntry[] newPathEntries = new IPathEntry[allPathEntries.length + pathsToAdd.length];
          System.arraycopy(allPathEntries, 0, newPathEntries, 0, allPathEntries.length);
          int i = 0;
@@ -315,14 +320,14 @@ abstract public class CDTProjectTest {
             final ICProject referencedProj = referencedProjects.get(i - externalProjectOffset);
             newPathEntries[allPathEntries.length + i] = CoreModel.newIncludeEntry(null, referencedProj.getPath().makeRelative(), null);
          }
-         cproject.setRawPathEntries(newPathEntries, new NullProgressMonitor());
+         currentCproject.setRawPathEntries(newPathEntries, new NullProgressMonitor());
       } catch (final CModelException e) {
          e.printStackTrace();
       }
    }
 
    protected IFile importFile(final String fileName, final String contents) throws Exception {
-      return importFile(fileName, contents, project);
+      return importFile(fileName, contents, currentProject);
    }
 
    protected IFile importFile(final String fileName, final String contents, final IProject project) throws Exception {
@@ -379,7 +384,7 @@ abstract public class CDTProjectTest {
    }
 
    protected String makeProjectAbsolutePath(final String relativePath) {
-      return makeProjectAbsolutePath(relativePath, project);
+      return makeProjectAbsolutePath(relativePath, currentProject);
    }
 
    protected String makeProjectAbsolutePath(final String relativePath, final IProject proj) {

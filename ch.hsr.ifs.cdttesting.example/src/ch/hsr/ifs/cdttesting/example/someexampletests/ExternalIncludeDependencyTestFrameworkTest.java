@@ -31,7 +31,7 @@ public class ExternalIncludeDependencyTestFrameworkTest extends CDTTestingTest {
 
    @Test
    public void runTest() throws Throwable {
-      IIncludeReference[] includeRefs = cproject.getIncludeReferences();
+      IIncludeReference[] includeRefs = currentCproject.getIncludeReferences();
       assertEquals(1, includeRefs.length);
 
       IIncludeReference externalFrameworkTestRef = includeRefs[0];

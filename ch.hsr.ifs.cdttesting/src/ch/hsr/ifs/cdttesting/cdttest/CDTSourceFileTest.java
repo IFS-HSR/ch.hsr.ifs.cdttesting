@@ -128,7 +128,7 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
             importFile(testFile.getName(), testFile.getExpectedSource(), expectedProject);
          }
       }
-      project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+      currentProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
       if (expectedProject != null) {
          expectedProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
       }

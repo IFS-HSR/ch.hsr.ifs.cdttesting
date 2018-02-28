@@ -52,7 +52,7 @@ public abstract class CDTTestingCodanCheckerTest extends CDTTestingTest {
             codanProblem.setEnabled(false);
          }
       }
-      CodanRuntime.getInstance().getCheckersRegistry().updateProfile(cproject.getProject(), profile);
+      CodanRuntime.getInstance().getCheckersRegistry().updateProfile(currentCproject.getProject(), profile);
    }
 
    protected void problemPreferenceSetup(final RootProblemPreference preference) {}
@@ -117,7 +117,7 @@ public abstract class CDTTestingCodanCheckerTest extends CDTTestingTest {
    }
 
    protected IMarker[] findMarkers(final String markerTypeStringToFind) throws CoreException {
-      return project.findMarkers(markerTypeStringToFind, true, IResource.DEPTH_INFINITE);
+      return currentProject.findMarkers(markerTypeStringToFind, true, IResource.DEPTH_INFINITE);
    }
 
    protected IMarker[] findMarkers() throws CoreException {
@@ -129,6 +129,6 @@ public abstract class CDTTestingCodanCheckerTest extends CDTTestingTest {
    }
 
    private void runCodan() {
-      CodanRuntime.getInstance().getBuilder().processResource(cproject.getProject(), new NullProgressMonitor());
+      CodanRuntime.getInstance().getBuilder().processResource(currentCproject.getProject(), new NullProgressMonitor());
    }
 }

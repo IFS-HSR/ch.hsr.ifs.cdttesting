@@ -30,13 +30,13 @@ public class TwoIndexFileForOneFileTest extends CDTTestingTest {
    @Override
    public void setUp() throws Exception {
       super.setUp();
-      index = CCorePlugin.getIndexManager().getIndex(new ICProject[] { cproject });
+      index = CCorePlugin.getIndexManager().getIndex(new ICProject[] { currentCproject });
       index.acquireReadLock();
    }
 
    @Test
    public void runTest() throws Throwable {
-      IIndexFileLocation aHIndexFileLocation = IndexLocationFactory.getIFLExpensive(cproject, makeProjectAbsolutePath("A.h"));
+      IIndexFileLocation aHIndexFileLocation = IndexLocationFactory.getIFLExpensive(currentCproject, makeProjectAbsolutePath("A.h"));
       IIndexFile[] aHIndexFile = index.getFiles(aHIndexFileLocation);
       assertEquals(2, aHIndexFile.length);
       assertEquals(GPPLanguage.getDefault().getLinkageID(), aHIndexFile[0].getLinkageID());

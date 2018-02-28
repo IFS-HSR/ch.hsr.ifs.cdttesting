@@ -11,7 +11,7 @@ public class ExampleRefactoringModificationsTest extends CDTTestingRefactoringTe
 
    @Override
    protected Refactoring createRefactoring() {
-      return new DummyRenameRefactoring(getActiveCElement(), selection, cproject);
+      return new DummyRenameRefactoring(getActiveCElement(), selection, currentCproject);
    }
 
    @Test

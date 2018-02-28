@@ -34,8 +34,8 @@ public class ReferencedProjectTest extends CDTTestingTest {
 
    @Test
    public void runTest() throws Throwable {
-      assertEquals("[P/otherProject1, P/otherProject2]", Arrays.toString(project.getReferencedProjects()));
-      IIncludeReference[] inc = cproject.getIncludeReferences();
+      assertEquals("[P/otherProject1, P/otherProject2]", Arrays.toString(currentProject.getReferencedProjects()));
+      IIncludeReference[] inc = currentCproject.getIncludeReferences();
       assertEquals(2, inc.length);
       assertEquals(makeWorkspaceAbsolutePath(REFERENCED_PROJECT_NAME1), makeOSPath(inc[0].getElementName()));
       assertEquals(makeWorkspaceAbsolutePath(REFERENCED_PROJECT_NAME2), makeOSPath(inc[1].getElementName()));

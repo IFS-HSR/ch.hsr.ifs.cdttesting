@@ -15,7 +15,7 @@ public class ILTISExampleRefactoringTest extends CDTTestingRefactoringTest {
 
    @Override
    protected Refactoring createRefactoring() {
-      testRefactoring = new ILTISTestRefactoring(getActiveCElement(), selection, cproject);
+      testRefactoring = new ILTISTestRefactoring(getActiveCElement(), selection, currentCproject);
       return testRefactoring;
    }
 
