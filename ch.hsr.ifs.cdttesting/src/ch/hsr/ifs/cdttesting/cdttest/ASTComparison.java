@@ -80,7 +80,7 @@ public class ASTComparison {
          break;
       default:
          assertEquals(result.getStateDecription() + lineNo, expected, actual);
-      } 
+      }
    }
 
    /**
@@ -138,6 +138,10 @@ public class ASTComparison {
       return left.getRawSignature().equals(right.getRawSignature());
    }
 
+   protected static boolean equalsNormalizedRaw(IASTNode left, IASTNode right) {
+      return normalizeCPP(left.getRawSignature()).equals(normalizeCPP(right.getRawSignature()));
+   }
+
    /**
     * Used to compare two {@link IASTNode}s. It can be configured to fail if an {@link IASTProblemNode} is encountered.
     * 
@@ -158,28 +162,41 @@ public class ASTComparison {
             .getRawSignature())), new ComparisonAttribute(ComparisonAttrID.ACTUAL, normalizeCPP(actual.getRawSignature())), new ComparisonAttribute(
                   ComparisonAttrID.LINE_NO, lineNo));
 
+      if ((expected instanceof IASTProblem || actual instanceof IASTProblem) && failOnProblemNode) {
+         return new ComparisonResult(ComparisonState.PROBLEM_NODE, attributes);
+      } 
       if (lChilds.length != rChilds.length) {
-         ComparisonResult firstMismatch = Functional.zip(lChilds, rChilds).map((nodes) -> equals(nodes.first(), nodes.second(), false)).filter((
-               result) -> result.state != ComparisonState.EQUAL).findFirst().get();
-         List<ComparisonAttribute> fail_attributes = CollectionUtil.list(new ComparisonAttribute(ComparisonAttrID.EXPECTED, normalizeCPP(expected
-               .getRawSignature())), new ComparisonAttribute(ComparisonAttrID.ACTUAL, normalizeCPP(actual.getRawSignature())),
-               new ComparisonAttribute(ComparisonAttrID.LINE_NO, firstMismatch.getAttributeString(ComparisonAttrID.LINE_NO)), new ComparisonAttribute(
-                     ComparisonAttrID.FIRST_MISMATCH, normalizeCPP(firstMismatch.getAttributeString(ComparisonAttrID.EXPECTED))));
-         return new ComparisonResult(ComparisonState.DIFFERENT_AMOUNT_OF_CHILDREN, fail_attributes);
+         /* Find first mismatching child */
+         ComparisonResult firstMismatch = findFirstMismatchingChild(lChilds, rChilds);
+         attributes.add(new ComparisonAttribute(ComparisonAttrID.FIRST_MISMATCH, normalizeCPP(firstMismatch.getAttributeString(
+               ComparisonAttrID.EXPECTED))));
+         return new ComparisonResult(ComparisonState.DIFFERENT_AMOUNT_OF_CHILDREN, attributes);
       } else if (!expected.getClass().equals(actual.getClass())) {
+         /* Return if node types differ */
          return new ComparisonResult(ComparisonState.DIFFERENT_TYPE, attributes);
       } else if (lChilds.length != 0) {
-         for (int i = 0; i < lChilds.length; i++) {
-            if (lChilds[i] instanceof IASTProblem || rChilds[i] instanceof IASTProblem) { return new ComparisonResult(ComparisonState.PROBLEM_NODE,
-                  attributes); }
-            final ComparisonResult childResult = equals(lChilds[i], rChilds[i], failOnProblemNode);
-            if (childResult.state != ComparisonState.EQUAL) { return childResult; }
-         }
+         /* Recurse into childs */
+         ComparisonResult childResult = equalsEachNode(lChilds, rChilds, failOnProblemNode);
+         if (childResult.state != ComparisonState.EQUAL) { return childResult; }
       } else if (expected instanceof ICPPASTCompoundStatement || expected instanceof ICPPASTInitializerList) {
+         /* Is empty body or initializer list */
          return new ComparisonResult(ComparisonState.EQUAL);
-      } else if (!normalizeCPP(expected.getRawSignature()).equals(normalizeCPP(actual.getRawSignature()))) { return new ComparisonResult(
-            ComparisonState.DIFFERENT_SIGNATURE, attributes); }
+      }
+      if (!equalsNormalizedRaw(expected, actual)) { return new ComparisonResult(ComparisonState.DIFFERENT_SIGNATURE, attributes); }
       return new ComparisonResult(ComparisonState.EQUAL);
+   }
+
+   protected static ComparisonResult equalsEachNode(IASTNode[] expected, IASTNode[] actual, boolean failOnProblemNode) {
+      for (int i = 0; i < expected.length; i++) {
+         final ComparisonResult childResult = equals(expected[i], actual[i], failOnProblemNode);
+         if (childResult.state != ComparisonState.EQUAL) { return childResult; }
+      }
+      return new ComparisonResult(ComparisonState.EQUAL);
+   }
+
+   private static ComparisonResult findFirstMismatchingChild(final IASTNode[] lChilds, final IASTNode[] rChilds) {
+      return Functional.zip(lChilds, rChilds).map((nodes) -> equals(nodes.first(), nodes.second(), false)).filter((
+            result) -> result.state != ComparisonState.EQUAL).findFirst().get();
    }
 
    /**
@@ -204,7 +221,7 @@ public class ASTComparison {
 		// @formatter:on
    }
 
-   protected enum ComparisonState {
+   public enum ComparisonState {
       //@formatter:off
       DIFFERENT_TYPE("Different type."), DIFFERENT_AMOUNT_OF_CHILDREN("Different amount of children."),
       DIFFERENT_SIGNATURE("Different normalized signatures."), EQUAL(""),
@@ -258,7 +275,7 @@ public class ASTComparison {
     * @author tstauber
     *
     */
-   protected static class ComparisonResult {
+   public static class ComparisonResult {
 
       public ComparisonState           state;
       public List<ComparisonAttribute> attributes;
