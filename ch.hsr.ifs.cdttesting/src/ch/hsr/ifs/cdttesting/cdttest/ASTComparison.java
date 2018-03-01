@@ -1,7 +1,6 @@
 package ch.hsr.ifs.cdttesting.cdttest;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +18,7 @@ import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTCompoundStatement;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTInitializerList;
 
+import ch.hsr.ifs.iltis.core.collections.CollectionUtil;
 import ch.hsr.ifs.iltis.core.data.AbstractPair;
 import ch.hsr.ifs.iltis.core.data.Wrapper;
 import ch.hsr.ifs.iltis.core.functional.Functional;
@@ -71,11 +71,16 @@ public class ASTComparison {
       String expected = result.getAttributeString(ComparisonAttrID.EXPECTED);
       String actual = result.getAttributeString(ComparisonAttrID.ACTUAL);
 
-      if (result.state == ComparisonState.EQUAL) {
-         assertTrue(true);
-      } else {
+      switch (result.state) {
+      case EQUAL:
+         break;
+      case DIFFERENT_AMOUNT_OF_CHILDREN:
+         String mismatch = result.getAttributeString(ComparisonAttrID.FIRST_MISMATCH);
+         assertEquals(result.getStateDecription() + mismatch + lineNo, expected, actual);
+         break;
+      default:
          assertEquals(result.getStateDecription() + lineNo, expected, actual);
-      }
+      } 
    }
 
    /**
@@ -149,13 +154,18 @@ public class ASTComparison {
       final IASTNode[] rChilds = Arrays.stream(actual.getChildren()).filter(IASTNode::isPartOfTranslationUnitFile).toArray(IASTNode[]::new);
       final IASTFileLocation fileLocation = actual.getOriginalNode().getFileLocation();
       final String lineNo = fileLocation == null ? "?" : String.valueOf(fileLocation.getStartingLineNumber());
-      ComparisonAttribute[] attributes = { new ComparisonAttribute(ComparisonAttrID.EXPECTED, expected.getRawSignature()), new ComparisonAttribute(
-            ComparisonAttrID.ACTUAL, actual.getRawSignature()), new ComparisonAttribute(ComparisonAttrID.LINE_NO, lineNo) };
+      List<ComparisonAttribute> attributes = CollectionUtil.list(new ComparisonAttribute(ComparisonAttrID.EXPECTED, normalizeCPP(expected
+            .getRawSignature())), new ComparisonAttribute(ComparisonAttrID.ACTUAL, normalizeCPP(actual.getRawSignature())), new ComparisonAttribute(
+                  ComparisonAttrID.LINE_NO, lineNo));
 
-      
-      
       if (lChilds.length != rChilds.length) {
-         return new ComparisonResult(ComparisonState.DIFFERENT_AMOUNT_OF_CHILDREN, attributes);
+         ComparisonResult firstMismatch = Functional.zip(lChilds, rChilds).map((nodes) -> equals(nodes.first(), nodes.second(), false)).filter((
+               result) -> result.state != ComparisonState.EQUAL).findFirst().get();
+         List<ComparisonAttribute> fail_attributes = CollectionUtil.list(new ComparisonAttribute(ComparisonAttrID.EXPECTED, normalizeCPP(expected
+               .getRawSignature())), new ComparisonAttribute(ComparisonAttrID.ACTUAL, normalizeCPP(actual.getRawSignature())),
+               new ComparisonAttribute(ComparisonAttrID.LINE_NO, firstMismatch.getAttributeString(ComparisonAttrID.LINE_NO)), new ComparisonAttribute(
+                     ComparisonAttrID.FIRST_MISMATCH, normalizeCPP(firstMismatch.getAttributeString(ComparisonAttrID.EXPECTED))));
+         return new ComparisonResult(ComparisonState.DIFFERENT_AMOUNT_OF_CHILDREN, fail_attributes);
       } else if (!expected.getClass().equals(actual.getClass())) {
          return new ComparisonResult(ComparisonState.DIFFERENT_TYPE, attributes);
       } else if (lChilds.length != 0) {
@@ -211,7 +221,7 @@ public class ASTComparison {
 
    protected enum ComparisonAttrID {
       //@formatter:off
-      EXPECTED(""), ACTUAL(""), LINE_NO(" On line no: ");
+      EXPECTED(""), ACTUAL(""), LINE_NO(" On line no: "), FIRST_MISMATCH("First mismatch: ");
       //@formatter:on
 
       String prefix;
@@ -256,6 +266,11 @@ public class ASTComparison {
       public ComparisonResult(final ComparisonState state, final ComparisonAttribute... attributes) {
          this.state = state;
          this.attributes = Arrays.asList(attributes);
+      }
+
+      public ComparisonResult(final ComparisonState state, final List<ComparisonAttribute> attributes) {
+         this.state = state;
+         this.attributes = attributes;
       }
 
       public ComparisonResult(final ComparisonState state) {
