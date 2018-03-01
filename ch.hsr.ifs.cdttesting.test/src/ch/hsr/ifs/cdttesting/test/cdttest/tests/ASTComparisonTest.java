@@ -7,40 +7,40 @@ import org.eclipse.cdt.core.parser.ParserLanguage;
 import org.eclipse.cdt.core.parser.tests.ast2.AST2TestBase;
 import org.eclipse.cdt.core.testplugin.util.TestSourceReader;
 import org.eclipse.cdt.internal.core.parser.ParserException;
+import org.osgi.framework.FrameworkUtil;
 
 import ch.hsr.ifs.cdttesting.cdttest.ASTComparison;
-import ch.hsr.ifs.cdttesting.test.Activator;
-import junit.framework.AssertionFailedError;
+import ch.hsr.ifs.cdttesting.cdttest.ASTComparison.ComparisonResult;
+import ch.hsr.ifs.cdttesting.cdttest.ASTComparison.ComparisonState;
 
 
 @SuppressWarnings("restriction")
 public class ASTComparisonTest extends AST2TestBase {
 
    protected CharSequence[] getContents(int sections) throws IOException {
-      Activator plugin = Activator.getDefault();
-      if (plugin == null) throw new AssertionFailedError("This test must be run as a JUnit plugin test");
-      return TestSourceReader.getContentsForTest(plugin.getBundle(), "src", getClass(), getName(), sections);
+      return TestSourceReader.getContentsForTest(FrameworkUtil.getBundle(getClass()), "src", getClass(), getName(), sections);
    }
 
-   private void assertSameAST() throws IOException, ParserException {
+   private void assertDifferentAST() throws IOException, ParserException {
       CharSequence[] sections = getContents(2);
       IASTTranslationUnit first = parse(sections[0].toString(), ParserLanguage.CPP, true);
       IASTTranslationUnit second = parse(sections[1].toString(), ParserLanguage.CPP, true);
-      ASTComparison.assertEqualsAST(first, second, true, false);
+      ComparisonResult result = ASTComparison.equals(first, second, true);
+      assertTrue(result.state != ComparisonState.EQUAL);
    }
 
    // int i = 1 + 1;
 
    // int i = 1 * 1;
    public void testDifferentBinaryOperator() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // int i = +1;
 
    // int i = -1;
    public void testDifferentUnaryOperator() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // [[noreturn]]
@@ -48,14 +48,14 @@ public class ASTComparisonTest extends AST2TestBase {
 
    // void foo() {while(true);}
    public void testMissingAttribute() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // int i; //Razupaltuff
 
    // int i;
    public void testDifferentMissingComment() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // template<int i>
@@ -66,7 +66,7 @@ public class ASTComparisonTest extends AST2TestBase {
    // struct Tpl{};
    // static template class Tpl<5>;
    public void testExplicitTemplate() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // extern "C" {
@@ -77,7 +77,7 @@ public class ASTComparisonTest extends AST2TestBase {
    // int i;
    // }
    public void testDifferentLinkageSpecification() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // inline namespace NS {
@@ -88,7 +88,7 @@ public class ASTComparisonTest extends AST2TestBase {
    // int i;
    // }
    public void testInlineNamespaceDefinition() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // export template<int i>
@@ -97,7 +97,7 @@ public class ASTComparisonTest extends AST2TestBase {
    // template<int i>
    // struct Tpl{};
    public void testMissingExportTemplateDeclaration() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // template<typename T>
@@ -110,28 +110,28 @@ public class ASTComparisonTest extends AST2TestBase {
    // using T::Inner;
    // };
    public void testMissingTypenameSpecifier() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // struct S {};
 
    // class S {};
    public void testDifferentClassKeyword() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // struct S;
 
    // class S;
    public void testDifferentKeywordForElaboratedTypeSpecifer() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // enum E{};
 
    // enum class E{};
    public void testDifferentKindOfEnum() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // template<typename T>
@@ -144,14 +144,14 @@ public class ASTComparisonTest extends AST2TestBase {
    // T::Inner t;
    // };
    public void testTypenameSpecifierLosingTypename() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // int i = static_cast<int>(1.0f);
 
    // int i = reinterpret_cast<int>(1.0f);
    public void testDifferentKindOfCastExpression() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // void foo(int * i) {
@@ -162,7 +162,7 @@ public class ASTComparisonTest extends AST2TestBase {
    // delete[] i;
    // }
    public void testVectoredDelete() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // int * foo() {
@@ -173,7 +173,7 @@ public class ASTComparisonTest extends AST2TestBase {
    // return new int{};
    // }
    public void testGlobalNew() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // void foo() {
@@ -184,7 +184,7 @@ public class ASTComparisonTest extends AST2TestBase {
    // auto l = [=]{};
    // }
    public void testDifferentLambdaDefaultCapture() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // template<typename...T>
@@ -193,7 +193,7 @@ public class ASTComparisonTest extends AST2TestBase {
    // template<typename...T>
    // void foo(A<T>);
    public void testPackExpansionInType() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // template<typename...B>
@@ -206,7 +206,7 @@ public class ASTComparisonTest extends AST2TestBase {
    // Tpl(B const & ... b) : B(b) { }
    // };
    public void testBasePackExpansion() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 
    // template<typename T>
@@ -219,6 +219,6 @@ public class ASTComparisonTest extends AST2TestBase {
    // int j = Tpl::i;
    // };
    public void testFullyQualifiedName() throws Exception {
-      assertSameAST();
+      assertDifferentAST();
    }
 }
