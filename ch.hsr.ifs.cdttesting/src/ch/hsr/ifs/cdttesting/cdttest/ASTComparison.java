@@ -14,10 +14,13 @@ import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTPreprocessorIncludeStatement;
 import org.eclipse.cdt.core.dom.ast.IASTProblem;
+import org.eclipse.cdt.core.dom.ast.IASTProblemHolder;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
-import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTCompoundStatement;
+import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTCompositeTypeSpecifier;
 import org.eclipse.cdt.core.dom.ast.cpp.ICPPASTInitializerList;
+import org.eclipse.cdt.internal.core.dom.rewrite.astwriter.ASTWriter;
 
+import ch.hsr.ifs.cdttesting.cdttest.ASTComparison.ComparisonAttrID;
 import ch.hsr.ifs.iltis.core.collections.CollectionUtil;
 import ch.hsr.ifs.iltis.core.data.AbstractPair;
 import ch.hsr.ifs.iltis.core.data.Wrapper;
@@ -32,7 +35,10 @@ import ch.hsr.ifs.iltis.core.functional.OptionalUtil;
  * @author tstauber
  *
  */
+@SuppressWarnings({ "unused", "restriction" })
 public class ASTComparison {
+
+   private static ASTWriter writer = new ASTWriter();
 
    /**
     * Compares the {@link IASTTranslationUnit} from the code after the QuickFix was
@@ -134,11 +140,11 @@ public class ASTComparison {
       }
    }
 
-   protected static boolean equalsRaw(IASTNode left, IASTNode right) {
+   protected static <T extends IASTNode> boolean equalsRaw(T left, T right) {
       return left.getRawSignature().equals(right.getRawSignature());
    }
 
-   protected static boolean equalsNormalizedRaw(IASTNode left, IASTNode right) {
+   protected static <T extends IASTNode> boolean equalsNormalizedRaw(T left, T right) {
       return normalizeCPP(left.getRawSignature()).equals(normalizeCPP(right.getRawSignature()));
    }
 
@@ -162,9 +168,11 @@ public class ASTComparison {
             .getRawSignature())), new ComparisonAttribute(ComparisonAttrID.ACTUAL, normalizeCPP(actual.getRawSignature())), new ComparisonAttribute(
                   ComparisonAttrID.LINE_NO, lineNo));
 
-      if ((expected instanceof IASTProblem || actual instanceof IASTProblem) && failOnProblemNode) {
+      if ((expected instanceof IASTProblem || expected instanceof IASTProblemHolder || actual instanceof IASTProblem ||
+           actual instanceof IASTProblemHolder) && failOnProblemNode) {
+         /* Problem in AST occured */
          return new ComparisonResult(ComparisonState.PROBLEM_NODE, attributes);
-      } 
+      }
       if (lChilds.length != rChilds.length) {
          /* Find first mismatching child */
          ComparisonResult firstMismatch = findFirstMismatchingChild(lChilds, rChilds);
@@ -178,11 +186,28 @@ public class ASTComparison {
          /* Recurse into childs */
          ComparisonResult childResult = equalsEachNode(lChilds, rChilds, failOnProblemNode);
          if (childResult.state != ComparisonState.EQUAL) { return childResult; }
-      } else if (expected instanceof ICPPASTCompoundStatement || expected instanceof ICPPASTInitializerList) {
-         /* Is empty body or initializer list */
-         return new ComparisonResult(ComparisonState.EQUAL);
       }
-      if (!equalsNormalizedRaw(expected, actual)) { return new ComparisonResult(ComparisonState.DIFFERENT_SIGNATURE, attributes); }
+      if (expected instanceof IASTTranslationUnit || expected instanceof ICPPASTInitializerList ||
+          expected instanceof ICPPASTCompositeTypeSpecifier) {
+         /* For this types the node is equal, if the childs are equal */
+         return new ComparisonResult(ComparisonState.EQUAL);
+      } 
+      if (!equalsNormalizedRaw(expected, actual)) {
+         if (failOnProblemNode) {
+            /* Use writer to create two "formatted" versions of the nodes */
+            String writtenExpected = writer.write(expected);
+            String writtenActual = writer.write(actual);
+            if (!writtenExpected.equals(writtenActual)) {
+               attributes = CollectionUtil.list(new ComparisonAttribute(ComparisonAttrID.EXPECTED, writtenExpected), new ComparisonAttribute(
+                     ComparisonAttrID.ACTUAL, writtenActual), new ComparisonAttribute(ComparisonAttrID.LINE_NO, lineNo));
+               /* Fail if node has different signatures */
+               return new ComparisonResult(ComparisonState.DIFFERENT_SIGNATURE, attributes);
+            }
+         } else {
+            /* Fail if node has different signatures */
+            return new ComparisonResult(ComparisonState.DIFFERENT_SIGNATURE, attributes);
+         }
+      }
       return new ComparisonResult(ComparisonState.EQUAL);
    }
 
@@ -215,7 +240,7 @@ public class ASTComparison {
       // @formatter:off
 		return in.replaceAll("/\\*.*\\*/", "") // Remove all test-editor-comments
 		      .replaceAll("(^\\s*|\\s*$)", "") // Remove all leading and trailing linebreaks
-//				.replaceAll("(^((\\r?\\n)|\\s)*|((\\r?\\n)|\\s)*$)", "") // Remove all leading and trailing linebreaks/whitespace
+		      .replaceAll("^\\s*$", "") // Remove empty lines
 				.replaceAll("\\s*(\\r?\\n)+\\s*", "\n") // Replace all linebreaks with simple newline
 				.replaceAll(" +", " "); // Reduce all groups of whitespace to a single space
 		// @formatter:on

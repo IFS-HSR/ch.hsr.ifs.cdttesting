@@ -53,6 +53,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.junit.After;
@@ -148,7 +149,7 @@ abstract public class CDTProjectTest {
       disposeProjMembers();
       disposeCDTAstCache();
    }
-   
+
    private void initProject() {
       if (CCorePlugin.getDefault() != null && CCorePlugin.getDefault().getCoreModel() != null) {
          final String projectName = makeProjectName();
@@ -233,7 +234,7 @@ abstract public class CDTProjectTest {
          CCorePlugin.getDefault().setProjectDescription(currentProject, des);
       }
    }
-   
+
    private void setUpIndex() throws CoreException {
       setUpIndex(currentCproject);
       if (instantiateExpectedProject) {
@@ -413,19 +414,21 @@ abstract public class CDTProjectTest {
       IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
       if (activeWorkbenchWindow == null) {
          final IWorkbenchWindow[] workbenchWindows = PlatformUI.getWorkbench().getWorkbenchWindows();
-         assertEquals("There should be exactly one workbench window. Includator test will thus fail.", 1, workbenchWindows.length);
+         assertEquals("There should be exactly one workbench window. Test will thus fail.", 1, workbenchWindows.length);
          activeWorkbenchWindow = workbenchWindows[0];
       }
       return activeWorkbenchWindow;
    }
 
    protected void closeOpenEditors() throws Exception {
-      new UIThreadSyncRunnable() {
+      if (Display.getCurrent() != null) {
+         new UIThreadSyncRunnable() {
 
-         @Override
-         protected void runSave() throws Exception {
-            getActiveWorkbenchWindow().getActivePage().closeAllEditors(false);
-         }
-      }.runSyncOnUIThread();
+            @Override
+            protected void runSave() throws Exception {
+               getActiveWorkbenchWindow().getActivePage().closeAllEditors(false);
+            }
+         }.runSyncOnUIThread();
+      }
    }
 }

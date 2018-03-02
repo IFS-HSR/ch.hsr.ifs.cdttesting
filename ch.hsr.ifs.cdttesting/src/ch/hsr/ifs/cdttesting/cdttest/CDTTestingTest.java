@@ -32,6 +32,7 @@ import org.eclipse.core.commands.NotEnabledException;
 import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -355,7 +356,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
    }
 
    protected String getCurrentSourceFromAbsolutePath(final String absoluteFilePath) {
-      return getDocument(absoluteFilePath).get();
+      return formatDocument(absoluteFilePath).get();
    }
 
    @Override
@@ -370,8 +371,11 @@ public class CDTTestingTest extends CDTSourceFileTest {
    }
 
    protected String getExpectedSourceFromAbsolutePath(final String absoluteFilePath) {
-      final URI uri = FileUtil.stringToUri(absoluteFilePath);
+      return formatDocument(absoluteFilePath).get();
+   }
 
+   private IDocument formatDocument(final String absoluteFilePath) {
+      final URI uri = FileUtil.stringToUri(absoluteFilePath);
       final IDocument doc = FileCache.getDocument(uri);
 
       if (expectedCproject instanceof ICProject) {
@@ -387,7 +391,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
             e.printStackTrace();
          }
       }
-      return doc.get();
+      return doc;
    }
 
    protected void executeCommand(final String commandId) throws ExecutionException, NotDefinedException, NotEnabledException, NotHandledException {
@@ -584,13 +588,9 @@ public class CDTTestingTest extends CDTSourceFileTest {
     * @return The expected AST or null, if an exception occurred.
     */
    public IASTTranslationUnit getExpectedAST(String fileName) {
-      final URI expectedURI = FileUtil.stringToUri(makeProjectAbsolutePath(fileName, expectedProject));
-      try {
-         return CoreModelUtil.findTranslationUnitForLocation(expectedURI, expectedCproject).getAST();
-      } catch (final CoreException ignored) {
-         return null;
-      }
+      return getASTFromProjects(fileName,expectedProject, expectedCproject);
    }
+
 
    /**
     * Get the current AST of the active file
@@ -611,14 +611,16 @@ public class CDTTestingTest extends CDTSourceFileTest {
     * @return The current AST or null, if an exception occurred.
     */
    public IASTTranslationUnit getCurrentAST(String fileName) {
-      final URI currentURI = FileUtil.stringToUri(makeProjectAbsolutePath(fileName));
+      return getASTFromProjects(fileName, currentProject, currentCproject);
+   }
+   
+   private IASTTranslationUnit getASTFromProjects(String fileName, IProject project, ICProject cProject) {
+      final URI expectedURI = FileUtil.stringToUri(makeProjectAbsolutePath(fileName, project ));
       try {
-         return CoreModelUtil.findTranslationUnitForLocation(currentURI, currentCproject).getAST();
+         return CoreModelUtil.findTranslationUnitForLocation(expectedURI, cProject).getAST();
       } catch (final CoreException ignored) {
          return null;
       }
    }
-   
-   
 
 }
