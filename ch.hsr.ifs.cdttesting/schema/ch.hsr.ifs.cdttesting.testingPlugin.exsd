@@ -86,11 +86,11 @@ Default for this value is &quot;externalTestResource&quot;.
          <meta.section type="examples"/>
       </appinfo>
       <documentation>
-         &lt;plugin&gt;
+         &lt;fragment&gt;
    &lt;extension point=&quot;ch.hsr.ifs.cdttesting.testingPlugin&quot;&gt;
-    &lt;testResouresLocation sourceLocation=&quot;/resources/ch.hsr.ifs.cdttesting.example.exampleTestFolder/&quot; activatorClass=&quot;ch.hsr.ifs.cdttesting.example.MyTestPlugin&quot;/&gt;
+    &lt;testResouresLocation sourceLocation=&quot;/resources/ch.hsr.ifs.cdttesting.example.exampleTestFolder/&quot;/&gt;
    &lt;/extension&gt;
-&lt;/plugin&gt;
+&lt;/fragment&gt;
 
 To get a running example, do &quot;File-&gt;Import-&gt;Plug-in Developement-&gt;Plug-ins and Fragments&quot; and select &quot;ch.hsr.ifs.cdttesting.example&quot; from the active target platform.
 Run TestSuiteAll.java as Eclipse Plug-in test.
