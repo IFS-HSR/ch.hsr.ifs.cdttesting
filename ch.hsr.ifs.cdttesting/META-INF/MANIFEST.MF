@@ -26,6 +26,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: ch.hsr.ifs.cdttesting,
  ch.hsr.ifs.cdttesting.cdttest,
+ ch.hsr.ifs.cdttesting.cdttest.comparison,
  ch.hsr.ifs.cdttesting.helpers,
  ch.hsr.ifs.cdttesting.rts.junit4,
  ch.hsr.ifs.cdttesting.testsourcefile

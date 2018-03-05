@@ -8,22 +8,25 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.ToolFactory;
 import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.formatter.CodeFormatter;
 import org.eclipse.cdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.cdt.core.index.IIndex;
+import org.eclipse.cdt.core.index.IIndexManager;
 import org.eclipse.cdt.core.model.CModelException;
 import org.eclipse.cdt.core.model.CoreModelUtil;
 import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.core.model.ITranslationUnit;
-import org.eclipse.cdt.internal.core.dom.parser.cpp.CPPASTProblem;
 import org.eclipse.cdt.internal.ui.editor.CEditor;
 import org.eclipse.cdt.internal.ui.util.ExternalEditorInput;
 import org.eclipse.cdt.ui.testplugin.Accessor;
@@ -60,15 +63,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 
-import ch.hsr.ifs.iltis.core.resources.FileUtil;
-
+import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison;
+import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonArg;
 import ch.hsr.ifs.cdttesting.helpers.ExternalResourceHelper;
 import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
 import ch.hsr.ifs.cdttesting.rts.junit4.RTSTestCases;
 import ch.hsr.ifs.cdttesting.rts.junit4.RtsFileInfo;
 import ch.hsr.ifs.cdttesting.rts.junit4.RtsTestSuite;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
-
+import ch.hsr.ifs.iltis.core.resources.FileUtil;
 
 
 @RunWith(RtsTestSuite.class)
@@ -347,45 +350,45 @@ public class CDTTestingTest extends CDTSourceFileTest {
    }
 
    protected String getCurrentSource() {
-      return getCurrentSource(activeFileName);
+      return getCurrentSourceFromRelativePath(activeFileName);
    }
 
-   protected String getCurrentSource(final String relativeFilePath) {
-      final String absolutePath = makeProjectAbsolutePath(relativeFilePath);
-      return getCurrentSourceFromAbsolutePath(absolutePath);
+   protected String getCurrentSourceFromRelativePath(final String relativeFilePath) {
+      return getCurrentSourceFromAbsolutePath(getURI(relativeFilePath, currentProject));
    }
 
-   protected String getCurrentSourceFromAbsolutePath(final String absoluteFilePath) {
-      return formatDocument(absoluteFilePath).get();
+   private URI getURI(final String relativeFilePath, IProject project) {
+      return FileUtil.stringToUri(makeProjectAbsolutePath(relativeFilePath, project));
+   }
+
+   protected String getCurrentSourceFromAbsolutePath(final URI uri) {
+      return formatDocument(uri, currentCproject).get();
    }
 
    @Override
    protected String getExpectedSource() {
-      return getExpectedSource(activeFileName);
+      return getExpectedSourceFromRelativePath(activeFileName);
    }
 
    @Override
-   protected String getExpectedSource(final String relativeFilePath) {
-      final String absolutePath = makeProjectAbsolutePath(relativeFilePath, expectedProject);
-      return getExpectedSourceFromAbsolutePath(absolutePath);
+   protected String getExpectedSourceFromRelativePath(final String relativeFilePath) {
+      return getExpectedSourceFromAbsolutePath(getURI(relativeFilePath, expectedProject));
    }
 
-   protected String getExpectedSourceFromAbsolutePath(final String absoluteFilePath) {
-      return formatDocument(absoluteFilePath).get();
+   protected String getExpectedSourceFromAbsolutePath(final URI uri) {
+      return formatDocument(uri, expectedCproject).get();
    }
 
-   private IDocument formatDocument(final String absoluteFilePath) {
-      final URI uri = FileUtil.stringToUri(absoluteFilePath);
+   private IDocument formatDocument(final URI uri, ICProject cProject) {
       final IDocument doc = FileCache.getDocument(uri);
 
-      if (expectedCproject instanceof ICProject) {
-         final Map<String, Object> options = new HashMap<>(expectedCproject.getOptions(true));
-
+      if (cProject instanceof ICProject) {
+         final Map<String, Object> options = new HashMap<>(cProject.getOptions(true));
          try {
-            final ITranslationUnit tu = CoreModelUtil.findTranslationUnitForLocation(uri, expectedCproject);
+            final ITranslationUnit tu = CoreModelUtil.findTranslationUnitForLocation(uri, cProject);
             options.put(DefaultCodeFormatterConstants.FORMATTER_TRANSLATION_UNIT, tu);
             final CodeFormatter formatter = ToolFactory.createCodeFormatter(options);
-            final TextEdit te = formatter.format(CodeFormatter.K_TRANSLATION_UNIT, absoluteFilePath, 0, doc.getLength(), 0, NL);
+            final TextEdit te = formatter.format(CodeFormatter.K_TRANSLATION_UNIT, uri.toString(), 0, doc.getLength(), 0, NL);
             te.apply(doc);
          } catch (CModelException | MalformedTreeException | BadLocationException e) {
             e.printStackTrace();
@@ -400,7 +403,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
    }
 
    protected void insertUserTyping(final String text, int position) throws MalformedTreeException, BadLocationException, IOException {
-      final String path = makeProjectAbsolutePath(activeFileName);
+      final String path = makeProjectAbsolutePath(activeFileName, currentProject);
       position = adaptExpectedOffsetOfCurrentDocument(path, position);
       insertUserTyping(text, position, 0);
    }
@@ -462,7 +465,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
    protected int adaptExpectedOffsetOfCurrentDocument(final String fileLocation, final int expectedOffset) throws IOException {
       if (NL.length() < 2) { return expectedOffset; }
       final String expectedNewLine = "\n";
-      final String expectedSource = getCurrentSourceFromAbsolutePath(fileLocation).replace(NL, expectedNewLine);
+      final String expectedSource = getCurrentSourceFromRelativePath(fileLocation).replace(NL, expectedNewLine);
       return expectedOffset + getOffsetAdaptionDelta(expectedOffset, expectedSource, expectedNewLine);
    }
 
@@ -472,7 +475,7 @@ public class CDTTestingTest extends CDTSourceFileTest {
 
    protected int adaptActualOffset(final String fileName, final int offset) throws IOException {
       if (NL.length() < 2) { return offset; }
-      return offset - getOffsetAdaptionDelta(offset, getCurrentSourceFromAbsolutePath(fileName), NL);
+      return offset - getOffsetAdaptionDelta(offset, getCurrentSourceFromRelativePath(fileName), NL);
    }
 
    private int getOffsetAdaptionDelta(final int offset, final String source, final String nl) throws IOException {
@@ -525,16 +528,53 @@ public class CDTTestingTest extends CDTSourceFileTest {
    }
 
    /**
-    * Compares the {@link IASTTranslationUnit} from the code after the QuickFix was
-    * applied with the {@link IASTTranslationUnit} from the expected code. To use
-    * this method the flag {@code instantiateExpectedProject} has to be set to
-    * true. Fails on occurrence of {@link CPPASTProblem}.
-    *
-    * @author tstauber
-    *
+    * TODO Docu
+    * 
+    * @param fileName
+    * @param failOnProblemNode
+    * @param ignoreIncludes
+    * @param ignoreComments
     */
-   public void assertEqualsAST(final IASTTranslationUnit expectedAST, final IASTTranslationUnit currentAST) {
-      assertEqualsAST(expectedAST, currentAST, true);
+   public void fastAssertEquals(final String fileName, EnumSet<ComparisonArg> args) {
+      fastAssertEquals(fileName, args, ITranslationUnit.AST_SKIP_ALL_HEADERS);
+   }
+
+   /**
+    * TODO
+    * 
+    * @param fileName
+    * @param args
+    * @param astStyle
+    */
+   public void fastAssertEquals(final String fileName, EnumSet<ComparisonArg> args, int astStyle) {
+      URI expectedURI = getURI(fileName, expectedProject);
+      URI currentURI = getURI(fileName, currentProject);
+
+      String expectedSource = getExpectedSourceFromAbsolutePath(expectedURI);
+      String currentSource = getExpectedSourceFromAbsolutePath(currentURI);
+
+      if (!expectedSource.equals(currentSource)) {
+         /* Formatted text comparison failed -> try AST comparison */
+         IIndex expectedIndex = null;
+         IIndex currentIndex = null;
+         try {
+            expectedIndex = CCorePlugin.getIndexManager().getIndex(expectedCproject, IIndexManager.ADD_EXTENSION_FRAGMENTS_EDITOR);
+            currentIndex = CCorePlugin.getIndexManager().getIndex(expectedCproject, IIndexManager.ADD_EXTENSION_FRAGMENTS_EDITOR);
+            expectedIndex.acquireReadLock();
+            currentIndex.acquireReadLock();
+            assertEqualsAST(getStyledASTFromProject(fileName, expectedCproject, expectedIndex, astStyle), getStyledASTFromProject(fileName,
+                  currentCproject, currentIndex, astStyle), args);
+         } catch (Exception e) {
+            e.printStackTrace();
+         } finally {
+            if (expectedIndex != null) {
+               expectedIndex.releaseReadLock();
+            }
+            if (currentIndex != null) {
+               currentIndex.releaseReadLock();
+            }
+         }
+      }
    }
 
    /**
@@ -546,29 +586,13 @@ public class CDTTestingTest extends CDTSourceFileTest {
     * @author tstauber
     *
     */
-   public void assertEqualsAST(final IASTTranslationUnit expectedAST, final IASTTranslationUnit currentAST, final boolean failOnProblemNode) {
+   public void assertEqualsAST(final IASTTranslationUnit expectedAST, final IASTTranslationUnit currentAST, EnumSet<ComparisonArg> args) {
       if (!instantiateExpectedProject) {
          fail("To use the assertEqualsAST() method, the class must set instantiateExpectedProject=true ");
       }
-      ASTComparison.assertEqualsAST(expectedAST, currentAST, failOnProblemNode, false);
+      ASTComparison.assertEqualsAST(expectedAST, currentAST, args);
    }
 
-   /**
-    * Compares the {@link IASTTranslationUnit} from the code after the QuickFix was
-    * applied with the {@link IASTTranslationUnit} from the expected code. To use
-    * this method the flag {@code instantiateExpectedProject} has to be set to
-    * true.
-    *
-    * @author tstauber
-    *
-    */
-   public void assertEqualsAST(final IASTTranslationUnit expectedAST, final IASTTranslationUnit currentAST, final boolean failOnProblemNode, final boolean ignoreIncludes) {
-      if (!instantiateExpectedProject) {
-         fail("To use the assertEqualsAST() method, the class must set instantiateExpectedProject=true ");
-      }
-      ASTComparison.assertEqualsAST(expectedAST, currentAST, failOnProblemNode, ignoreIncludes);
-   }
-   
    /**
     * Get the expected AST of the active file
     *
@@ -576,10 +600,10 @@ public class CDTTestingTest extends CDTSourceFileTest {
     *
     * @return The expected AST or null, if an exception occurred.
     */
-   public IASTTranslationUnit getExpectedAST() {
+   public IASTTranslationUnit getExpectedASTOfActiveFile() {
       return getExpectedAST(activeFileName);
    }
-   
+
    /**
     * Get the expected AST of the file
     *
@@ -588,9 +612,8 @@ public class CDTTestingTest extends CDTSourceFileTest {
     * @return The expected AST or null, if an exception occurred.
     */
    public IASTTranslationUnit getExpectedAST(String fileName) {
-      return getASTFromProjects(fileName,expectedProject, expectedCproject);
+      return getASTFromProjects(fileName, expectedProject, expectedCproject);
    }
-
 
    /**
     * Get the current AST of the active file
@@ -599,10 +622,10 @@ public class CDTTestingTest extends CDTSourceFileTest {
     *
     * @return The current AST or null, if an exception occurred.
     */
-   public IASTTranslationUnit getCurrentAST() {
+   public IASTTranslationUnit getCurrentASTOfActiveFile() {
       return getCurrentAST(activeFileName);
    }
-   
+
    /**
     * Get the current AST of the file
     *
@@ -613,11 +636,18 @@ public class CDTTestingTest extends CDTSourceFileTest {
    public IASTTranslationUnit getCurrentAST(String fileName) {
       return getASTFromProjects(fileName, currentProject, currentCproject);
    }
-   
+
    private IASTTranslationUnit getASTFromProjects(String fileName, IProject project, ICProject cProject) {
-      final URI expectedURI = FileUtil.stringToUri(makeProjectAbsolutePath(fileName, project ));
       try {
-         return CoreModelUtil.findTranslationUnitForLocation(expectedURI, cProject).getAST();
+         return CoreModelUtil.findTranslationUnitForLocation(getURI(fileName, project), cProject).getAST();
+      } catch (final CoreException ignored) {
+         return null;
+      }
+   }
+
+   private IASTTranslationUnit getStyledASTFromProject(String fileName, ICProject cProject, IIndex index, int astStyle) {
+      try {
+         return CoreModelUtil.findTranslationUnitForLocation(getURI(fileName, cProject.getProject()), cProject).getAST(index, astStyle);
       } catch (final CoreException ignored) {
          return null;
       }

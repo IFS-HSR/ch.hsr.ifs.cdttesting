@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.cdttest.ASTComparison;
+import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison;
 
 
 /**

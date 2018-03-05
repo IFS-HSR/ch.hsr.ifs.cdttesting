@@ -17,6 +17,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringContext;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 
+import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonArg;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 import ch.hsr.ifs.iltis.cpp.wrappers.CRefactoring;
 import ch.hsr.ifs.iltis.cpp.wrappers.CRefactoringContext;
@@ -144,7 +145,7 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 
    protected void compareFiles() throws Exception {
       for (final TestSourceFile testFile : fileMap.values()) {
-         assertEqualsAST(getExpectedAST(testFile.getName()), getCurrentAST(testFile.getName()));
+         fastAssertEquals(testFile.getName(), ComparisonArg.emptySet());
       }
    }
 
@@ -215,7 +216,7 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
    }
 
    protected URI getActiveFileUri() {
-      final String absoluteFilePath = makeProjectAbsolutePath(activeFileName);
+      final String absoluteFilePath = makeProjectAbsolutePath(activeFileName, currentProject);
       return new File(absoluteFilePath).toURI();
    }
 

@@ -9,9 +9,9 @@ import org.eclipse.cdt.core.testplugin.util.TestSourceReader;
 import org.eclipse.cdt.internal.core.parser.ParserException;
 import org.osgi.framework.FrameworkUtil;
 
-import ch.hsr.ifs.cdttesting.cdttest.ASTComparison;
-import ch.hsr.ifs.cdttesting.cdttest.ASTComparison.ComparisonResult;
-import ch.hsr.ifs.cdttesting.cdttest.ASTComparison.ComparisonState;
+import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison;
+import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonResult;
+import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonState;
 
 
 @SuppressWarnings("restriction")
@@ -25,7 +25,7 @@ public class ASTComparisonTest extends AST2TestBase {
       CharSequence[] sections = getContents(2);
       IASTTranslationUnit first = parse(sections[0].toString(), ParserLanguage.CPP, true);
       IASTTranslationUnit second = parse(sections[1].toString(), ParserLanguage.CPP, true);
-      ComparisonResult result = ASTComparison.equals(first, second, true);
+      ComparisonResult result = ASTComparison.equalsAST(first, second);
       assertTrue(result.state != ComparisonState.EQUAL);
    }
 

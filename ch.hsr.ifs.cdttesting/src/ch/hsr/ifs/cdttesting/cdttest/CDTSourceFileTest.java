@@ -162,7 +162,7 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
    }
 
    protected String getTestSource(final String relativeFilePath) throws IOException {
-      if (relativeFilePath.startsWith("..")) { return getExternalSource(makeProjectAbsolutePath(relativeFilePath)); }
+      if (relativeFilePath.startsWith("..")) { return getExternalSource(makeProjectAbsolutePath(relativeFilePath, currentProject)); }
       return fileMap.get(relativeFilePath).getSource();
    }
 
@@ -176,10 +176,10 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
    }
 
    protected String getExpectedSource() {
-      return getExpectedSource(activeFileName);
+      return getExpectedSourceFromRelativePath(activeFileName);
    }
 
-   protected String getExpectedSource(final String relativeFilePath) {
+   protected String getExpectedSourceFromRelativePath(final String relativeFilePath) {
       return fileMap.get(relativeFilePath).getExpectedSource();
    }
 }

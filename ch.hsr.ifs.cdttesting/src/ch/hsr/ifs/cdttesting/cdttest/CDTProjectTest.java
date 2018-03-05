@@ -291,7 +291,7 @@ abstract public class CDTProjectTest {
          array[i] = externalAbsolutePath;
       }
       for (; i < externalProjectOffset; i++) {
-         final String inProjectAbsolutePath = makeProjectAbsolutePath(inProjectIncudeDirPaths.get(i - externalIncudeDirPaths.size()));
+         final String inProjectAbsolutePath = makeProjectAbsolutePath(inProjectIncudeDirPaths.get(i - externalIncudeDirPaths.size()), currentProject);
          final File folder = new File(inProjectAbsolutePath);
          if (!folder.exists()) {
             System.err.println("Adding external include path dir " + inProjectAbsolutePath + " to test " + getName() + " which does not exist.");
@@ -382,10 +382,6 @@ abstract public class CDTProjectTest {
 
    protected String makeExternalResourceAbsolutePath(final String relativePath) {
       return ExternalResourceHelper.makeExternalResourceAbsolutePath(relativePath);
-   }
-
-   protected String makeProjectAbsolutePath(final String relativePath) {
-      return makeProjectAbsolutePath(relativePath, currentProject);
    }
 
    protected String makeProjectAbsolutePath(final String relativePath, final IProject proj) {

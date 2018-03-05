@@ -36,7 +36,7 @@ public class TwoIndexFileForOneFileTest extends CDTTestingTest {
 
    @Test
    public void runTest() throws Throwable {
-      IIndexFileLocation aHIndexFileLocation = IndexLocationFactory.getIFLExpensive(currentCproject, makeProjectAbsolutePath("A.h"));
+      IIndexFileLocation aHIndexFileLocation = IndexLocationFactory.getIFLExpensive(currentCproject, makeProjectAbsolutePath("A.h", currentProject));
       IIndexFile[] aHIndexFile = index.getFiles(aHIndexFileLocation);
       assertEquals(2, aHIndexFile.length);
       assertEquals(GPPLanguage.getDefault().getLinkageID(), aHIndexFile[0].getLinkageID());

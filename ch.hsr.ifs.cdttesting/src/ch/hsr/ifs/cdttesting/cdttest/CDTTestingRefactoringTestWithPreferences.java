@@ -22,6 +22,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringContext;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 
+import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonArg;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 import ch.hsr.ifs.iltis.cpp.wrappers.CRefactoring;
 import ch.hsr.ifs.iltis.cpp.wrappers.CRefactoringContext;
@@ -150,8 +151,7 @@ public abstract class CDTTestingRefactoringTestWithPreferences extends CDTTestin
     * @param context
     */
    protected void simulateUserInput(final RefactoringContext context) {
-      simulateUserInput(); // call deprecated method if not overwritten by
-      // user
+      simulateUserInput(); // call deprecated method if not overwritten by user
    }
 
    /**
@@ -169,8 +169,7 @@ public abstract class CDTTestingRefactoringTestWithPreferences extends CDTTestin
     */
    protected void runRefactoringAndAssertSuccess() throws Exception {
       executeRefactoring(true);
-      assertEqualsAST(getExpectedAST(), getCurrentAST());
-      // compareFiles();
+      fastAssertEquals(activeFileName, ComparisonArg.emptySet());
    }
 
    protected void runRefactoringAndAssertFailure() throws Exception {
@@ -254,7 +253,7 @@ public abstract class CDTTestingRefactoringTestWithPreferences extends CDTTestin
    protected void compareFiles() throws Exception {
       for (final TestSourceFile testFile : fileMap.values()) {
          final String expectedSource = testFile.getExpectedSource();
-         final String actualSource = getCurrentSource(testFile.getName());
+         final String actualSource = getCurrentSourceFromRelativePath(testFile.getName());
          assertEquals(expectedSource, actualSource);
       }
    }
@@ -326,7 +325,7 @@ public abstract class CDTTestingRefactoringTestWithPreferences extends CDTTestin
    }
 
    protected URI getActiveFileUri() {
-      final String absoluteFilePath = makeProjectAbsolutePath(activeFileName);
+      final String absoluteFilePath = makeProjectAbsolutePath(activeFileName, currentProject);
       return new File(absoluteFilePath).toURI();
    }
 
