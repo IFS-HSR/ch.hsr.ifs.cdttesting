@@ -3,8 +3,9 @@ package ch.hsr.ifs.cdttesting.cdttest.comparison;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.eclipse.cdt.core.dom.ast.ASTVisitor;
@@ -23,13 +24,10 @@ public class NodeComparisonVisitor {
    private Thread leftThread;
    private Thread rightThread;
 
-   private CyclicBarrier providedNodeBarrier = new CyclicBarrier(2);
-   private CyclicBarrier handledNodeBarrier  = new CyclicBarrier(2);
+   private BlockingQueue<IASTNode> leftPipe  = new LinkedBlockingQueue<>();
+   private BlockingQueue<IASTNode> rightPipe = new LinkedBlockingQueue<>();
 
-   private IASTNode currentLeftNode;
-   private IASTNode currentRightNode;
-
-   private ComparisonResult lastResult = null;
+   private ComparisonResult lastFailingResult = null;
 
    private IASTTranslationUnit leftTu;
    private IASTTranslationUnit rightTu;
@@ -61,6 +59,7 @@ public class NodeComparisonVisitor {
       rightThread = new Thread(() -> {
          rightTu.accept(rightVisitor);
       });
+
    }
 
    public ComparisonResult compare() {
@@ -68,14 +67,16 @@ public class NodeComparisonVisitor {
       rightThread.start();
 
       try {
+         compareNodes();
          leftThread.join();
          rightThread.join();
+
       } catch (InterruptedException e) {
          e.printStackTrace();
       }
 
-      if (lastResult.isNotEqual()) {
-         return lastResult;
+      if (lastFailingResult != null) {
+         return lastFailingResult;
       } else if (compareComments) {
          return commentsEqual();
       } else {
@@ -84,33 +85,46 @@ public class NodeComparisonVisitor {
    }
 
    public ComparisonResult commentsEqual() {
-      return Functional.zip(leftCommentRelations, rightCommentRelations).map((pair) -> CommentRelation.equals(pair.first(), pair.second())).filter(
-            ComparisonResult::isNotEqual).findFirst().orElse(new ComparisonResult(ComparisonState.EQUAL));
+      return Functional.zip(leftCommentRelations, rightCommentRelations).map((pair) -> CommentRelation.equals(pair.first(), pair.second(), args))
+            .filter(ComparisonResult::isNotEqual).findFirst().orElse(new ComparisonResult(ComparisonState.EQUAL));
+   }
+
+   protected void compareNodes() throws InterruptedException {
+      while (leftThread.isAlive() || rightThread.isAlive() || !leftPipe.isEmpty() || !rightPipe.isEmpty()) {
+         IASTNode expected = null;
+         do {
+            expected = leftPipe.poll(10, TimeUnit.MILLISECONDS);
+         } while (expected == null && leftThread.isAlive());
+
+         IASTNode actual = null;
+         do {
+            actual = rightPipe.poll(10, TimeUnit.MILLISECONDS);
+         } while (actual == null && rightThread.isAlive());
+
+         if (expected == null && actual == null) break;
+
+         ComparisonResult tempResult = ASTComparison.equals(expected, actual, args);
+         if (tempResult.isNotEqual()) lastFailingResult = tempResult;
+      }
    }
 
    protected int handleNode(IASTNode node) {
       if (Thread.currentThread() == leftThread) {
-         updateAllCommentRelations(leftCommentRelations, node);
-         currentLeftNode = node;
          try {
-            providedNodeBarrier.await();
-            lastResult = ASTComparison.equals(currentLeftNode, currentRightNode, args);
-            handledNodeBarrier.await();
-         } catch (InterruptedException | BrokenBarrierException e) {
+            updateAllCommentRelations(leftCommentRelations, node);
+            leftPipe.put(node);
+         } catch (InterruptedException e) {
             e.printStackTrace();
          }
-
       } else if (Thread.currentThread() == rightThread) {
-         currentRightNode = node;
-         updateAllCommentRelations(rightCommentRelations, node);
          try {
-            providedNodeBarrier.await();
-            handledNodeBarrier.await();
-         } catch (InterruptedException | BrokenBarrierException e) {
+            updateAllCommentRelations(rightCommentRelations, node);
+            rightPipe.put(node);
+         } catch (InterruptedException e) {
             e.printStackTrace();
          }
       }
-      return lastResult.isEqual() ? ASTVisitor.PROCESS_CONTINUE : ASTVisitor.PROCESS_ABORT;
+      return lastFailingResult == null ? ASTVisitor.PROCESS_CONTINUE : ASTVisitor.PROCESS_ABORT;
    }
 
    private void updateAllCommentRelations(List<CommentRelation> relations, IASTNode node) {

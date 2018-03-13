@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.net.URI;
+import java.util.EnumSet;
 
 import org.eclipse.cdt.core.model.CoreModel;
 import org.eclipse.cdt.core.model.ICElement;
@@ -145,7 +146,7 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 
    protected void compareFiles() throws Exception {
       for (final TestSourceFile testFile : fileMap.values()) {
-         fastAssertEquals(testFile.getName(), ComparisonArg.emptySet());
+         fastAssertEquals(testFile.getName(), EnumSet.of(ComparisonArg.COMPARE_COMMENTS, ComparisonArg.COMPARE_INCLUDE_DIRECTIVES));
       }
    }
 

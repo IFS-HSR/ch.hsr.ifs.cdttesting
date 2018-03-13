@@ -1,5 +1,7 @@
 package ch.hsr.ifs.cdttesting.cdttest.comparison;
 
+import java.util.EnumSet;
+
 import org.eclipse.cdt.core.dom.ast.IASTComment;
 import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
@@ -28,9 +30,9 @@ public class CommentRelation {
       this.next = next;
    }
 
-   public static ComparisonResult equals(CommentRelation left, CommentRelation right) {
+   public static ComparisonResult equals(CommentRelation left, CommentRelation right, EnumSet<ComparisonArg> args) {
       if (right == null || left == null) { return new ComparisonResult(ComparisonState.NO_COUNTERPART, ASTComparison
-            .generateBasicComparisonResultAttributes(left == null ? null : left.comment, right == null ? null : right.comment)); }
+            .generateBasicComparisonResultAttributes(left == null ? null : left.comment, right == null ? null : right.comment, args)); }
       ComparisonResult commentResult = ASTComparison.equals(left.comment, right.comment, ComparisonArg.emptySet());
       ComparisonResult previousResult = ASTComparison.equals(left.previous, right.previous, ComparisonArg.emptySet());
       ComparisonResult nextResult = ASTComparison.equals(left.next, right.next, ComparisonArg.emptySet());

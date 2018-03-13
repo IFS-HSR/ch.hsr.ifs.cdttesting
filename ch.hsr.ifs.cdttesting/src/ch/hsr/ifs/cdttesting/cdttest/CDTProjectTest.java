@@ -53,19 +53,20 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.junit.After;
 import org.junit.Before;
 
+import ch.hsr.ifs.cdttesting.cdttest.formatting.FormatterLoader;
 import ch.hsr.ifs.cdttesting.helpers.ExternalResourceHelper;
 import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
 
 
 abstract public class CDTProjectTest {
 
-   protected static final String EXPECTED_PROJECT_SUFFIX = "expected_";
+   protected static final String EXPECTED_PROJECT_SUFFIX = "_expected";
 
    protected IWorkspace workspace;
    protected IProject   currentProject;
@@ -84,10 +85,9 @@ abstract public class CDTProjectTest {
    protected boolean     instantiateCCProject = true;
 
    /**
-    * If set to true, a project supporting the expected files will be
-    * instantiated.
+    * If set to true, a common formatter will be loaded (only useful for source based comparison)
     */
-   protected boolean instantiateExpectedProject = false;
+   protected boolean loadFormatter = false;
 
    protected ArrayList<ICProject> referencedProjects;
    private List<String>           externalIncudeDirPaths;
@@ -157,23 +157,21 @@ abstract public class CDTProjectTest {
          try {
             if (instantiateCCProject) {
                currentCproject = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ //$NON-NLS-2$
-               if (instantiateExpectedProject) {
-                  expectedCproject = CProjectHelper.createCCProject(projectName.concat(EXPECTED_PROJECT_SUFFIX), "bin", //$NON-NLS-1$ //$NON-NLS-2$
-                        IPDOMManager.ID_NO_INDEXER);
+               expectedCproject = CProjectHelper.createCCProject(projectName.concat(EXPECTED_PROJECT_SUFFIX), "bin", //$NON-NLS-1$ //$NON-NLS-2$
+                     IPDOMManager.ID_NO_INDEXER);
+               if (loadFormatter) {
+                  FormatterLoader.loadFormatter(currentCproject);
+                  FormatterLoader.loadFormatter(expectedCproject);
                }
             } else {
                currentCproject = CProjectHelper.createCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ //$NON-NLS-2$
-               if (instantiateExpectedProject) {
-                  expectedCproject = CProjectHelper.createCProject(EXPECTED_PROJECT_SUFFIX.concat(projectName), "bin", //$NON-NLS-1$ //$NON-NLS-2$
-                        IPDOMManager.ID_NO_INDEXER);
-               }
+               expectedCproject = CProjectHelper.createCProject(projectName.concat(EXPECTED_PROJECT_SUFFIX), "bin", //$NON-NLS-1$ //$NON-NLS-2$
+                     IPDOMManager.ID_NO_INDEXER);
             }
             currentProject = currentCproject.getProject();
-            if (instantiateExpectedProject) {
-               expectedProject = expectedCproject.getProject();
-            }
+            expectedProject = expectedCproject.getProject();
          } catch (final CoreException ignored) {}
-         if (currentProject == null || (instantiateExpectedProject && expectedProject == null)) {
+         if (currentProject == null || expectedProject == null) {
             fail("Unable to create project"); //$NON-NLS-1$
          }
          fileManager = new FileManager();
@@ -185,12 +183,27 @@ abstract public class CDTProjectTest {
    }
 
    public void cleanupProject() throws Exception {
+      Job cleanupCurrentProjectJob = Job.create("SetUpIndexCurrent", (mon) -> {
+         try {
+            currentProject.delete(true, true, new NullProgressMonitor());
+         } catch (final Throwable ignored) {} finally {
+            currentProject = null;
+         }
+      });
+      Job cleanupExpectedProjectJob = Job.create("SetUpIndexCurrent", (mon) -> {
+         try {
+            expectedProject.delete(true, true, new NullProgressMonitor());
+         } catch (final Throwable ignored) {} finally {
+            expectedProject = null;
+         }
+      });
+      cleanupCurrentProjectJob.schedule();
+      cleanupExpectedProjectJob.schedule();
       try {
-         currentProject.delete(true, true, new NullProgressMonitor());
-         expectedProject.delete(true, true, new NullProgressMonitor());
-      } catch (final Throwable ignored) {} finally {
-         currentProject = null;
-         expectedProject = null;
+         cleanupCurrentProjectJob.join();
+         cleanupExpectedProjectJob.join();
+      } catch (InterruptedException e) {
+         e.printStackTrace();
       }
    }
 
@@ -221,8 +234,13 @@ abstract public class CDTProjectTest {
    }
 
    private void setupProjectReferences() throws CoreException {
+      setupProjectReferences(currentProject);
+      setupProjectReferences(expectedProject);
+   }
+
+   private void setupProjectReferences(IProject proj) throws CoreException {
       if (referencedProjects.size() > 0) {
-         final ICProjectDescription des = CCorePlugin.getDefault().getProjectDescription(currentProject, true);
+         final ICProjectDescription des = CCorePlugin.getDefault().getProjectDescription(proj, true);
          final ICConfigurationDescription cfgs[] = des.getConfigurations();
          for (final ICConfigurationDescription config : cfgs) {
             final Map<String, String> refMap = config.getReferenceInfo();
@@ -231,14 +249,20 @@ abstract public class CDTProjectTest {
             }
             config.setReferenceInfo(refMap);
          }
-         CCorePlugin.getDefault().setProjectDescription(currentProject, des);
+         CCorePlugin.getDefault().setProjectDescription(proj, des);
       }
    }
 
    private void setUpIndex() throws CoreException {
-      setUpIndex(currentCproject);
-      if (instantiateExpectedProject) {
-         setUpIndex(expectedCproject);
+      Job currentSetUpIndex = Job.create("SetUpIndexCurrent", (mon) -> setUpIndex(currentCproject));
+      Job expectedSetUpIndex = Job.create("SetUpIndexCurrent", (mon) -> setUpIndex(expectedCproject));
+      currentSetUpIndex.schedule();
+      expectedSetUpIndex.schedule();
+      try {
+         currentSetUpIndex.join();
+         expectedSetUpIndex.join();
+      } catch (InterruptedException e) {
+         e.printStackTrace();
       }
    }
 
@@ -304,13 +328,14 @@ abstract public class CDTProjectTest {
       }
       externalIncudeDirPaths.clear();
       inProjectIncudeDirPaths.clear();
-      addIncludeRefs(array, externalProjectOffset);
+      addIncludeRefs(array, externalProjectOffset, currentCproject);
+      addIncludeRefs(array, externalProjectOffset, expectedCproject);
       TestScannerProvider.sIncludes = array;
    }
 
-   private void addIncludeRefs(final String[] pathsToAdd, final int externalProjectOffset) {
+   private void addIncludeRefs(final String[] pathsToAdd, final int externalProjectOffset, ICProject proj) {
       try {
-         final IPathEntry[] allPathEntries = currentCproject.getRawPathEntries();
+         final IPathEntry[] allPathEntries = proj.getRawPathEntries();
          final IPathEntry[] newPathEntries = new IPathEntry[allPathEntries.length + pathsToAdd.length];
          System.arraycopy(allPathEntries, 0, newPathEntries, 0, allPathEntries.length);
          int i = 0;
@@ -321,14 +346,10 @@ abstract public class CDTProjectTest {
             final ICProject referencedProj = referencedProjects.get(i - externalProjectOffset);
             newPathEntries[allPathEntries.length + i] = CoreModel.newIncludeEntry(null, referencedProj.getPath().makeRelative(), null);
          }
-         currentCproject.setRawPathEntries(newPathEntries, new NullProgressMonitor());
+         proj.setRawPathEntries(newPathEntries, new NullProgressMonitor());
       } catch (final CModelException e) {
          e.printStackTrace();
       }
-   }
-
-   protected IFile importFile(final String fileName, final String contents) throws Exception {
-      return importFile(fileName, contents, currentProject);
    }
 
    protected IFile importFile(final String fileName, final String contents, final IProject project) throws Exception {
@@ -417,14 +438,12 @@ abstract public class CDTProjectTest {
    }
 
    protected void closeOpenEditors() throws Exception {
-      if (Display.getCurrent() != null) {
-         new UIThreadSyncRunnable() {
+      new UIThreadSyncRunnable() {
 
-            @Override
-            protected void runSave() throws Exception {
-               getActiveWorkbenchWindow().getActivePage().closeAllEditors(false);
-            }
-         }.runSyncOnUIThread();
-      }
+         @Override
+         protected void runSave() throws Exception {
+            getActiveWorkbenchWindow().getActivePage().closeAllEditors(false);
+         }
+      }.runSyncOnUIThread();
    }
 }

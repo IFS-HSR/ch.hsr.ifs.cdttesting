@@ -1,6 +1,7 @@
 package ch.hsr.ifs.cdttesting.test.cdttest.tests;
 
 import java.io.IOException;
+import java.util.EnumSet;
 
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.parser.ParserLanguage;
@@ -10,6 +11,7 @@ import org.eclipse.cdt.internal.core.parser.ParserException;
 import org.osgi.framework.FrameworkUtil;
 
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison;
+import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonArg;
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonResult;
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonState;
 
@@ -25,7 +27,8 @@ public class ASTComparisonTest extends AST2TestBase {
       CharSequence[] sections = getContents(2);
       IASTTranslationUnit first = parse(sections[0].toString(), ParserLanguage.CPP, true);
       IASTTranslationUnit second = parse(sections[1].toString(), ParserLanguage.CPP, true);
-      ComparisonResult result = ASTComparison.equalsAST(first, second);
+      ComparisonResult result = ASTComparison.equalsAST(first, second, EnumSet.of(ComparisonArg.COMPARE_COMMENTS,
+            ComparisonArg.COMPARE_INCLUDE_DIRECTIVES));
       assertTrue(result.state != ComparisonState.EQUAL);
    }
 

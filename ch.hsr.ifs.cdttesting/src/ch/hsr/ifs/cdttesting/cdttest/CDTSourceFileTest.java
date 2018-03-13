@@ -42,10 +42,6 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
     */
    protected final LinkedHashMap<String, List<TestSourceFile>> referencedProjectsToLoad;
 
-   {
-      instantiateExpectedProject = true;
-   }
-
    public CDTSourceFileTest() {
       super();
       fileMap = new TreeMap<>();
@@ -123,15 +119,11 @@ public abstract class CDTSourceFileTest extends CDTProjectTest {
    @Override
    protected void setupFiles() throws Exception {
       for (final TestSourceFile testFile : fileMap.values()) {
-         importFile(testFile.getName(), testFile.getSource());
-         if (expectedProject != null) {
-            importFile(testFile.getName(), testFile.getExpectedSource(), expectedProject);
-         }
+         importFile(testFile.getName(), testFile.getSource(), currentProject);
+         importFile(testFile.getName(), testFile.getExpectedSource(), expectedProject);
       }
       currentProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-      if (expectedProject != null) {
-         expectedProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-      }
+      expectedProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
    }
 
    @Override
