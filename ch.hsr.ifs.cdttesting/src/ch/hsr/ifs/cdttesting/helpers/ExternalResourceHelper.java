@@ -41,12 +41,12 @@ public class ExternalResourceHelper {
             RtsFileInfo testInfo = new RtsFileInfo(testClass);
             URI rootUri = ResourcesPlugin.getWorkspace().getRoot().getLocationURI();
             IPath rootPath = new Path(rootUri.getPath());
-            String externalTextResourceRelativePath = testInfo.getexternalTextResourcePath();
+            String externalTextResourceRelativePath = testInfo.getExternalTextResourcePath();
             externalTextResourceAbsolutePath = getTargetFilePath(externalTextResourceRelativePath, rootPath);
             deleteFolder(externalTextResourceAbsolutePath);
             createFolder(externalTextResourceAbsolutePath);
             try {
-               Enumeration<?> externalFilesEnumeration = testInfo.getBundleOfActiveExtension().findEntries(externalTextResourceRelativePath, "*", true);
+               Enumeration<?> externalFilesEnumeration = testInfo.getExternalResourcesForActiveBundle();
                createFiles(rootPath, externalFilesEnumeration, externalTextResourceAbsolutePath);
             } finally {
                testInfo.closeReaderStream();

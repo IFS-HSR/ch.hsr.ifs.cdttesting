@@ -15,7 +15,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.Optional;
 
 import org.eclipse.core.runtime.CoreException;
@@ -43,17 +45,16 @@ public class RtsFileInfo {
    private IConfigurationElement activeExtension;
 
    public RtsFileInfo(Class<? extends CDTTestingTest> testClass) throws CoreException, FileNotFoundException {
-      if (!initRtsFilePathWithAnnotation(testClass) && !initRtsFilePathWithName(testClass.getName())) { throw new FileNotFoundException(testClass
-            .getSimpleName() + RTS_FILE_EXTENSION + " (This might happen, if the testplugin has no extension for extension-point \"ch.hsr.ifs.cdttesting.testingPlugin\")"); }
-      initReader();
+      /* Uses the name of the testClass as name */
+      this(testClass, null);
    }
 
-   public RtsFileInfo(String rtsFileName) throws CoreException, FileNotFoundException {
-      if (rtsFileName.endsWith(RTS_FILE_EXTENSION)) {
+   public RtsFileInfo(Class<? extends CDTTestingTest> testClass, String rtsFileName) throws CoreException, FileNotFoundException {
+      if (rtsFileName != null && rtsFileName.endsWith(RTS_FILE_EXTENSION)) {
          rtsFileName = rtsFileName.substring(0, rtsFileName.length() - 4);
       }
-      if (!initRtsFilePathWithName(rtsFileName)) { throw new FileNotFoundException(rtsFileName + RTS_FILE_EXTENSION +
-                                                                                   " (This might happen, if the testplugin has no extension for extension-point \"ch.hsr.ifs.cdttesting.testingPlugin\")"); }
+
+      init(testClass, Optional.ofNullable(rtsFileName));
       initReader();
    }
 
@@ -64,94 +65,84 @@ public class RtsFileInfo {
    }
 
    private void initReader() {
-      rtsFileReader = new BufferedReader(new InputStreamReader(getResourcesOfCurrentExtensionAsStream()));
+      Bundle bundle = Platform.getBundle(activeExtension.getContributor().getName());
+      rtsFileReader = new BufferedReader(new InputStreamReader(getResourceAsStream(bundle, completeRTSPath)));
    }
 
-   private boolean initRtsFilePathWithName(String name) throws CoreException {
-      for (IConfigurationElement curElement : getExtensions()) {
-         activeExtension = curElement;
+   private boolean doesPathExistInBundle(Bundle bundle, Path path) {
+      return FileLocator.findEntries(bundle, path).length > 0;
+   }
 
-         String testResourcePrefix = activeExtension.getAttribute(XML_SOURCE_LOCATION);
-         StringBuilder completeRTSPathBuilder = new StringBuilder(testResourcePrefix);
-         /* The +1 removes the dot which allows to use testResourcePrefix ending in / */
-         completeRTSPathBuilder.append(name.substring(getTestPackagePrefix().length() + 1).replace(".", "/")).append(RTS_FILE_EXTENSION);
-         Path temporaryCompleteRTSPath = new Path(completeRTSPathBuilder.toString());
+   private static InputStream getResourceAsStream(Bundle bundle, Path path) {
+      try {
+         return FileLocator.openStream(bundle, path, false);
+      } catch (IOException ignored) {
+         return null;
+      }
+   }
 
-         /* Testing if file for this path exists in this bundle */
-         if (doesPathExistInBundle(getBundleOfExtension(curElement), temporaryCompleteRTSPath)) {
+   private boolean init(Class<? extends CDTTestingTest> clazz, Optional<String> rtsFileName) throws FileNotFoundException {
+      Bundle bundle = FrameworkUtil.getBundle(clazz);
+      Path temporaryCompleteRTSPath = null;
+      for (IConfigurationElement curElement : getExtensionsContributedByBundle(bundle)) {
+         temporaryCompleteRTSPath = generateRTSPathForClass(clazz, rtsFileName, curElement);
+         if (doesPathExistInBundle(bundle, temporaryCompleteRTSPath)) {
+            activeExtension = curElement;
             completeRTSPath = temporaryCompleteRTSPath;
             return true;
          }
       }
-      return false;
+      throw new FileNotFoundException(String.valueOf(temporaryCompleteRTSPath) +
+                                      " (This might happen, if the testplugin has non, or a fauly extension for extension-point \"" +
+                                      TestingPlugin.XML_EXTENSION_POINT_ID + "\")");
    }
 
-   private boolean doesPathExistInBundle(Bundle bundle, Path temporaryCompleteRTSPath) {
-      return FileLocator.findEntries(bundle, temporaryCompleteRTSPath).length > 0;
-   }
-
-   private InputStream getResourcesOfCurrentExtensionAsStream() {
-      Bundle bundle = getBundleOfActiveExtension();
-      /* Conditional needed for performance (File IO / Stack-unwinding is expensive) */
-      if(doesPathExistInBundle(bundle, completeRTSPath)) {
-         try {
-            return FileLocator.openStream(bundle, completeRTSPath, false);
-         } catch (IOException ignored) {
-            return null;
-         }
+   private Path generateRTSPathForClass(Class<? extends CDTTestingTest> clazz, Optional<String> rtsFileName, IConfigurationElement curElement) {
+      RunFor runForAnnotation = clazz.getAnnotation(RunFor.class);
+      if (runForAnnotation == null) {
+         return buildCompleteRTSPath(getPackagePrefix(clazz.getPackage(), curElement), rtsFileName.orElse(clazz.getSimpleName()),
+               getTestResourcePrefix(curElement));
       } else {
-         return null;
-      }
-
-   }
-
-   private String getTestPackagePrefix() throws CoreException {
-      String packagePrefix = activeExtension.getAttribute(XML_TEST_PACKAGE);
-      return packagePrefix != null ? packagePrefix : getBundleOfActiveExtension().getSymbolicName();
-   }
-
-   public Bundle getBundleOfActiveExtension() {
-      return getBundleOfExtension(activeExtension);
-   }
-
-   private Bundle getBundleOfExtension(IConfigurationElement extension) {
-      Bundle contributingBundle = Platform.getBundle(extension.getContributor().getName());
-      Bundle[] fragments = Platform.getFragments(contributingBundle);
-      if (fragments != null) {
-         Optional<Bundle> testFragment = Arrays.stream(fragments).filter((bundle) -> bundle.getSymbolicName().equals(contributingBundle
-               .getSymbolicName() + ".tests")).findFirst();
-         return testFragment.orElse(contributingBundle);
-      } else {
-         return contributingBundle;
+         return new Path(runForAnnotation.rtsFile());
       }
    }
 
-   private boolean initRtsFilePathWithAnnotation(Class<? extends CDTTestingTest> testClass) throws CoreException {
-      RunFor runForAnnotation = testClass.getAnnotation(RunFor.class);
-      if (runForAnnotation != null) {
-         completeRTSPath = new Path(runForAnnotation.rtsFile());
-         for (IConfigurationElement curElement : getExtensionsForBundle(FrameworkUtil.getBundle(testClass))) {
-            activeExtension = curElement;
-            if (getResourcesOfCurrentExtensionAsStream() != null) { return true; }
-         }
-      }
-      return false;
+   private String getTestResourcePrefix(IConfigurationElement curElement) {
+      return curElement.getAttribute(XML_SOURCE_LOCATION);
+   }
+
+   private static String getPackagePrefix(Package pkg, IConfigurationElement extension) {
+      String packagePrefix = extension.getAttribute(XML_TEST_PACKAGE);
+      return packagePrefix != null ? packagePrefix : pkg.getName();
+   }
+
+   private static Path buildCompleteRTSPath(String testPackagePrefix, String testFileName, String testResourcePrefix) {
+      String collapsedFolderName = getStringBetweenLastTwoOccurencesOfString(testResourcePrefix, "/");
+      return new Path(testResourcePrefix + testPackagePrefix.substring(Math.min(testPackagePrefix.length(), collapsedFolderName.length() + 1)).replace(".", "/") + "/" + testFileName +
+                      RTS_FILE_EXTENSION);
+   }
+
+   private static String getStringBetweenLastTwoOccurencesOfString(String fullString, String marker) {
+      String withoutEverythingAfterLastOccurence = fullString.substring(0, fullString.lastIndexOf(marker));
+      return withoutEverythingAfterLastOccurence.substring(withoutEverythingAfterLastOccurence.lastIndexOf(marker) + 1,
+            withoutEverythingAfterLastOccurence.length());
    }
 
    public BufferedReader getRtsFileReader() {
       return rtsFileReader;
    }
 
-   private IConfigurationElement[] getExtensionsForBundle(Bundle bundle) {
-      return RegistryFactory.getRegistry().getConfigurationElementsFor(bundle.getSymbolicName(), TestingPlugin.XML_EXTENSION_POINT_ID);
+   private IConfigurationElement[] getExtensionsContributedByBundle(Bundle bundle) {
+      return Arrays.stream(RegistryFactory.getRegistry().getConfigurationElementsFor(TestingPlugin.XML_EXTENSION_POINT_ID)).filter((
+            element) -> element.getContributor().getName().equals(bundle.getSymbolicName())).toArray(IConfigurationElement[]::new);
    }
 
-   private IConfigurationElement[] getExtensions() {
-      return RegistryFactory.getRegistry().getConfigurationElementsFor(TestingPlugin.XML_EXTENSION_POINT_ID);
-   }
-
-   public String getexternalTextResourcePath() {
+   public String getExternalTextResourcePath() {
       String result = activeExtension.getAttribute(XML_EXTERNAL_SOURCE_LOCATION);
       return result != null ? result : XML_EXTERNAL_SOURCE_LOCATION_DEFAULT;
+   }
+
+   public Enumeration<URL> getExternalResourcesForActiveBundle() {
+      return Platform.getBundle(activeExtension.getContributor().getName()).findEntries(getExternalTextResourcePath(), "*", true);
    }
 }
