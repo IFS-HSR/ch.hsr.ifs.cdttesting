@@ -9,14 +9,19 @@ import ch.hsr.ifs.cdttesting.example.examplerefactoringtest.refactorings.DummyRe
 
 public class ExampleRefactoringModificationsTest extends CDTTestingRefactoringTest {
 
+   private String testSourceFileName;
+
    @Override
    protected Refactoring createRefactoring() {
-      return new DummyRenameRefactoring(getActiveCElement(), selection, currentCproject);
+      testSourceFileName = "main.cpp";
+      return new DummyRenameRefactoring(getCurrentCElement(getCurrentIFile(testSourceFileName)).get(), getSelection(testSourceFileName),
+            getCurrentCProject());
    }
 
    @Test
    public void runTest() throws Throwable {
-      openActiveFileInEditor();
+      openTestFileInEditor(testSourceFileName);
       runRefactoringAndAssertSuccess();
    }
+
 }

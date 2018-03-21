@@ -21,11 +21,13 @@ Require-Bundle:
  org.eclipse.cdt.core.tests;bundle-version="5.4.0",
  org.eclipse.cdt.ui.tests;bundle-version="5.4.0",
  ch.hsr.ifs.iltis.core,
- ch.hsr.ifs.iltis.cpp
+ ch.hsr.ifs.iltis.cpp,
+ org.eclipse.core.filesystem
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: ch.hsr.ifs.cdttesting,
  ch.hsr.ifs.cdttesting.cdttest,
+ ch.hsr.ifs.cdttesting.cdttest.base,
  ch.hsr.ifs.cdttesting.cdttest.comparison,
  ch.hsr.ifs.cdttesting.helpers,
  ch.hsr.ifs.cdttesting.rts.junit4,

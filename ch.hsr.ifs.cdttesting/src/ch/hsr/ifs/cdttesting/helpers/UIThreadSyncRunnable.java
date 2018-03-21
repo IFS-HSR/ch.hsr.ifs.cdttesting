@@ -2,6 +2,8 @@ package ch.hsr.ifs.cdttesting.helpers;
 
 import org.eclipse.ui.PlatformUI;
 
+import ch.hsr.ifs.iltis.core.exception.ILTISException;
+
 
 public abstract class UIThreadSyncRunnable implements Runnable {
 
@@ -18,11 +20,11 @@ public abstract class UIThreadSyncRunnable implements Runnable {
       }
    }
 
-   private void throwIfHasException() throws Exception {
-      if (e != null) { throw e; }
+   private void throwIfHasException() throws RuntimeException {
+      if (e != null) ILTISException.wrap(e).rethrowUnchecked();
    }
 
-   final public void runSyncOnUIThread() throws Exception {
+   final public void runSyncOnUIThread() throws RuntimeException {
       PlatformUI.getWorkbench().getDisplay().syncExec(this);
       throwIfHasException();
    }

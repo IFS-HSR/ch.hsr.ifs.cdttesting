@@ -12,15 +12,14 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
+import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingUITest;
 
 
-public class SourceFileContentTest extends CDTTestingTest {
+public class SourceFileContentTest extends CDTTestingUITest {
 
    @Test
    public void runTest() throws Throwable {
-      assertEquals("XY.cpp", activeFileName);
-      assertEquals("#include <iostream>" + NL + NL + "int main() { return 0; }", fileMap.get(activeFileName).getSource());
-      assertEquals("int main() { return 0; }", fileMap.get(activeFileName).getExpectedSource());
+      assertEquals("#include <iostream>" + NL + NL + "int main() { return 0; }", testFiles.get("XY.cpp").getSource());
+      assertEquals("int main() { return 0; }", testFiles.get("XY.cpp").getExpectedSource());
    }
 }

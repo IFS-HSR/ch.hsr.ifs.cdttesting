@@ -12,16 +12,15 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
+import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingUITest;
 import ch.hsr.ifs.cdttesting.rts.junit4.RunFor;
 
 
 @RunFor(rtsFile = "/resources/AnnotationTestNotDefaultLocation.rts")
-public class AnnotationTest extends CDTTestingTest {
+public class AnnotationTest extends CDTTestingUITest {
 
    @Test
    public void runTest() throws Throwable {
-      assertEquals("XY.cpp", activeFileName);
-      assertEquals("int main() { return 0; }", fileMap.get(activeFileName).getSource());
+      assertEquals("int main() { return 0; }", testFiles.get("XY.cpp").getSource());
    }
 }

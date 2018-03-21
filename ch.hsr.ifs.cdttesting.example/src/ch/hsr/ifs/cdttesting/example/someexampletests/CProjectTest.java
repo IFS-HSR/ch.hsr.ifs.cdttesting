@@ -16,22 +16,22 @@ import org.eclipse.cdt.core.CProjectNature;
 import org.eclipse.core.resources.IProjectNature;
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
+import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingUITest;
 
 
-public class CProjectTest extends CDTTestingTest {
+public class CProjectTest extends CDTTestingUITest {
 
    @Override
-   public void setUp() throws Exception {
-      instantiateCCProject = false; // causes to base setup to create a C instead of a C++ project
-      super.setUp();
+   protected void initAdditionalIncludes() {
+      currentProjectHolder.instantiateCProject();
+      expectedProjectHolder.instantiateCProject();
    }
 
    @Test
    public void runTest() throws Throwable {
-      IProjectNature cCNature = currentProject.getNature(CCProjectNature.CC_NATURE_ID);
+      IProjectNature cCNature = getCurrentProject().getNature(CCProjectNature.CC_NATURE_ID);
       assertNull(cCNature); // should be null since we created a non-c++ project
-      IProjectNature cNature = currentProject.getNature(CProjectNature.C_NATURE_ID);
+      IProjectNature cNature = getCurrentProject().getNature(CProjectNature.C_NATURE_ID);
       assertNotNull(cNature);
    }
 }

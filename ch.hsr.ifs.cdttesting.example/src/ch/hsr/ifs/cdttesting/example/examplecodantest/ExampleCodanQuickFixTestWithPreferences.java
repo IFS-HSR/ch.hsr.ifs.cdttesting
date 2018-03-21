@@ -1,17 +1,17 @@
 package ch.hsr.ifs.cdttesting.example.examplecodantest;
 
-import static org.junit.Assert.assertEquals;
-
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.ui.IMarkerResolution;
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.TestingPlugin;
-import ch.hsr.ifs.cdttesting.cdttest.CDTTestingCodanQuickfixTestWithPreferences;
-import ch.hsr.ifs.cdttesting.example.examplecodantest.MyCodanChecker.MyProblemId;
 import ch.hsr.ifs.iltis.cpp.ast.checker.helper.IProblemId;
 
+import ch.hsr.ifs.cdttesting.TestingPlugin;
+import ch.hsr.ifs.cdttesting.cdttest.CDTTestingQuickfixTestWithPreferences;
+import ch.hsr.ifs.cdttesting.example.examplecodantest.MyCodanChecker.MyProblemId;
 
-public class ExampleCodanQuickFixTestWithPreferences extends CDTTestingCodanQuickfixTestWithPreferences {
+
+public class ExampleCodanQuickFixTestWithPreferences extends CDTTestingQuickfixTestWithPreferences {
 
    @Override
    protected IProblemId getProblemId() {
@@ -20,8 +20,12 @@ public class ExampleCodanQuickFixTestWithPreferences extends CDTTestingCodanQuic
 
    @Test
    public void runTest() throws Throwable {
-      runQuickFix(new MyQuickFix());
-      assertEquals(getExpectedSource(), getCurrentSource());
+      runQuickfixAndAssertAllEqual();
+   }
+
+   @Override
+   protected IMarkerResolution createMarkerResolution() {
+      return new MyQuickFix();
    }
 
    @Override
@@ -30,8 +34,7 @@ public class ExampleCodanQuickFixTestWithPreferences extends CDTTestingCodanQuic
    }
 
    @Override
-   @SuppressWarnings("rawtypes")
-   public Class getPreferenceConstants() {
+   public Class<?> getPreferenceConstants() {
       return PrefConstants.class;
    }
 

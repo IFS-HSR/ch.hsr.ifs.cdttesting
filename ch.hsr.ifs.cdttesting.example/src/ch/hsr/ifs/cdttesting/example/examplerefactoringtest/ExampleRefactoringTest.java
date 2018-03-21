@@ -15,17 +15,18 @@ public class ExampleRefactoringTest extends CDTTestingRefactoringTest {
 
    @Override
    protected Refactoring createRefactoring() {
-      testRefactoring = new TestRefactoring(getActiveCElement(), selection, currentCproject);
+      testRefactoring = new TestRefactoring(getCurrentCElement("XY.cpp").get(), getSelection("XY.cpp"), getCurrentCProject());
       return testRefactoring;
    }
 
    @Test
    public void runTest() throws Throwable {
-      openActiveFileInEditor();
+      openTestFileInEditor("XY.cpp");
       runRefactoringAndAssertSuccess();
       assertTrue(testRefactoring.wasRefactoringSuccessful());
       // calling the following instead of assertRefactoringSuccess() will/would fail
       // this test (because the TestRefactoring does not fail/throws exception etc.)
       // assertRefactoringFailure();
    }
+
 }

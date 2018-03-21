@@ -9,9 +9,12 @@
 package ch.hsr.ifs.cdttesting.example.someexampletests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.core.runtime.ILogListener;
@@ -20,13 +23,12 @@ import org.eclipse.core.runtime.Plugin;
 import org.junit.After;
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
+import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingUITest;
 
 
-public class CheckNoUnresolvedInclusionsTest extends CDTTestingTest implements ILogListener {
+public class CheckNoUnresolvedInclusionsTest extends CDTTestingUITest implements ILogListener {
 
-   IStatus loggedStatus;
-   String  loggingPlugin;
+   private Map<String, IStatus> logs = new HashMap<>();
 
    @Override
    public void setUp() throws Exception {
@@ -40,18 +42,20 @@ public class CheckNoUnresolvedInclusionsTest extends CDTTestingTest implements I
    @Test
    public void runTest() throws Throwable {
       // logging by indexer happens in super.setUp() call
-      assertNotNull(loggedStatus);
-      assertNull(loggedStatus.getException());
-      assertEquals(CCorePlugin.PLUGIN_ID, loggingPlugin);
-      assertEquals(IStatus.INFO, loggedStatus.getSeverity());
-      assertTrue(loggedStatus.getMessage().contains("1 declarations; 0 references; 0 unresolved inclusions; 0 syntax errors; 0 unresolved names"));
-      assertTrue(loggedStatus.getMessage().startsWith("Indexed '" + currentProject.getName() + "' (1 sources, 0 headers)"));
+      assertFalse(logs.isEmpty());
+      logs.values().stream().forEach(status -> {
+         assertNull(status.getException());
+         assertEquals(IStatus.INFO, status.getSeverity());
+      });
+      logs.keySet().stream().forEach(id -> assertEquals(CCorePlugin.PLUGIN_ID, id));
+      assertTrue(logs.values().stream().anyMatch(status -> status.getMessage().contains(
+            "1 declarations; 0 references; 0 unresolved inclusions; 0 syntax errors; 0 unresolved names")));
+      /* As the projects are created an indexed in parallel, the log is written with race condition */
    }
 
    @Override
    public void logging(IStatus status, String plugin) {
-      loggedStatus = status;
-      loggingPlugin = plugin;
+      logs.put(plugin, status);
    }
 
    @Override

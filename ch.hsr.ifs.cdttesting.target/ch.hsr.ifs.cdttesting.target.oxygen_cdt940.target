@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde?>
 <!-- generated with https://github.com/mbarbero/fr.obeo.releng.targetplatform -->
-<target name="Eclipse Oxygen with CDT 9.4" sequenceNumber="1519811654">
+<target name="Eclipse Oxygen with CDT 9.4" sequenceNumber="1521647517">
   <locations>
     <location includeMode="planner" includeAllPlatforms="false" includeSource="true" includeConfigurePhase="false" type="InstallableUnit">
-      <unit id="org.eclipse.platform.sdk" version="4.7.2.M20171130-0510"/>
-      <unit id="org.eclipse.sdk.ide" version="4.7.2.M20171130-0510"/>
+      <unit id="org.eclipse.platform.sdk" version="4.7.3.M20180301-0715"/>
+      <unit id="org.eclipse.sdk.ide" version="4.7.3.M20180301-0715"/>
       <repository location="http://download.eclipse.org/eclipse/updates/4.7"/>
     </location>
     <location includeMode="planner" includeAllPlatforms="false" includeSource="true" includeConfigurePhase="false" type="InstallableUnit">
@@ -17,8 +17,8 @@
       <repository location="http://download.eclipse.org/releases/oxygen"/>
     </location>
     <location includeMode="planner" includeAllPlatforms="false" includeSource="true" includeConfigurePhase="false" type="InstallableUnit">
-      <unit id="org.eclipse.cdt.testing.source.feature.group" version="9.4.3.201802261533"/>
-      <unit id="org.eclipse.cdt.testing.feature.group" version="9.4.3.201802261533"/>
+      <unit id="org.eclipse.cdt.testing.source.feature.group" version="9.4.3.201803110800"/>
+      <unit id="org.eclipse.cdt.testing.feature.group" version="9.4.3.201803110800"/>
       <repository location="https://hudson.eclipse.org/cdt/job/cdt-9.4/lastSuccessfulBuild/artifact/releng/org.eclipse.cdt.testing.repo/target/repository/"/>
     </location>
     <location includeMode="planner" includeAllPlatforms="false" includeSource="true" includeConfigurePhase="false" type="InstallableUnit">

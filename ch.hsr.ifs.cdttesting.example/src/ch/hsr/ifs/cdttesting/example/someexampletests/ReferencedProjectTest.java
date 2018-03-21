@@ -10,34 +10,36 @@ package ch.hsr.ifs.cdttesting.example.someexampletests;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.core.model.IIncludeReference;
-import org.junit.Before;
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
+import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingUITest;
 
 
-public class ReferencedProjectTest extends CDTTestingTest {
+public class ReferencedProjectTest extends CDTTestingUITest {
 
    private static final String REFERENCED_PROJECT_NAME1 = "otherProject1";
    private static final String REFERENCED_PROJECT_NAME2 = "otherProject2";
 
    @Override
-   @Before
-   public void setUp() throws Exception {
-      addReferencedProject(REFERENCED_PROJECT_NAME1, "ReferencedProjectTest_p2.rts");
-      addReferencedProject(REFERENCED_PROJECT_NAME2, "ReferencedProjectTest_p3.rts");
-      super.setUp();
+   protected void initReferencedProjects() throws Exception {
+      stageReferencedProjectForBothProjects(REFERENCED_PROJECT_NAME1, "ReferencedProjectTest_p2.rts");
+      stageReferencedProjectForBothProjects(REFERENCED_PROJECT_NAME2, "ReferencedProjectTest_p3.rts");
+      super.initReferencedProjects();
    }
 
    @Test
    public void runTest() throws Throwable {
-      assertEquals("[P/otherProject1, P/otherProject2]", Arrays.toString(currentProject.getReferencedProjects()));
-      IIncludeReference[] inc = currentCproject.getIncludeReferences();
+      assertEquals("otherProject1, otherProject2", currentProjectHolder.getReferencedProjects().stream().map(ICProject::toString).collect(Collectors
+            .joining(", ")));
+      IIncludeReference[] inc = getCurrentCProject().getIncludeReferences();
       assertEquals(2, inc.length);
-      assertEquals(makeWorkspaceAbsolutePath(REFERENCED_PROJECT_NAME1), makeOSPath(inc[0].getElementName()));
-      assertEquals(makeWorkspaceAbsolutePath(REFERENCED_PROJECT_NAME2), makeOSPath(inc[1].getElementName()));
+      List<ICProject> referencedProjects = currentProjectHolder.getReferencedProjects();
+      assertEquals(referencedProjects.get(0).getProject().getLocation(), inc[0].getPath());
+      assertEquals(referencedProjects.get(1).getProject().getLocation(), inc[1].getPath());
    }
 }

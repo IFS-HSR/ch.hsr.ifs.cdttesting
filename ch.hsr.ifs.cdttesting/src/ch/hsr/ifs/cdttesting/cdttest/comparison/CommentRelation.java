@@ -37,7 +37,7 @@ public class CommentRelation {
       ComparisonResult previousResult = ASTComparison.equals(left.previous, right.previous, ComparisonArg.emptySet());
       ComparisonResult nextResult = ASTComparison.equals(left.next, right.next, ComparisonArg.emptySet());
       ComparisonResult enclosingResult = ASTComparison.equals(left.enclosing, right.enclosing, ComparisonArg.emptySet());
-      if (commentResult.isNotEqual() || previousResult.isNotEqual() || nextResult.isNotEqual() || enclosingResult.isNotEqual()) {
+      if (commentResult.isUnequal() || previousResult.isUnequal() || nextResult.isUnequal() || enclosingResult.isUnequal()) {
          return new ComparisonResult(ComparisonState.DIFFERENT_COMMENT, commentResult.attributes);
       } else {
          return new ComparisonResult(ComparisonState.EQUAL);

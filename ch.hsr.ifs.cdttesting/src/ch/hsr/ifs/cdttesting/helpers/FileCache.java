@@ -6,10 +6,10 @@
  * Contributors:
  * Institute for Software - initial API and implementation
  ******************************************************************************/
-package ch.hsr.ifs.cdttesting.cdttest;
+package ch.hsr.ifs.cdttesting.helpers;
 
 import java.net.URI;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -24,30 +24,46 @@ import ch.hsr.ifs.iltis.core.resources.FileUtil;
 
 public class FileCache {
 
-   private static Map<IFile, IDocumentProvider> connectedDocuments = new LinkedHashMap<IFile, IDocumentProvider>();
+   private Map<URI, IFile>               mappedURIs         = new HashMap<>();
+   private Map<IFile, IDocumentProvider> connectedDocuments = new HashMap<IFile, IDocumentProvider>();
+   private IDocumentProvider             provider           = new TextFileDocumentProvider();
 
-   public static IDocument getDocument(IFile file) {
-      if (connectedDocuments.containsKey(file)) { return connectedDocuments.get(file).getDocument(file); }
+   /**
+    * Do not call this method before before performing any changes
+    **/
+   public IDocument getDocument(IFile file) {
+      if (connectedDocuments.containsKey(file)) {
+         /* load from cache */
+         return connectedDocuments.get(file).getDocument(file);
+      }
       try {
-         IDocumentProvider provider = new TextFileDocumentProvider();
          if (file == null) { return null; }
+         file.getProject();
          provider.connect(file);
          connectedDocuments.put(file, provider);
          return provider.getDocument(file);
       } catch (CoreException e) {
+         e.printStackTrace();
          return null;
       }
    }
 
-   public static IDocument getDocument(URI fileUri) {
+   /**
+    * Do not call this method before before performing any changes
+    **/
+   public IDocument getDocument(URI fileUri) {
+      if (mappedURIs.containsKey(fileUri)) return getDocument(mappedURIs.get(fileUri));
       IFile file = FileUtil.toIFile(fileUri);
+
+      mappedURIs.put(fileUri, file);
       return getDocument(file);
    }
 
-   public static void clean() {
+   public void clean() {
       for (Entry<IFile, IDocumentProvider> curEntry : connectedDocuments.entrySet()) {
          curEntry.getValue().disconnect(curEntry.getKey());
       }
+      mappedURIs.clear();
       connectedDocuments.clear();
    }
 

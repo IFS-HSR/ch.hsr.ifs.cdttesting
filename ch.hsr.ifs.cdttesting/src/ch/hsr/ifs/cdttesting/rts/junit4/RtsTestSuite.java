@@ -24,7 +24,7 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
 
-import ch.hsr.ifs.cdttesting.cdttest.CDTSourceFileTest;
+import ch.hsr.ifs.cdttesting.cdttest.base.SourceFileBaseTest;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
 
@@ -49,10 +49,10 @@ public class RtsTestSuite extends Suite {
 
       @Override
       public Object createTest() throws Exception {
-         CDTSourceFileTest instance = (CDTSourceFileTest) getTestClass().getOnlyConstructor().newInstance();
-         instance.setName(testName);
-         instance.initTestSourceFiles(testFiles);
-         return instance;
+         SourceFileBaseTest testInstance = (SourceFileBaseTest) getTestClass().getOnlyConstructor().newInstance();
+         testInstance.setName(testName);
+         testInstance.initTestSourceFiles(testFiles);
+         return testInstance;
       }
 
       @Override

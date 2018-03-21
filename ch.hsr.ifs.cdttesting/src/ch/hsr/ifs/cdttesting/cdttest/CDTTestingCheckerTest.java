@@ -8,29 +8,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.cdt.codan.core.CodanRuntime;
-import org.eclipse.cdt.codan.core.model.CheckerLaunchMode;
-import org.eclipse.cdt.codan.core.model.ICodanProblemMarker;
-import org.eclipse.cdt.codan.core.model.IProblem;
-import org.eclipse.cdt.codan.core.model.IProblemProfile;
 import org.eclipse.cdt.codan.core.model.IProblemReporter;
-import org.eclipse.cdt.codan.core.param.IProblemPreference;
-import org.eclipse.cdt.codan.core.param.RootProblemPreference;
-import org.eclipse.cdt.codan.internal.core.model.CodanProblem;
-import org.eclipse.cdt.codan.internal.core.model.CodanProblemMarker;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Before;
 
-import ch.hsr.ifs.iltis.cpp.ast.checker.helper.IProblemId;
+import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingTest;
+import ch.hsr.ifs.cdttesting.cdttest.base.FakeProjectHolder;
+import ch.hsr.ifs.cdttesting.cdttest.base.TestProjectHolder;
 
 
-@SuppressWarnings("restriction")
-public abstract class CDTTestingCodanCheckerTest extends CDTTestingTest {
-
-   protected abstract IProblemId getProblemId();
+public abstract class CDTTestingCheckerTest extends CDTTestingTest {
 
    @Override
    @Before
@@ -40,31 +28,12 @@ public abstract class CDTTestingCodanCheckerTest extends CDTTestingTest {
       runCodan();
    }
 
-   private void enableChecker() {
-      final IProblemId activeProblemId = getProblemId();
-      final IProblemProfile profile = CodanRuntime.getInstance().getCheckersRegistry().getWorkspaceProfile();
-      final IProblem[] problems = profile.getProblems();
-      for (final IProblem p : problems) {
-         final CodanProblem codanProblem = (CodanProblem) p;
-         if (codanProblem.getId().equals(activeProblemId.getId())) {
-            enableCodanProblem(codanProblem);
-         } else {
-            codanProblem.setEnabled(false);
-         }
-      }
-      CodanRuntime.getInstance().getCheckersRegistry().updateProfile(currentCproject.getProject(), profile);
-   }
-
-   protected void problemPreferenceSetup(final RootProblemPreference preference) {}
-
-   private void enableCodanProblem(final CodanProblem codanProblem) {
-      final IProblemPreference preference = codanProblem.getPreference();
-      if (preference instanceof RootProblemPreference) {
-         final RootProblemPreference rootProblemPreference = (RootProblemPreference) preference;
-         rootProblemPreference.getLaunchModePreference().enableInLaunchModes(CheckerLaunchMode.RUN_ON_FULL_BUILD);
-         problemPreferenceSetup(rootProblemPreference);
-      }
-      codanProblem.setEnabled(true);
+   @Override
+   protected void initCurrentExpectedProjectHolders() throws Exception {
+      /* Do not create expected project for performance reasons */
+      currentProjectHolder = new TestProjectHolder(makeCurrentProjectName(), false);
+      expectedProjectHolder = new FakeProjectHolder(makeExpectedProjectName());
+      scheduleAndJoinBoth(currentProjectHolder.createProjectAsync(), expectedProjectHolder.createProjectAsync());
    }
 
    protected void assertProblemMarkerMessages(final String[] expectedMarkerMessages) throws CoreException {
@@ -114,21 +83,5 @@ public abstract class CDTTestingCodanCheckerTest extends CDTTestingTest {
          }
       }
       assertTrue("Not all expected line numbers found. Remaining: " + expectedList, expectedList.isEmpty());
-   }
-
-   protected IMarker[] findMarkers(final String markerTypeStringToFind) throws CoreException {
-      return currentProject.findMarkers(markerTypeStringToFind, true, IResource.DEPTH_INFINITE);
-   }
-
-   protected IMarker[] findMarkers() throws CoreException {
-      return findMarkers(IProblemReporter.GENERIC_CODE_ANALYSIS_MARKER_TYPE);
-   }
-
-   protected ICodanProblemMarker getCodanMarker(final IMarker marker) {
-      return CodanProblemMarker.createCodanProblemMarkerFromResourceMarker(marker);
-   }
-
-   private void runCodan() {
-      CodanRuntime.getInstance().getBuilder().processResource(currentCproject.getProject(), new NullProgressMonitor());
    }
 }

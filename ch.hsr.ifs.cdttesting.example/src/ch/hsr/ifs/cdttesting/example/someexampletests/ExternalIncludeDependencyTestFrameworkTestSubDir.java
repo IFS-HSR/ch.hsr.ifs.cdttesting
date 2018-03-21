@@ -14,34 +14,32 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 
 import org.eclipse.cdt.core.model.IIncludeReference;
-import org.junit.Before;
+import org.eclipse.core.runtime.IPath;
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
+import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingUITest;
 
 
-public class ExternalIncludeDependencyTestFrameworkTestSubDir extends CDTTestingTest {
+public class ExternalIncludeDependencyTestFrameworkTestSubDir extends CDTTestingUITest {
 
    @Override
-   @Before
-   public void setUp() throws Exception {
-      addIncludeDirPath("externalFrameworkTestSubDir");
-      super.setUp();
+   protected void initAdditionalIncludes() {
+      stageExternalIncludePathsForBothProjects("externalFrameworkTestSubDir");
    }
 
    @Test
    public void runTest() throws Throwable {
-      IIncludeReference[] includeRefs = currentCproject.getIncludeReferences();
+      IIncludeReference[] includeRefs = getCurrentCProject().getIncludeReferences();
       assertEquals(1, includeRefs.length);
 
       IIncludeReference externalFrameworkTestRef = includeRefs[0];
-      String expectedExternalFrameworkTestFolderPath = makeExternalResourceAbsolutePath("externalFrameworkTestSubDir");
-      assertFolderExists(expectedExternalFrameworkTestFolderPath + "/sub");
+      IPath expectedExternalFrameworkTestFolderPath = externalTestResourcesHolder.makeProjectAbsolutePath("externalFrameworkTestSubDir");
+      assertFolderExists(expectedExternalFrameworkTestFolderPath.append("/sub"));
       assertEquals(expectedExternalFrameworkTestFolderPath, externalFrameworkTestRef.getPath().toOSString());
    }
 
-   private void assertFolderExists(String expectedFolderName) {
-      File folder = new File(expectedFolderName);
+   private void assertFolderExists(IPath expectedFolderName) {
+      File folder = expectedFolderName.toFile();
       assertTrue(folder.exists());
       assertTrue(folder.isDirectory());
    }

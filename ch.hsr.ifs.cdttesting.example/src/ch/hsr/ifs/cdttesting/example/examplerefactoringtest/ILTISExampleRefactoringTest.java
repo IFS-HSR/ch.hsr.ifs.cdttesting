@@ -15,13 +15,13 @@ public class ILTISExampleRefactoringTest extends CDTTestingRefactoringTest {
 
    @Override
    protected Refactoring createRefactoring() {
-      testRefactoring = new ILTISTestRefactoring(getActiveCElement(), selection, currentCproject);
+      testRefactoring = new ILTISTestRefactoring(getCurrentCElement("XY.cpp").get(), getSelection("XY.cpp"), getCurrentCProject());
       return testRefactoring;
    }
 
    @Test
    public void runTest() throws Throwable {
-      openActiveFileInEditor();
+      openTestFileInEditor("XY.cpp");
       runRefactoringAndAssertSuccess();
       assertTrue(testRefactoring.wasRefactoringSuccessful());
       // calling the following instead of assertRefactoringSuccess() will/would fail

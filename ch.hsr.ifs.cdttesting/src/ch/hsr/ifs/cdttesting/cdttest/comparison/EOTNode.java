@@ -9,137 +9,131 @@ import org.eclipse.cdt.core.dom.ast.IASTNodeLocation;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.parser.IToken;
 
+import ch.hsr.ifs.iltis.core.exception.ILTISException;
+
+
 /**
  * This is a marker node to mark the end of an AST
+ * 
  * @author tstauber
  *
  */
 public class EOTNode implements IASTNode {
 
+   private IASTTranslationUnit ast;
+
+   protected EOTNode(IASTTranslationUnit ast) {
+      this.ast = ast;
+   }
+
+   private ILTISException makeMarkerException() {
+      return new ILTISException("This node type does not provide any functionality. It is a pure marker node!");
+
+   }
+
    @Override
    public IASTTranslationUnit getTranslationUnit() {
-      // TODO Auto-generated method stub
-      return null;
+      return this.ast;
    }
 
    @Override
    public IASTNodeLocation[] getNodeLocations() {
-      // TODO Auto-generated method stub
-      return null;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public IASTFileLocation getFileLocation() {
-      // TODO Auto-generated method stub
-      return null;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public String getContainingFilename() {
-      // TODO Auto-generated method stub
-      return null;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public boolean isPartOfTranslationUnitFile() {
-      // TODO Auto-generated method stub
-      return false;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public IASTNode getParent() {
-      // TODO Auto-generated method stub
-      return null;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public IASTNode[] getChildren() {
-      // TODO Auto-generated method stub
-      return null;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public void setParent(IASTNode node) {
-      // TODO Auto-generated method stub
-
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public ASTNodeProperty getPropertyInParent() {
-      // TODO Auto-generated method stub
-      return null;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public void setPropertyInParent(ASTNodeProperty property) {
-      // TODO Auto-generated method stub
-
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public boolean accept(ASTVisitor visitor) {
-      // TODO Auto-generated method stub
       return false;
    }
 
    @Override
    public String getRawSignature() {
-      // TODO Auto-generated method stub
-      return null;
+      return "-- END OF TREE --";
    }
 
    @Override
    public boolean contains(IASTNode node) {
-      // TODO Auto-generated method stub
-      return false;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public IToken getLeadingSyntax() throws ExpansionOverlapsBoundaryException, UnsupportedOperationException {
-      // TODO Auto-generated method stub
-      return null;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public IToken getTrailingSyntax() throws ExpansionOverlapsBoundaryException, UnsupportedOperationException {
-      // TODO Auto-generated method stub
-      return null;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public IToken getSyntax() throws ExpansionOverlapsBoundaryException {
-      // TODO Auto-generated method stub
-      return null;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public boolean isFrozen() {
-      // TODO Auto-generated method stub
-      return false;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public boolean isActive() {
-      // TODO Auto-generated method stub
-      return false;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public IASTNode copy() {
-      // TODO Auto-generated method stub
-      return null;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public IASTNode copy(CopyStyle style) {
-      // TODO Auto-generated method stub
-      return null;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
    @Override
    public IASTNode getOriginalNode() {
-      // TODO Auto-generated method stub
-      return null;
+      throw makeMarkerException().rethrowUnchecked();
    }
 
 }

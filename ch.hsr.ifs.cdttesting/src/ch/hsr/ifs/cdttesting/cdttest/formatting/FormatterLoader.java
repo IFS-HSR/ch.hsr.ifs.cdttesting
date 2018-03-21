@@ -8,7 +8,7 @@ import org.eclipse.cdt.core.model.ICProject;
 
 public class FormatterLoader {
 
-   public static Map<String, String> formatterOptions = new HashMap<>(200);
+   public static Map<String, String> formatterOptions = new HashMap<>(165);
    static {
       formatterOptions.put("org.eclipse.cdt.core.formatter.alignment_for_arguments_in_method_invocation", "16");
       formatterOptions.put("org.eclipse.cdt.core.formatter.alignment_for_assignment", "16");

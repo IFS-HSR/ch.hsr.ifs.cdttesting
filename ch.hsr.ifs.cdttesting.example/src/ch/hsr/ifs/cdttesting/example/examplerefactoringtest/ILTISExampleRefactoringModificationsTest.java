@@ -11,12 +11,12 @@ public class ILTISExampleRefactoringModificationsTest extends CDTTestingRefactor
 
    @Override
    protected Refactoring createRefactoring() {
-      return new ILTISDummyRenameRefactoring(getActiveCElement(), selection, currentCproject);
+      return new ILTISDummyRenameRefactoring(getPrimaryCElementFromCurrentProject().get(), getSelectionOfPrimaryTestFile(), getCurrentCProject());
    }
 
    @Test
    public void runTest() throws Throwable {
-      openActiveFileInEditor();
+      openPrimaryTestFileInEditor();
       runRefactoringAndAssertSuccess();
    }
 }

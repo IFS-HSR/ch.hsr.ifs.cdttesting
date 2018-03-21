@@ -1,14 +1,16 @@
 package ch.hsr.ifs.cdttesting.cdttest.comparison;
 
 import java.util.EnumSet;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonArg;
+import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonAttrID;
+import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonAttribute;
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonResult;
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonState;
+import ch.hsr.ifs.iltis.core.data.StringPrintStream;
 import ch.hsr.ifs.iltis.core.functional.Functional;
 
 
@@ -16,8 +18,6 @@ public class NodeComparisonVisitor {
 
    private ASTNodeCollector leftCollector;
    private ASTNodeCollector rightCollector;
-
-   private ComparisonResult lastFailingResult = null;
 
    private EnumSet<ComparisonArg> args;
    private boolean                compareComments;
@@ -30,52 +30,49 @@ public class NodeComparisonVisitor {
    }
 
    public ComparisonResult compare() {
-      leftCollector.start();
-      rightCollector.start();
-
+      leftCollector.schedule();
+      rightCollector.schedule();
+      ComparisonResult result;
       try {
-         compareNodes();
+         result = compareNodes();
          leftCollector.join();
          rightCollector.join();
-
+         if (result.isUnequal()) {
+            return result;
+         } else if (compareComments) {
+            return commentsEqual();
+         } else {
+            return new ComparisonResult(ComparisonState.EQUAL);
+         }
       } catch (InterruptedException e) {
+         StringPrintStream stream = StringPrintStream.createNew();
          e.printStackTrace();
-      }
-
-      if (lastFailingResult != null) {
-         return lastFailingResult;
-      } else if (compareComments) {
-         return commentsEqual();
-      } else {
-         return new ComparisonResult(ComparisonState.EQUAL);
+         e.printStackTrace(stream);
+         return new ComparisonResult(ComparisonState.INTERRUPTED, new ComparisonAttribute(ComparisonAttrID.ACTUAL, e.getClass().getSimpleName(),
+               stream.toString()));
       }
    }
 
    public ComparisonResult commentsEqual() {
       return Functional.zip(leftCollector.getCommentRelations(), rightCollector.getCommentRelations()).map((pair) -> CommentRelation.equals(pair
-            .first(), pair.second(), args)).filter(ComparisonResult::isNotEqual).findFirst().orElse(new ComparisonResult(ComparisonState.EQUAL));
+            .first(), pair.second(), args)).filter(ComparisonResult::isUnequal).findFirst().orElse(new ComparisonResult(ComparisonState.EQUAL));
    }
 
-   protected void compareNodes() throws InterruptedException {
-      while (leftCollector.isAlive() || rightCollector.isAlive() || leftCollector.hasNode() || rightCollector.hasNode()) {
-         IASTNode expected = null;
-         do {
-            expected = leftCollector.poll(10, TimeUnit.MILLISECONDS);
-         } while (expected == null && leftCollector.isAlive());
+   protected ComparisonResult compareNodes() throws InterruptedException {
+      while (true) {
 
-         IASTNode actual = null;
-         do {
-            actual = rightCollector.poll(10, TimeUnit.MILLISECONDS);
-         } while (actual == null && rightCollector.isAlive());
+         IASTNode expected = leftCollector.poll();
+         IASTNode actual = rightCollector.poll();
 
-         if (expected == null && actual == null) break;
+         if (expected instanceof EOTNode && actual instanceof EOTNode) break;
 
-         ComparisonResult tempResult = ASTComparison.equals(expected, actual, args);
-         if (tempResult.isNotEqual()) {
-            lastFailingResult = tempResult;
+         ComparisonResult result = ASTComparison.equals(expected, actual, args);
+         if (result.isUnequal()) {
             leftCollector.abort();
             rightCollector.abort();
+            return result;
          }
       }
+      return new ComparisonResult(ComparisonState.EQUAL);
    }
 }

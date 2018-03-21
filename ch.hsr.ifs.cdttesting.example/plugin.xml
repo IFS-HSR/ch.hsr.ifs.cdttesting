@@ -3,8 +3,7 @@
 <plugin>
    <extension point="ch.hsr.ifs.cdttesting.testingPlugin">
 	   <testResouresLocation
-	         sourceLocation="/resources/ch.hsr.ifs.cdttesting.example.exampleTestFolder/"
-	         testPackage="ch.hsr.ifs.cdttesting.example"
+	         sourceLocation="resources/ch.hsr.ifs.cdttesting.example/"
 	         externalSourceLocation="/ch.hsr.ifs.cdttesting.example.externalTestResource/"/>
    </extension>
    

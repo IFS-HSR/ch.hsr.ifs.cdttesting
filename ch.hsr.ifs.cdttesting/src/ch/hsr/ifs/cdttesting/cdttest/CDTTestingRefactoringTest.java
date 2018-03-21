@@ -4,12 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
-import java.net.URI;
 import java.util.EnumSet;
 
-import org.eclipse.cdt.core.model.CoreModel;
-import org.eclipse.cdt.core.model.ICElement;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ltk.core.refactoring.Change;
@@ -18,10 +14,14 @@ import org.eclipse.ltk.core.refactoring.RefactoringContext;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.RefactoringStatusEntry;
 
-import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonArg;
-import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
+import ch.hsr.ifs.iltis.core.exception.ILTISException;
+
 import ch.hsr.ifs.iltis.cpp.wrappers.CRefactoring;
 import ch.hsr.ifs.iltis.cpp.wrappers.CRefactoringContext;
+
+import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingUITest;
+import ch.hsr.ifs.cdttesting.cdttest.base.SourceFileBaseTest;
+import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonArg;
 
 
 /**
@@ -30,7 +30,7 @@ import ch.hsr.ifs.iltis.cpp.wrappers.CRefactoringContext;
  * our cdttesting framework
  */
 @SuppressWarnings("restriction")
-public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
+public abstract class CDTTestingRefactoringTest extends CDTTestingUITest {
 
    /** Expected counts of errors, warnings and info messages */
    protected int expectedInitialErrors;
@@ -63,37 +63,27 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
 
    protected void runRefactoringAndAssertSuccess() throws Exception {
       executeRefactoring(true);
-      compareFiles();
+      saveAllEditors();
+      assertAllSourceFilesEqual(makeComparisonArguments());
+   }
+
+   /**
+    * Can be overloaded to use specific comparison arguments in {@link #runRefactoringAndAssertSuccess()}. By default this uses the values stored in
+    * {@link SourceFileBaseTest#COMPARE_AST_AND_COMMENTS_AND_INCLUDES}
+    * 
+    * @return
+    */
+   protected EnumSet<ComparisonArg> makeComparisonArguments() {
+      return COMPARE_AST_AND_COMMENTS_AND_INCLUDES;
    }
 
    protected void runRefactoringAndAssertFailure() throws Exception {
       executeRefactoring(false);
    }
 
-   /**
-    * Deprecated due to bad method name.
-    *
-    * @deprecated use {@link #runRefactoringAndAssertSuccess()
-    *             runRefactoringAndAssertSuccess} instead.
-    */
-   @Deprecated
-   protected void assertRefactoringSuccess() throws Exception {
-      runRefactoringAndAssertSuccess();
-   }
-
-   /**
-    * Deprecated due to bad method name.
-    *
-    * @deprecated use {@link #runRefactoringAndAssertFailure()
-    *             runRefactoringAndAssertFailure} instead.
-    */
-   @Deprecated
-   protected void assertRefactoringFailure() throws Exception {
-      runRefactoringAndAssertFailure();
-   }
-
    protected void executeRefactoring(final boolean expectedSuccess) throws Exception {
       final Refactoring refactoring = createRefactoring();
+      ILTISException.Unless.notNull(refactoring, "Refactoring can not be enabled for null. Overload createRefactoring() propperly.");
       RefactoringContext context;
       if (refactoring instanceof CRefactoring) {
          context = new CRefactoringContext((CRefactoring) refactoring);
@@ -141,12 +131,6 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
          if (context != null) {
             context.dispose();
          }
-      }
-   }
-
-   protected void compareFiles() throws Exception {
-      for (final TestSourceFile testFile : fileMap.values()) {
-         fastAssertEquals(testFile.getName(), EnumSet.of(ComparisonArg.COMPARE_COMMENTS, ComparisonArg.COMPARE_INCLUDE_DIRECTIVES));
       }
    }
 
@@ -216,12 +200,4 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingTest {
       assertTrue("Fatal error status expected", status.hasFatalError());
    }
 
-   protected URI getActiveFileUri() {
-      final String absoluteFilePath = makeProjectAbsolutePath(activeFileName, currentProject);
-      return new File(absoluteFilePath).toURI();
-   }
-
-   public ICElement getActiveCElement() {
-      return CoreModel.getDefault().create(getIFile(activeFileName));
-   }
 }

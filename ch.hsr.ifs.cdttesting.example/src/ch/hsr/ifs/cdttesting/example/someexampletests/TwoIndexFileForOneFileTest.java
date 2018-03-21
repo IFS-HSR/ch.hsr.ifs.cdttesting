@@ -20,23 +20,24 @@ import org.eclipse.cdt.core.index.IndexLocationFactory;
 import org.eclipse.cdt.core.model.ICProject;
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
+import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingUITest;
 
 
-public class TwoIndexFileForOneFileTest extends CDTTestingTest {
+public class TwoIndexFileForOneFileTest extends CDTTestingUITest {
 
    private IIndex index;
 
    @Override
    public void setUp() throws Exception {
       super.setUp();
-      index = CCorePlugin.getIndexManager().getIndex(new ICProject[] { currentCproject });
+      index = CCorePlugin.getIndexManager().getIndex(new ICProject[] { getCurrentCProject() });
       index.acquireReadLock();
    }
 
    @Test
    public void runTest() throws Throwable {
-      IIndexFileLocation aHIndexFileLocation = IndexLocationFactory.getIFLExpensive(currentCproject, makeProjectAbsolutePath("A.h", currentProject));
+      IIndexFileLocation aHIndexFileLocation = IndexLocationFactory.getIFLExpensive(getCurrentCProject(), currentProjectHolder
+            .makeProjectAbsolutePath("A.h").toOSString());
       IIndexFile[] aHIndexFile = index.getFiles(aHIndexFileLocation);
       assertEquals(2, aHIndexFile.length);
       assertEquals(GPPLanguage.getDefault().getLinkageID(), aHIndexFile[0].getLinkageID());

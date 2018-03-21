@@ -15,10 +15,10 @@ import java.util.Properties;
 
 import org.junit.Test;
 
-import ch.hsr.ifs.cdttesting.cdttest.CDTTestingTest;
+import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingUITest;
 
 
-public class WithConfigFileTest extends CDTTestingTest {
+public class WithConfigFileTest extends CDTTestingUITest {
 
    private String  stringProperty;
    private int     intProperty;
