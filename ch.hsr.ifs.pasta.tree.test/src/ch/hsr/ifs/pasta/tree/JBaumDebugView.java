@@ -25,6 +25,7 @@ public class JBaumDebugView extends JPanel {
       this.root = root;
    }
 
+   @Override
    protected void paintComponent(final Graphics g) {
       super.paintComponent(g);
       this.removeAll();
@@ -91,6 +92,7 @@ public class JBaumDebugView extends JPanel {
       repaint();
    }
 
+   @Override
    public Dimension getPreferredSize() {
       return new Dimension(600, 400);
    }

@@ -15,7 +15,6 @@ import ch.hsr.ifs.iltis.cpp.wrappers.CRefactoring;
 import ch.hsr.ifs.iltis.cpp.wrappers.ModificationCollector;
 
 
-@SuppressWarnings("restriction")
 public class ILTISTestRefactoring extends CRefactoring {
 
    private boolean collectModificationsCalled;

@@ -1,5 +1,6 @@
 package ch.hsr.ifs.cdttesting.test.cdttest.tests;
 
+
 import java.io.IOException;
 import java.util.EnumSet;
 
@@ -19,6 +20,7 @@ import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonState;
 @SuppressWarnings("restriction")
 public class ASTComparisonTest extends AST2TestBase {
 
+   @Override
    protected CharSequence[] getContents(int sections) throws IOException {
       return TestSourceReader.getContentsForTest(FrameworkUtil.getBundle(getClass()), "src", getClass(), getName(), sections);
    }
