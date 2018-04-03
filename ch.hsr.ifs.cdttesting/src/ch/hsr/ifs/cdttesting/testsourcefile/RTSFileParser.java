@@ -41,45 +41,45 @@ public class RTSFileParser {
 
       String failMSG = FAIL_INVALID_PARSE_STATE;
 
-      MatcherState matcherState = MatcherState.skip;
+      MatcherState matcherState = MatcherState.ROOT;
 
       /* YES CODE DUPLICATION MUTCH, BUT FUCK THAT, IT'S FAST!! */
-      
+
       String line;
       while ((line = inputReader.readLine()) != null) {
 
          switch (matcherState) {
-         case skip:
+         case ROOT:
             if (isTEST(line)) {
                String name = getValue(TEST, line);
                if (name.length() == 0) {
                   failMSG = FAIL_TEST_HAS_NO_NAME;
-                  matcherState = MatcherState.inFail;
+                  matcherState = MatcherState.FAIL_STATE;
                } else {
-                  matcherState = MatcherState.inTest;
+                  matcherState = MatcherState.IN_TEST_CASE;
                   currentTest = new RTSTest(name);
                   testCases.add(currentTest);
                }
             }
             break;
-         case inTest:
+         case IN_TEST_CASE:
             if (isFILE(line)) {
                String name = getValue(FILE, line);
                if (name.length() == 0) {
                   failMSG = String.format(FAIL_FILE_HAS_NO_NAME, currentFile.getName());
-                  matcherState = MatcherState.inFail;
+                  matcherState = MatcherState.FAIL_STATE;
                } else {
                   currentFile = new TestSourceFile(getValue(FILE, line));
                   currentTest.addFile(currentFile);
-                  matcherState = MatcherState.inFile;
+                  matcherState = MatcherState.IN_TEST_FILE;
                }
             } else if (isTEST(line)) {
                String name = getValue(TEST, line);
                if (name.length() == 0) {
                   failMSG = FAIL_TEST_HAS_NO_NAME;
-                  matcherState = MatcherState.inFail;
+                  matcherState = MatcherState.FAIL_STATE;
                } else {
-                  matcherState = MatcherState.inTest;
+                  matcherState = MatcherState.IN_TEST_CASE;
                   currentTest = new RTSTest(name);
                   testCases.add(currentTest);
                }
@@ -87,36 +87,32 @@ public class RTSFileParser {
                currentTest.setLanguage(getValue(LANGUAGE, line));
             }
             break;
-         case inFile:
+         case IN_TEST_FILE:
             if (isFILE(line)) {
                String name = getValue(FILE, line);
                if (name.length() == 0) {
                   failMSG = String.format(FAIL_FILE_HAS_NO_NAME, currentFile.getName());
-                  matcherState = MatcherState.inFail;
+                  matcherState = MatcherState.FAIL_STATE;
                } else {
                   currentFile = new TestSourceFile(getValue(FILE, line));
                   currentTest.addFile(currentFile);
-                  matcherState = MatcherState.inFile;
+                  matcherState = MatcherState.IN_TEST_FILE;
                }
             } else if (isEXPECTED(line)) {
                currentFile.initExpectedSource();
-               matcherState = MatcherState.inExpectedFile;
+               matcherState = MatcherState.IN_EXPECTED_FILE;
                continue;
             } else if (isTEST(line)) {
                String name = getValue(TEST, line);
                if (name.length() == 0) {
                   failMSG = FAIL_TEST_HAS_NO_NAME;
-                  matcherState = MatcherState.inFail;
+                  matcherState = MatcherState.FAIL_STATE;
                } else {
-                  matcherState = MatcherState.inTest;
+                  matcherState = MatcherState.IN_TEST_CASE;
                   currentTest = new RTSTest(name);
                   testCases.add(currentTest);
                }
             } else if (BEGIN_OF_SELECTION_MATCHER.reset(line).find()) {
-               if (currentFile.hasSelection()) {
-                  failMSG = String.format(FAIL_MORE_THAN_ONE_SELECTION, currentFile.getName(), currentTest.getName());
-                  matcherState = MatcherState.inFail;
-               }
                /* Opening tag on this line */
                currentFile.setSelectionStart(BEGIN_OF_SELECTION_MATCHER.start(2) + currentFile.getSource().length());
                line = BEGIN_OF_SELECTION_MATCHER.group(1) + BEGIN_OF_SELECTION_MATCHER.group(5);
@@ -129,55 +125,86 @@ public class RTSFileParser {
                   line = BEGIN_OF_SELECTION_MATCHER.group(1) + BEGIN_OF_SELECTION_MATCHER.group(5);
                } else {
                   /* Closing tag must be on another line */
-                  matcherState = MatcherState.inSelection;
+                  matcherState = MatcherState.IN_FILE_SELECTION;
                }
                currentFile.appendLineToSource(line);
             } else {
                currentFile.appendLineToSource(line);
             }
             break;
-         case inSelection:
-            if (isFILE(line) || isEXPECTED(line) || isTEST(line)) {
-               matcherState = MatcherState.inFail;
-               failMSG = String.format(FAIL_SELECTION_NOT_CLOSED, currentFile.getName(), currentTest.getName());
-            }
-            if (END_OF_SELECTION_MATCHER.reset(line).find()) {
-               line = END_OF_SELECTION_MATCHER.group(1) + END_OF_SELECTION_MATCHER.group(5);
-               currentFile.setSelectionEnd(END_OF_SELECTION_MATCHER.start(2) + currentFile.getSource().length());
-               matcherState = MatcherState.inFile;
-            }
-            currentFile.appendLineToSource(line);
-            break;
-         case inExpectedFile:
+         case IN_FILE_WITH_SELECTION:
             if (isFILE(line)) {
                String name = getValue(FILE, line);
                if (name.length() == 0) {
                   failMSG = String.format(FAIL_FILE_HAS_NO_NAME, currentFile.getName());
-                  matcherState = MatcherState.inFail;
+                  matcherState = MatcherState.FAIL_STATE;
                } else {
                   currentFile = new TestSourceFile(getValue(FILE, line));
                   currentTest.addFile(currentFile);
-                  matcherState = MatcherState.inFile;
+                  matcherState = MatcherState.IN_TEST_FILE;
+               }
+            } else if (isEXPECTED(line)) {
+               currentFile.initExpectedSource();
+               matcherState = MatcherState.IN_EXPECTED_FILE;
+               continue;
+            } else if (isTEST(line)) {
+               String name = getValue(TEST, line);
+               if (name.length() == 0) {
+                  failMSG = FAIL_TEST_HAS_NO_NAME;
+                  matcherState = MatcherState.FAIL_STATE;
+               } else {
+                  matcherState = MatcherState.IN_TEST_CASE;
+                  currentTest = new RTSTest(name);
+                  testCases.add(currentTest);
+               }
+            } else if (BEGIN_OF_SELECTION_MATCHER.reset(line).find()) {
+               failMSG = String.format(FAIL_MORE_THAN_ONE_SELECTION, currentFile.getName(), currentTest.getName());
+               matcherState = MatcherState.FAIL_STATE;
+            } else {
+               currentFile.appendLineToSource(line);
+            }
+            break;
+         case IN_FILE_SELECTION:
+            if (isFILE(line) || isEXPECTED(line) || isTEST(line)) {
+               matcherState = MatcherState.FAIL_STATE;
+               failMSG = String.format(FAIL_SELECTION_NOT_CLOSED, currentFile.getName(), currentTest.getName());
+            } else if (END_OF_SELECTION_MATCHER.reset(line).find()) {
+               line = END_OF_SELECTION_MATCHER.group(1) + END_OF_SELECTION_MATCHER.group(5);
+               currentFile.setSelectionEnd(END_OF_SELECTION_MATCHER.start(2) + currentFile.getSource().length());
+               matcherState = MatcherState.IN_FILE_WITH_SELECTION;
+            }
+            currentFile.appendLineToSource(line);
+            break;
+         case IN_EXPECTED_FILE:
+            if (isFILE(line)) {
+               String name = getValue(FILE, line);
+               if (name.length() == 0) {
+                  failMSG = String.format(FAIL_FILE_HAS_NO_NAME, currentFile.getName());
+                  matcherState = MatcherState.FAIL_STATE;
+               } else {
+                  currentFile = new TestSourceFile(getValue(FILE, line));
+                  currentTest.addFile(currentFile);
+                  matcherState = MatcherState.IN_TEST_FILE;
                }
             } else if (isTEST(line)) {
                String name = getValue(TEST, line);
                if (name.length() == 0) {
                   failMSG = FAIL_TEST_HAS_NO_NAME;
-                  matcherState = MatcherState.inFail;
+                  matcherState = MatcherState.FAIL_STATE;
                } else {
-                  matcherState = MatcherState.inTest;
+                  matcherState = MatcherState.IN_TEST_CASE;
                   currentTest = new RTSTest(name);
                   testCases.add(currentTest);
                }
             } else if (isEXPECTED(line)) {
                failMSG = String.format(FAIL_ONLY_ONE_EXPECTED_FILE_IS_ALLOWED, currentFile.getName(), currentTest.getName());
-               matcherState = MatcherState.inFail;
+               matcherState = MatcherState.FAIL_STATE;
                continue;
             } else {
                currentFile.appendLineToExpectedSource(line);
             }
             break;
-         case inFail:
+         case FAIL_STATE:
             fail(failMSG);
          }
       }
@@ -205,6 +232,6 @@ public class RTSFileParser {
    }
 
    private enum MatcherState {
-      skip, inTest, inFile, inSelection, inExpectedFile, inFail
+      ROOT, IN_TEST_CASE, IN_TEST_FILE, IN_FILE_SELECTION, IN_FILE_WITH_SELECTION, IN_EXPECTED_FILE, FAIL_STATE
    }
 }
