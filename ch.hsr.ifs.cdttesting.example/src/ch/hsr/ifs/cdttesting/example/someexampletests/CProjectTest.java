@@ -21,12 +21,6 @@ import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingUITest;
 
 public class CProjectTest extends CDTTestingUITest {
 
-   @Override
-   protected void initAdditionalIncludes() {
-      currentProjectHolder.instantiateCProject();
-      expectedProjectHolder.instantiateCProject();
-   }
-
    @Test
    public void runTest() throws Throwable {
       IProjectNature cCNature = getCurrentProject().getNature(CCProjectNature.CC_NATURE_ID);
