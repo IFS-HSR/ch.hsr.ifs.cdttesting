@@ -49,22 +49,16 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingUITest {
     *
     * @param context
     */
-   protected void simulateUserInput(final RefactoringContext context) {
-      simulateUserInput(); // call deprecated method if not overwritten by user
-   }
+   protected void simulateUserInput(final RefactoringContext context) {}
 
    /**
-    * Subclasses can override to simulate user input.
-    *
-    * @deprecated use {@link #simulateUserInput(RefactoringContext)} instead.
+    * Executes the refactoring provided by {@link #createRefactoring()} asserts it to be successful and the current and expected project to have files
+    * with equal ASTs
+    * 
+    * @throws Exception
     */
-   @Deprecated
-   //FIXME remove this
-   protected void simulateUserInput() {}
-
    protected void runRefactoringAndAssertSuccess() throws Exception {
       executeRefactoring(true);
-      //      saveAllEditors(); //TODO needed?
       assertAllSourceFilesEqual(makeComparisonArguments());
    }
 

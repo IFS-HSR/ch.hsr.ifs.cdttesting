@@ -12,6 +12,6 @@ import org.junit.runners.Suite.SuiteClasses;
     JBaumTest.class,
 })
 //@formatter:on
-public class TestSuiteAll {
+public class PluginUITestSuiteAll {
 
 }

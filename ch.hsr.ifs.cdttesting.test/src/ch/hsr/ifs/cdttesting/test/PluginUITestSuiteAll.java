@@ -15,6 +15,6 @@ import ch.hsr.ifs.cdttesting.test.cdttest.tests.NormalizerTest;
    ASTComparisonTest.class, 
    })
 // @formatter:on
-public class TestSuiteAll {
+public class PluginUITestSuiteAll {
 
 }
