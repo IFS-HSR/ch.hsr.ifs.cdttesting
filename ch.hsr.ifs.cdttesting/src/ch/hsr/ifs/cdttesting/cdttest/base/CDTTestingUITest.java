@@ -25,6 +25,7 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.JFaceTextUtil;
 import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.text.edits.MalformedTreeException;
@@ -142,7 +143,8 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
    }
 
    protected void openTestFileInEditor(final String testSourceFileName) throws Exception {
-      if (!testFiles.containsKey(testSourceFileName)) throw new IllegalArgumentException("No such test file \"" + testSourceFileName + "\" found.");
+      if (!testFiles.containsKey(testSourceFileName)) throw new IllegalArgumentException(NLS.bind("No such test file \"{0}\" found.",
+            testSourceFileName));
       UIThreadSyncRunnable.run(() -> {
          OptionalUtil.doIfPresentT(getActivePage(), p -> {
             IDE.openEditor(p, getCurrentIFile(testSourceFileName));

@@ -14,11 +14,8 @@ import org.eclipse.cdt.codan.core.param.RootProblemPreference;
 import org.eclipse.cdt.codan.internal.core.model.CodanProblem;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.jobs.Job;
 
 import ch.hsr.ifs.iltis.cpp.ast.checker.helper.IProblemId;
 

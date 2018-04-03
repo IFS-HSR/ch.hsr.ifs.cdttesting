@@ -80,7 +80,7 @@ public abstract class CDTTestingCheckerTest extends CDTTestingTest {
    private void extractMarkerLines(final Properties properties) {
       final String markerLines = properties.getProperty(CDTTestingConfigConstants.MARKER_LINES);
       if (markerLines != null && !markerLines.isEmpty()) {
-         expectedMarkerLinesFromProperties = Stream.of(markerLines.split(",")).map(String::trim).map(Integer::valueOf).collect(Collectors.toList()); //$NON-NLS-1$
+         expectedMarkerLinesFromProperties = Stream.of(markerLines.split(",")).map(String::trim).map(Integer::valueOf).collect(Collectors.toList()); 
       }
    }
 
@@ -99,13 +99,13 @@ public abstract class CDTTestingCheckerTest extends CDTTestingTest {
    }
 
    public void assertMarkerMessages(final String expectedMarkerId, final List<String> expectedMarkerMessages) throws CoreException {
-      assertMarkerAttributes(IMarker.MESSAGE, Messages.CDTTestingCheckerTest_Fail_assertMarkerMessages, findMarkers(expectedMarkerId),
+      assertMarkerAttributes(IMarker.MESSAGE, "Marker-message '{0}' not present in given marker message list", findMarkers(expectedMarkerId),
             expectedMarkerMessages);
    }
 
    public void assertSingleMarker(final String expectedMsg, final int expectedLine) throws CoreException {
       final IMarker[] markers = findMarkers();
-      assertEquals(Messages.CDTTestingCheckerTest_Fail_singleMarker, 1, markers.length);
+      assertEquals("assertSingleMarker(String, int) is only intended to be uesed when there is exactly one marker. Use assertMarkerLineAndMessage(String, int, IMarker) and findMarkers(...) otherwise.", 1, markers.length);
       assertMarkerLineAndMessage(expectedMsg, expectedLine, markers[0]);
    }
 
@@ -127,7 +127,7 @@ public abstract class CDTTestingCheckerTest extends CDTTestingTest {
    }
 
    public void assertMarkerLines(final String expectedMarkerId, final List<Integer> expectedMarkerLines) throws CoreException {
-      assertMarkerAttributes(IMarker.LINE_NUMBER, Messages.CDTTestingCheckerTest_Fail_assertMarkerLines, findMarkers(expectedMarkerId),
+      assertMarkerAttributes(IMarker.LINE_NUMBER, "Marker-line '{0}' not present in given marker lines list", findMarkers(expectedMarkerId),
             expectedMarkerLines.stream().map(String::valueOf).collect(Collectors.toList()));
    }
 
@@ -135,7 +135,7 @@ public abstract class CDTTestingCheckerTest extends CDTTestingTest {
 
    private void assertMarkerAttributes(final String attributeName, String failMessage, IMarker[] markers, List<String> expectedValues)
          throws CoreException {
-      if (expectedValues == null) throw new IllegalArgumentException(Messages.CDTTestingCheckerTest_Fail_assertMarkerAttributes_null);
+      if (expectedValues == null) throw new IllegalArgumentException("Expected values were null");
       for (final IMarker curMarker : markers) {
          final String attribute = extractMarkerAttribute(attributeName, curMarker);
          if (expectedValues.contains(attribute)) {
@@ -144,7 +144,7 @@ public abstract class CDTTestingCheckerTest extends CDTTestingTest {
             fail(NLS.bind(failMessage, attribute));
          }
       }
-      assertTrue(Messages.CDTTestingCheckerTest_Fail_assertMarkerAttributes_some_remaining + StringUtil.toString(expectedValues), expectedValues
+      assertTrue("Not all expected values found. Remaining: " + StringUtil.toString(expectedValues), expectedValues
             .isEmpty());
    }
 
