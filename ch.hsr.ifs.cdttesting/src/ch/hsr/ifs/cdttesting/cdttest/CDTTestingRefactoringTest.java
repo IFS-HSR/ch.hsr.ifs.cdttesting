@@ -59,11 +59,12 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingUITest {
     * @deprecated use {@link #simulateUserInput(RefactoringContext)} instead.
     */
    @Deprecated
+   //FIXME remove this
    protected void simulateUserInput() {}
 
    protected void runRefactoringAndAssertSuccess() throws Exception {
       executeRefactoring(true);
-      saveAllEditors();
+      //      saveAllEditors(); //TODO needed?
       assertAllSourceFilesEqual(makeComparisonArguments());
    }
 
@@ -83,7 +84,7 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingUITest {
 
    protected void executeRefactoring(final boolean expectedSuccess) throws Exception {
       final Refactoring refactoring = createRefactoring();
-      ILTISException.Unless.notNull(refactoring, "Refactoring can not be enabled for null. Overload createRefactoring() propperly.");
+      ILTISException.Unless.notNull("Refactoring can not be enabled for null. Overload createRefactoring() propperly.", refactoring);
       RefactoringContext context;
       if (refactoring instanceof CRefactoring) {
          context = new CRefactoringContext((CRefactoring) refactoring);

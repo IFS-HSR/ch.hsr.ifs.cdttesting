@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Optional;
 
 import org.eclipse.cdt.core.model.ICElement;
@@ -30,9 +31,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.junit.After;
 import org.junit.Before;
@@ -44,10 +43,17 @@ import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
 abstract public class ProjectHolderBaseTest {
 
+   public static final String NL = System.getProperty("line.separator");
+
    /**
     * Set this to {@code false} to enforce sequential execution of the project holder operations
     */
    protected boolean executeProjectHolderOperationsParallel = true;
+
+   private boolean calledInitProjectFiles       = false;
+   private boolean calledInitReferencedProjects = false;
+   private boolean calledInitAdditionalIncludes = false;
+   private boolean calledPreSetupIndex          = false;
 
    protected static String EXTERNAL_TEST_RESOURCE_PROJECT_NAME = "External_Test_Resources_Project";
 
@@ -141,13 +147,26 @@ abstract public class ProjectHolderBaseTest {
       initExternalTestResourcesHolder();
       initCurrentExpectedProjectHolders();
       initProjectFiles();
+      assertAllSuperMethodsCalled(calledInitProjectFiles, "initProjectFiles");
       setupProjectFiles();
       initReferencedProjects();
+      assertAllSuperMethodsCalled(calledInitReferencedProjects, "initReferencedProjects");
       setupReferencedProjects();
       setupProjectReferences();
       initAdditionalIncludes();
+      assertAllSuperMethodsCalled(calledInitAdditionalIncludes, "initAdditionalIncludes");
       setupIncludePaths();
+      preSetupIndex();
+      assertAllSuperMethodsCalled(calledPreSetupIndex, "preSetupIndex");
       setupIndices();
+   }
+
+   void assertAllSuperMethodsCalled(boolean guard, String methodName) {
+      assertTrue(notAllSuperMethodsWereCalled(methodName), guard);
+   }
+
+   private static String notAllSuperMethodsWereCalled(String methodName) {
+      return "The overridden method \"" + methodName + "\" does not call super." + methodName + "()!";
    }
 
    /**
@@ -156,6 +175,8 @@ abstract public class ProjectHolderBaseTest {
     * {@link IProjectHolder#stageFilesForImport(Enumeration)} or {@link IProjectHolder#stageFilesForImport(Collection)}
     * 
     * @throws Exception
+    * 
+    * @noreference Do not call this method directly
     */
    protected void initExternalTestResourcesHolder() throws Exception {}
 
@@ -165,6 +186,8 @@ abstract public class ProjectHolderBaseTest {
     * {@link #initExternalTestResourcesHolder()} must finish executing before calling this method.
     * 
     * @throws Exception
+    * 
+    * @noreference Do not call this method directly
     */
    protected abstract void initCurrentExpectedProjectHolders() throws Exception;
 
@@ -175,8 +198,12 @@ abstract public class ProjectHolderBaseTest {
     * {@link #initCurrentExpectedProjectHolders()} must finish executing before calling this method.
     * 
     * @throws Exception
+    * 
+    * @noreference Do not call this method directly
     */
-   protected abstract void initProjectFiles() throws Exception;
+   protected void initProjectFiles() throws Exception {
+      this.calledInitProjectFiles = true;
+   }
 
    /**
     * Override to stage referenced projects. This should be done by calling
@@ -185,8 +212,12 @@ abstract public class ProjectHolderBaseTest {
     * {@link #initCurrentExpectedProjectHolders()} must finish executing before calling this method.
     * 
     * @throws Exception
+    * 
+    * @noreference Do not call this method directly
     */
-   protected void initReferencedProjects() throws Exception {}
+   protected void initReferencedProjects() throws Exception {
+      this.calledInitReferencedProjects = true;
+   }
 
    /**
     * Override to add additional includes. This should be done by calling
@@ -195,8 +226,12 @@ abstract public class ProjectHolderBaseTest {
     * {@link #initCurrentExpectedProjectHolders()} must finish executing before calling this method.
     * 
     * @throws Exception
+    * 
+    * @noreference Do not call this method directly
     */
-   protected void initAdditionalIncludes() throws Exception {}
+   protected void initAdditionalIncludes() throws Exception {
+      this.calledInitAdditionalIncludes = true;
+   }
 
    private void setupProjectFiles() throws Exception {
       scheduleAndJoinBoth(currentProjectHolder.importFilesAsync(), expectedProjectHolder.importFilesAsync());
@@ -212,6 +247,15 @@ abstract public class ProjectHolderBaseTest {
 
    private void setupIncludePaths() throws Exception {
       scheduleAndJoinBoth(currentProjectHolder.setupIncludePathsAsync(), expectedProjectHolder.setupIncludePathsAsync());
+   }
+
+   /**
+    * Override to execute additional actions before setting up the indices.
+    * 
+    * @noreference Do not call this method directly
+    */
+   protected void preSetupIndex() {
+      this.calledPreSetupIndex = true;
    }
 
    private void setupIndices() throws Exception {
@@ -231,14 +275,8 @@ abstract public class ProjectHolderBaseTest {
       CUIPlugin.getDefault().getASTProvider().dispose();
    }
 
-   public void cleanupProjects() {
-      currentProjectHolder.cleanupProjectsAsync().schedule();
-      expectedProjectHolder.cleanupProjectsAsync().schedule();
-      try {
-         Job.getJobManager().join(IProjectHolder.CLEANUP_PROJ_JOB_FAMILY, null);
-      } catch (OperationCanceledException | InterruptedException e) {
-         e.printStackTrace();
-      }
+   public void cleanupProjects() throws InterruptedException {
+      scheduleAndJoinBoth(currentProjectHolder.cleanupProjectsAsync(), expectedProjectHolder.cleanupProjectsAsync());
    }
 
    /**
@@ -326,7 +364,7 @@ abstract public class ProjectHolderBaseTest {
    }
 
    public void scheduleAndJoinBoth(ProjectHolderJob currentJob, ProjectHolderJob expectedJob) throws InterruptedException {
-      scheduleAndJoinBoth(currentJob, expectedJob, false, false); //TODO change false to true after testing and use variable
+      scheduleAndJoinBoth(currentJob, expectedJob, !executeProjectHolderOperationsParallel, !executeProjectHolderOperationsParallel);
    }
 
    public static void scheduleAndJoinBoth(ProjectHolderJob currentJob, ProjectHolderJob expectedJob, boolean currentThreadLocal,

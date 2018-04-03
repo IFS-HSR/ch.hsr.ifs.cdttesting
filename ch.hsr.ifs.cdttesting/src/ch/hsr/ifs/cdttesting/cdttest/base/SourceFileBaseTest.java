@@ -10,8 +10,8 @@ package ch.hsr.ifs.cdttesting.cdttest.base;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -19,27 +19,23 @@ import java.util.Optional;
 import java.util.Properties;
 
 import org.eclipse.cdt.core.CCorePlugin;
-import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.index.IIndex;
 import org.eclipse.cdt.core.index.IIndexManager;
 import org.eclipse.cdt.core.model.CoreModelUtil;
 import org.eclipse.cdt.core.model.ICElement;
 import org.eclipse.cdt.core.model.ITranslationUnit;
-import org.eclipse.cdt.internal.ui.editor.ASTProvider;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.text.TextSelection;
+
+import ch.hsr.ifs.iltis.core.data.StringInputStream;
 
 import ch.hsr.ifs.cdttesting.cdttest.CDTTestingConfigConstants;
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison;
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonArg;
+import ch.hsr.ifs.cdttesting.testsourcefile.RTSTest.Language;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
 
-@SuppressWarnings("restriction")
 public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
 
    /**
@@ -47,10 +43,11 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
     */
    protected static final EnumSet<ComparisonArg> COMPARE_AST_AND_COMMENTS_AND_INCLUDES = EnumSet.of(ComparisonArg.COMPARE_COMMENTS,
          ComparisonArg.COMPARE_INCLUDE_DIRECTIVES, ComparisonArg.PRINT_WHOLE_ASTS_ON_FAIL);
+
    /**
     * Compares by using the AST, additionally this compares includes. On fail it prints the whole AST.
     */
-   protected static final EnumSet<ComparisonArg> COMPARE_AST_AND_INCLUDES              = EnumSet.of(ComparisonArg.COMPARE_INCLUDE_DIRECTIVES,
+   protected static final EnumSet<ComparisonArg> COMPARE_AST_AND_INCLUDES = EnumSet.of(ComparisonArg.COMPARE_INCLUDE_DIRECTIVES,
          ComparisonArg.PRINT_WHOLE_ASTS_ON_FAIL);
 
    /**
@@ -58,91 +55,94 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
     */
    private String primaryTestSourceFileName;
 
+   protected Language language;
+
    /**
     * Key: file name, value: test file
     */
    protected LinkedHashMap<String, TestSourceFile> testFiles = new LinkedHashMap<>();
 
-   /**
-    * Key: file name, value: selection
-    */
-   protected LinkedHashMap<String, TextSelection> testSelections = new LinkedHashMap<>();
+   //   /**
+   //    * Key: file name, value: selection
+   //    */
+   //   protected LinkedHashMap<String, TextSelection> testSelections = new LinkedHashMap<>();
+
+   private boolean calledConfigureTest = false;
 
    /**
     * Loads config, loads selections, and populates the testFiles map form the passed files.
+    * 
+    * This method is called by the testing framework
     */
    public void initTestSourceFiles(final List<TestSourceFile> files) {
       TestSourceFile configFile = null;
 
       for (final TestSourceFile file : files) {
-         if (isRTSConfigFile(file)) {
+         if (isConfigFile(file)) {
             configFile = file;
          } else {
             if (primaryTestSourceFileName == null) primaryTestSourceFileName = file.getName();
-            initSelection(file);
+            //            initSelection(file);
             testFiles.put(file.getName(), file);
          }
       }
-      initializeConfiguration(configFile);
+      initializeConfiguration(extractProperties(configFile));
    }
 
-   private boolean isRTSConfigFile(TestSourceFile file) {
+   private boolean isConfigFile(TestSourceFile file) {
       return file.getName().equals(CDTTestingConfigConstants.CONFIG_FILE_NAME);
    }
 
-   private void initSelection(final TestSourceFile file) {
-      final TextSelection selection = file.getSelection();
-      if (selection != null) {
-         testSelections.put(file.getName(), selection);
-      }
+   public void setLanguage(Language language) {
+      this.language = language;
    }
 
-   private void initializeConfiguration(final TestSourceFile configFile) {
-
+   private Properties extractProperties(final TestSourceFile configFile) {
       final Properties properties = new Properties();
       if (configFile != null) {
-         try {
-            properties.load(new ByteArrayInputStream(configFile.getSource().getBytes()));
+         try (InputStream is = new StringInputStream(configFile.getSource())) {
+            properties.load(is);
          } catch (final IOException e) {
             e.printStackTrace();
          }
       }
-      initializeConfiguration(properties);
+      return properties;
    }
 
    private void initializeConfiguration(final Properties properties) {
       initCommonFields(properties);
       configureTest(properties);
+      assertAllSuperMethodsCalled(calledConfigureTest, "configureTest");
    }
 
    /**
     * Can be overloaded to use properties to configure the test.
+    * <p>
+    * Overriding methods should always call {@code super.configureTest(Properties)}
     * 
     * @param properties
     *        The properties from the TestSourceFile
+    * 
+    * @noreference Do not call this method directly
     */
-   protected void configureTest(final Properties properties) {};
+   protected void configureTest(final Properties properties) {
+      this.calledConfigureTest = true;
+   };
 
    private void initCommonFields(final Properties properties) {
-      final String filename = properties.getProperty(CDTTestingConfigConstants.PRIMARY_FILE, null);
-      if (filename != null) {
-         primaryTestSourceFileName = filename;
-      }
+      Optional.ofNullable(properties.getProperty(CDTTestingConfigConstants.PRIMARY_FILE, null)).ifPresent(name -> primaryTestSourceFileName = name);
    }
 
    @Override
    protected void initProjectFiles() throws Exception {
       stageTestSourceFileForImportForBothProjects(testFiles.values());
+      super.initProjectFiles();
    }
 
-   private void formatDocument(String relativePath) {
-      currentProjectHolder.formatFileAsync(currentProjectHolder.makeProjectAbsolutePath(relativePath)).schedule();
-      expectedProjectHolder.formatFileAsync(currentProjectHolder.makeProjectAbsolutePath(relativePath)).schedule();
-      try {
-         Job.getJobManager().join(ITestProjectHolder.FORMATT_FILE_JOB_FAMILY, null);
-      } catch (OperationCanceledException | InterruptedException e) {
-         e.printStackTrace();
-      }
+   private void formatDocumentForBothProjects(String relativePath) throws InterruptedException {
+      scheduleAndJoinBoth(currentProjectHolder.formatFileAsync(currentProjectHolder.makeProjectAbsolutePath(relativePath)), expectedProjectHolder
+            .formatFileAsync(currentProjectHolder.makeProjectAbsolutePath(relativePath)));
+
    }
 
    /**
@@ -185,15 +185,15 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
    /**
     * Convenience method to get the text selection of the primary file
     */
-   protected ITextSelection getSelectionOfPrimaryTestFile() {
-      return testSelections.get(getNameOfPrimaryTestFile());
+   protected Optional<ITextSelection> getSelectionOfPrimaryTestFile() {
+      return getSelection(getNameOfPrimaryTestFile());
    }
 
    /**
     * Convenience method to get the text selection from a file name
     */
-   protected ITextSelection getSelection(String testSourceFileName) {
-      return testSelections.get(testSourceFileName);
+   protected Optional<ITextSelection> getSelection(String testSourceFileName) {
+      return Optional.ofNullable(testFiles.get(testSourceFileName)).flatMap(TestSourceFile::getSelection);
    }
 
    /**
@@ -308,7 +308,11 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
       String expectedSource;
       String currentSource;
       if (!args.contains(ComparisonArg.DEBUG_NO_FORMATTING)) {
-         formatDocument(testSourceFileName);
+         try {
+            formatDocumentForBothProjects(testSourceFileName);
+         } catch (InterruptedException e) {
+            e.printStackTrace();
+         }
       }
       expectedSource = getExpectedDocument(getExpectedIFile(testSourceFileName)).get();
       currentSource = getCurrentDocument(getCurrentIFile(testSourceFileName)).get();
@@ -323,37 +327,19 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
    private void assertEqualsWithAST(final String testSourceFileName, EnumSet<ComparisonArg> args, int astStyle) {
       IIndex expectedIndex = null;
       IIndex currentIndex = null;
-      IASTTranslationUnit expectedAST = null;
-      IASTTranslationUnit currentAST = null;
-      ASTProvider astProvider = ASTProvider.getASTProvider();
       try {
-         //TODO parallelize creation of index and ast
+         //         TODO parallelize creation of index and ast
          expectedIndex = CCorePlugin.getIndexManager().getIndex(getExpectedCProject(), IIndexManager.ADD_DEPENDENCIES & IIndexManager.ADD_DEPENDENT);
          currentIndex = CCorePlugin.getIndexManager().getIndex(getCurrentCProject(), IIndexManager.ADD_DEPENDENCIES & IIndexManager.ADD_DEPENDENT);
          expectedIndex.acquireReadLock();
          currentIndex.acquireReadLock();
          ITranslationUnit expectedTU = CoreModelUtil.findTranslationUnit(getExpectedIFile(testSourceFileName));
          ITranslationUnit currentTU = CoreModelUtil.findTranslationUnit(getCurrentIFile(testSourceFileName));
-         expectedAST = astProvider.acquireSharedAST(expectedTU, expectedIndex, ASTProvider.WAIT_ACTIVE_ONLY, new NullProgressMonitor());
-         currentAST = astProvider.acquireSharedAST(currentTU, currentIndex, ASTProvider.WAIT_ACTIVE_ONLY, new NullProgressMonitor());
-
-         if (expectedAST != null && expectedAST.hasNodesOmitted() || currentAST != null && currentAST.hasNodesOmitted()) {
-            astProvider.releaseSharedAST(expectedAST);
-            astProvider.releaseSharedAST(currentAST);
-            expectedAST = null;
-            currentAST = null;
-         }
-         if (expectedAST != null && currentAST != null) {
-            ASTComparison.assertEqualsAST(expectedAST, currentAST, args);
-         } else {
-            //            ASTComparison.assertEqualsAST(expectedTU.getAST(), currentTU.getAST(), args);
-            ASTComparison.assertEqualsAST(expectedTU.getAST(expectedIndex, astStyle), currentTU.getAST(currentIndex, astStyle), args);
-         }
+         //            ASTComparison.assertEqualsAST(expectedTU.getAST(), currentTU.getAST(), args);
+         ASTComparison.assertEqualsAST(expectedTU.getAST(expectedIndex, astStyle), currentTU.getAST(currentIndex, astStyle), args);
       } catch (Exception e) {
          e.printStackTrace();
       } finally {
-         if (expectedAST != null) astProvider.releaseSharedAST(expectedAST);
-         if (currentAST != null) astProvider.releaseSharedAST(currentAST);
          if (expectedIndex != null) expectedIndex.releaseReadLock();
          if (currentIndex != null) currentIndex.releaseReadLock();
       }

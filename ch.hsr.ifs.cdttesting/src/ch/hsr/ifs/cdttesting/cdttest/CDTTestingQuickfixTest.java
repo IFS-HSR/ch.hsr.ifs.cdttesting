@@ -1,15 +1,15 @@
 package ch.hsr.ifs.cdttesting.cdttest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.ui.IMarkerResolution;
 import org.junit.Before;
-
-import ch.hsr.ifs.iltis.core.exception.ILTISException;
 
 import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingUITest;
 import ch.hsr.ifs.cdttesting.cdttest.base.SourceFileBaseTest;
@@ -23,8 +23,8 @@ public abstract class CDTTestingQuickfixTest extends CDTTestingUITest {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      enableChecker();
-      runCodan();
+      enableAndConfigureChecker();
+      runCodeAnalysis();
    }
 
    /**
@@ -34,38 +34,40 @@ public abstract class CDTTestingQuickfixTest extends CDTTestingUITest {
 
    protected void runQuickFix() throws Exception {
       final IMarker[] markers = findMarkers();
-      assertOnlyOneMarker(markers);
+      assertThatOnlyOneMarkerWasFound(markers);
       runQuickFix(markers[0]);
    }
 
    protected void runQuickFix(final IMarker marker) throws RuntimeException {
-      ILTISException.Unless.notNull(marker, "Marker was null. Could not run quick fix for it.");
-      new UIThreadSyncRunnable() {
-
-         @Override
-         protected void runSave() throws RuntimeException {
-            createMarkerResolution().run(marker);
-         }
-      }.runSyncOnUIThread();
+      assertNotNull("Marker was null. Could not run quick fix for it.", marker);
+      UIThreadSyncRunnable.run(() -> createMarkerResolution().run(marker));
    }
 
    protected void runQuickfixAndAssertAllEqual(final IMarker marker) throws Exception {
       runQuickFix(marker);
-      saveAllEditors();
+      //            saveAllEditors();//FIXME needed? I strongly assume it's not needed
       assertAllSourceFilesEqual(makeComparisonArguments());
    }
 
    protected void runQuickfixForAllMarkersAndAssertAllEqual() throws Exception {
-      Arrays.stream(findMarkers()).forEach(marker -> runQuickFix(marker));
-      saveAllEditors();
+      IMarker[] markers = findMarkers();
+      assertThatMarkersWereFound(markers);
+      Stream.of(markers).forEach(this::runQuickFix);
+      //            saveAllEditors(); //FIXME needed? I strongly assume it's not needed
       assertAllSourceFilesEqual(makeComparisonArguments());
    }
 
+   /**
+    * Runs the first quickfix found and then asserts all source files to be equal with the expected source. The comparison arguments can be altered by
+    * overriding {@link #makeComparisonArguments()}.
+    * 
+    * @throws Exception
+    */
    protected void runQuickfixAndAssertAllEqual() throws Exception {
       final IMarker[] markers = findMarkers();
-      assertOnlyOneMarker(markers);
+      assertThatOnlyOneMarkerWasFound(markers);
       runQuickFix(markers[0]);
-      saveAllEditors();
+      //            saveAllEditors(); //FIXME needed? I strongly assume it's not needed
       assertAllSourceFilesEqual(makeComparisonArguments());
    }
 
@@ -81,10 +83,14 @@ public abstract class CDTTestingQuickfixTest extends CDTTestingUITest {
       return COMPARE_AST_AND_COMMENTS_AND_INCLUDES;
    }
 
-   private void assertOnlyOneMarker(IMarker[] markers) {
-      final String msg = "CDTTestingCodanQuickfixTest.runQuickFix(quickfix) is only intended to run on testcases containing only exactly 1 marker. " +
-                         "Use overlaod runQuickFix(marker, quickfix) for other cases. Use findMarkers-methods to find available markers.";
-      assertEquals(msg, 1, markers.length);
+   public void assertThatMarkersWereFound(IMarker[] markers) {
+      assertTrue("No markers found! If this behaviour is intended, please change this test to a checker test!", markers.length > 0);
+   }
+
+   public void assertThatOnlyOneMarkerWasFound(IMarker[] markers) {
+      assertEquals("CDTTestingCodanQuickfixTest.runQuickFix(quickfix) is only intended to run on testcases containing exactly 1 marker. " +
+                   "Use overlaod runQuickFix(marker, quickfix) for other cases. Use findMarkers-methods to find available markers.", 1,
+            markers.length);
    }
 
 }

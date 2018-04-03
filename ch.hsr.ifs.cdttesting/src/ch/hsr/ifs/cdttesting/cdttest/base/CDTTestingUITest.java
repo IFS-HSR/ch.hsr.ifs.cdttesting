@@ -1,79 +1,89 @@
 package ch.hsr.ifs.cdttesting.cdttest.base;
 
+import static ch.hsr.ifs.iltis.core.functional.Functional.asOrNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Optional;
 
+import org.eclipse.cdt.codan.core.PreferenceConstants;
+import org.eclipse.cdt.codan.internal.ui.CodanUIActivator;
 import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
 import org.eclipse.cdt.internal.ui.editor.CEditor;
 import org.eclipse.cdt.internal.ui.util.ExternalEditorInput;
 import org.eclipse.cdt.ui.testplugin.Accessor;
-import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.commands.NotEnabledException;
-import org.eclipse.core.commands.NotHandledException;
-import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextOperationTarget;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.JFaceTextUtil;
 import org.eclipse.jface.text.TextSelection;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.ReplaceEdit;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.junit.After;
+import org.junit.Before;
+
+import ch.hsr.ifs.iltis.core.functional.OptionalUtil;
 
 import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
+import junit.framework.AssertionFailedError;
 
 
 @SuppressWarnings("restriction")
 public abstract class CDTTestingUITest extends CDTTestingTest {
 
-   public static final String  NL           = System.getProperty("line.separator");
+   /**
+    * Set this to {@code false} to enforce execution of quickfix and refactoring tests in the editor
+    */
+   protected boolean executeQuickfixAndRefactoringInEditor = false;
+
    private static final String INTROVIEW_ID = "org.eclipse.ui.internal.introview";
 
    @After
    @Override
    public void tearDown() throws Exception {
-      super.tearDown();
       closeOpenEditors();
+      super.tearDown();
+   }
+
+   @Before
+   @Override
+   public void setUp() throws Exception {
+      super.setUp();
+      //TODO test if this results in a speed-up
+      IPreferenceStore store = CodanUIActivator.getDefault().getPreferenceStore(getCurrentProject());
+      store.setValue(PreferenceConstants.P_RUN_IN_EDITOR, executeQuickfixAndRefactoringInEditor);
    }
 
    @Override
    protected void initCurrentExpectedProjectHolders() throws InterruptedException {
-      currentProjectHolder = new TestProjectHolder(makeCurrentProjectName(), false);
-      expectedProjectHolder = new TestProjectHolder(makeExpectedProjectName(), true);
+      currentProjectHolder = new TestProjectHolder(makeCurrentProjectName(), language, false);
+      expectedProjectHolder = new TestProjectHolder(makeExpectedProjectName(), language, true);
       scheduleAndJoinBoth(currentProjectHolder.createProjectAsync(), expectedProjectHolder.createProjectAsync());
-   }
-
-   protected void executeCommand(final String commandId) throws ExecutionException, NotDefinedException, NotEnabledException, NotHandledException {
-      PlatformUI.getWorkbench().getActiveWorkbenchWindow().getService(IHandlerService.class).executeCommand(commandId, null);
    }
 
    /* -- WORKBENCH -- */
 
-   private IWorkbenchPage getActivePage() {
-      return getActiveWorkbenchWindow().getActivePage();
+   private static Optional<IWorkbenchPage> getActivePage() {
+      return Optional.ofNullable(getActiveWorkbenchWindow().getActivePage());
    }
 
-   protected IWorkbenchWindow getActiveWorkbenchWindow() {
+   protected static IWorkbenchWindow getActiveWorkbenchWindow() {
       IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
       if (activeWorkbenchWindow == null) {
          final IWorkbenchWindow[] workbenchWindows = PlatformUI.getWorkbench().getWorkbenchWindows();
@@ -83,7 +93,7 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
       return activeWorkbenchWindow;
    }
 
-   protected void runEventLoop() {
+   protected static void runEventLoop() {
       while (getActiveWorkbenchWindow().getShell().getDisplay().readAndDispatch()) {
          /* do nothing */
       }
@@ -94,50 +104,32 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
    /**
     * Convenience method to get the active editor from the active page
     */
-   protected AbstractTextEditor getActiveEditor() {
-      final IEditorPart editor = getActivePage().getActiveEditor();
-      return ((editor instanceof AbstractTextEditor) ? ((AbstractTextEditor) editor) : null);
+   protected static Optional<AbstractTextEditor> getActiveTextEditor() {
+      return getActivePage().map(p -> asOrNull(AbstractTextEditor.class, p));
    }
 
    /**
     * Convenience method to get the active editor's selection provider
     */
-   protected ISelectionProvider getActiveEditorSelectionProvider() {
-      final AbstractTextEditor editor = getActiveEditor();
-      return (editor != null) ? editor.getSelectionProvider() : null;
+   protected static Optional<ISelectionProvider> getActiveEditorSelectionProvider() {
+      return getActiveTextEditor().map(AbstractTextEditor::getSelectionProvider);
    }
 
    public static void closeWelcomeScreen() throws Exception {
-      new UIThreadSyncRunnable() {
-
-         @Override
-         protected void runSave() throws Exception {
-            final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-            final IViewReference viewReference = page.findViewReference(INTROVIEW_ID);
-            page.hideView(viewReference);
-         }
-      }.runSyncOnUIThread();
+      UIThreadSyncRunnable.run(() -> {
+         getActivePage().ifPresent(p -> p.hideView(p.findViewReference(INTROVIEW_ID)));
+      });
    }
 
    protected void closeOpenEditors() throws Exception {
-      new UIThreadSyncRunnable() {
-
-         @Override
-         protected void runSave() throws Exception {
-            getActivePage().closeAllEditors(false);
-         }
-      }.runSyncOnUIThread();
+      UIThreadSyncRunnable.run(() -> getActivePage().ifPresent(p -> p.closeAllEditors(false)));
    }
 
    protected void saveAllEditors() throws Exception {
-      new UIThreadSyncRunnable() {
-
-         @Override
-         protected void runSave() throws Exception {
-            getActivePage().saveAllEditors(false);
-            runEventLoop();
-         }
-      }.runSyncOnUIThread();
+      UIThreadSyncRunnable.run(() -> {
+         getActivePage().ifPresent(p -> p.saveAllEditors(false));
+         runEventLoop();
+      });
    }
 
    /**
@@ -151,59 +143,43 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
 
    protected void openTestFileInEditor(final String testSourceFileName) throws Exception {
       if (!testFiles.containsKey(testSourceFileName)) throw new IllegalArgumentException("No such test file \"" + testSourceFileName + "\" found.");
-      new UIThreadSyncRunnable() {
-
-         @Override
-         protected void runSave() throws Exception {
-            IFile file = getCurrentIFile(testSourceFileName);
-            IDE.openEditor(getActivePage(), file);
+      UIThreadSyncRunnable.run(() -> {
+         OptionalUtil.doIfPresentT(getActivePage(), p -> {
+            IDE.openEditor(p, getCurrentIFile(testSourceFileName));
             setSelectionInActiveEditorIfAvailable(testFiles.get(testSourceFileName));
             runEventLoop();
-         }
-      }.runSyncOnUIThread();
+         });
+      });
    }
 
    protected void openExternalFileInEditor(final URI absolutePath) throws Exception {
-      new UIThreadSyncRunnable() {
-
-         @Override
-         protected void runSave() throws Exception {
-            final ExternalEditorInput input = new ExternalEditorInput(absolutePath, currentProjectHolder.getProject());
-            IDE.openEditor(getActivePage(), input, "org.eclipse.cdt.ui.editor.CEditor", true);
+      UIThreadSyncRunnable.run(() -> {
+         OptionalUtil.doIfPresentT(getActivePage(), p -> {
+            IDE.openEditor(p, new ExternalEditorInput(absolutePath, getCurrentProject()), "org.eclipse.cdt.ui.editor.CEditor", true);
             runEventLoop();
-         }
-      }.runSyncOnUIThread();
+         });
+      });
    }
 
    protected void openExternalFileInEditor(final IPath absolutePath) throws Exception {
       openExternalFileInEditor(URIUtil.toURI(absolutePath));
    }
 
-   private TextSelection getTextSelectionInActiveEditor() {
-      final ISelectionProvider selectionProvider = getActiveEditorSelectionProvider();
-      if (selectionProvider == null) { return null; }
-      final ISelection selection = selectionProvider.getSelection();
-      return (selection instanceof TextSelection) ? ((TextSelection) selection) : null;
+   private static Optional<TextSelection> getTextSelectionInActiveEditor() {
+      return getActiveEditorSelectionProvider().map(ISelectionProvider::getSelection).map(sel -> asOrNull(TextSelection.class, sel));
    }
 
-   private void setTextSelectionInActiveEditor(TextSelection selection) {
-      final ISelectionProvider selectionProvider = getActiveEditorSelectionProvider();
-      if (selectionProvider != null) {
-         selectionProvider.setSelection(selection);
-      } else {
-         fail("no active editor found.");
-      }
+   private static void setTextSelectionInActiveEditor(ITextSelection selection) {
+      getActiveEditorSelectionProvider().orElseThrow(() -> new AssertionError("no active editor found.")).setSelection(selection);
    }
 
-   protected void setSelectionInActiveEditorIfAvailable(final TestSourceFile testSourceFile) {
-      if (testSourceFile != null && testSourceFile.getSelection() != null) {
-         setTextSelectionInActiveEditor(testSourceFile.getSelection());
-      }
+   protected static void setSelectionInActiveEditorIfAvailable(final TestSourceFile testSourceFile) {
+      if (testSourceFile != null) testSourceFile.getSelection().ifPresent(sel -> setTextSelectionInActiveEditor(sel));
    }
 
-   private int getCurrentEditorCaretPosition() {
-      final ITextViewer viewer = (ITextViewer) getActiveEditor().getAdapter(ITextOperationTarget.class);
-      return JFaceTextUtil.getOffsetForCursorLocation(viewer);
+   private static int getCurrentEditorCaretPosition() {
+      return getActiveTextEditor().map(edit -> edit.getAdapter(ITextOperationTarget.class)).map(ot -> JFaceTextUtil.getOffsetForCursorLocation(
+            (ITextViewer) ot)).orElse(-1);
    }
 
    /* -- USER INTERACTION */
@@ -214,9 +190,9 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
    }
 
    protected void insertUserTyping(final String text, final IFile file) throws MalformedTreeException, BadLocationException, IOException {
-      final TextSelection selection = getTextSelectionInActiveEditor();
-      if (selection != null) {
-         insertUserTypingIntoCurrentProject(text, file, selection.getOffset(), selection.getLength());
+      final Optional<TextSelection> selection = getTextSelectionInActiveEditor();
+      if (selection.isPresent()) {
+         insertUserTypingIntoCurrentProject(text, file, selection.get().getOffset(), selection.get().getLength());
       } else {
          insertUserTypingIntoCurrentProject(text, file, getCurrentEditorCaretPosition(), 0);
       }
@@ -224,7 +200,7 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
 
    protected void insertUserTypingIntoCurrentProject(final String text, final IFile file, final int startPosition, final int length)
          throws MalformedTreeException, BadLocationException, IOException {
-      new ReplaceEdit(startPosition, length, text.replaceAll("\\n", NL)).apply(currentProjectHolder.getDocument(file));
+      new ReplaceEdit(startPosition, length, text.replaceAll("\\n", NL)).apply(getCurrentDocument(file));
    }
 
    /**
@@ -232,11 +208,8 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
     * c='\t' (tab)
     */
    protected void invokeKeyEvent(final char c) {
-      final AbstractTextEditor abstractEditor = getActiveEditor();
-      if (!(abstractEditor instanceof CEditor)) {
-         fail("active editor is no ceditor.");
-      }
-      final StyledText textWidget = ((CEditor) abstractEditor).getViewer().getTextWidget();
+      final StyledText textWidget = getActiveTextEditor().map(te -> asOrNull(CEditor.class, te)).orElseThrow(() -> new AssertionFailedError(
+            "active editor is no ceditor.")).getViewer().getTextWidget();
       assertNotNull(textWidget);
       final Accessor accessor = new Accessor(textWidget, StyledText.class);
       final Event event = new Event();

@@ -4,84 +4,154 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.cdt.codan.core.model.IProblemReporter;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.osgi.util.NLS;
 import org.junit.Before;
+
+import ch.hsr.ifs.iltis.core.resources.StringUtil;
 
 import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingTest;
 import ch.hsr.ifs.cdttesting.cdttest.base.FakeProjectHolder;
 import ch.hsr.ifs.cdttesting.cdttest.base.TestProjectHolder;
 
 
+/**
+ * A default checker test. It runs the code analysis for the problem provided and then checks if markers appeared on all the lines declared.
+ * <p>
+ * An rts file for this type of test could look like this:
+ * 
+ * <pre>
+ * {@code 
+ * //! Sentence describing this test 
+ * //@.config 
+ * markerLines=2,4,4,5
+ * //@foo.h
+ * ...
+ * - Line which would trigger a checker -
+ * ...
+ * - Line which would trigger a checker twice -
+ * ...
+ * - Line which would trigger a checker -
+ * ....
+ * }
+ * </pre>
+ * 
+ * @author tstauber
+ *
+ */
 public abstract class CDTTestingCheckerTest extends CDTTestingTest {
+
+   /**
+    * Contains the line numbers on which markers are expected
+    */
+   protected List<Integer> expectedMarkerLinesFromProperties = new LinkedList<>();
 
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      enableChecker();
-      runCodan();
+      enableAndConfigureChecker();
+      runCodeAnalysis();
    }
 
    @Override
    protected void initCurrentExpectedProjectHolders() throws Exception {
-      /* Do not create expected project for performance reasons */
-      currentProjectHolder = new TestProjectHolder(makeCurrentProjectName(), false);
+      currentProjectHolder = new TestProjectHolder(makeCurrentProjectName(), language, false);
+      /* Create fake-expected project for performance reasons */
       expectedProjectHolder = new FakeProjectHolder(makeExpectedProjectName());
       scheduleAndJoinBoth(currentProjectHolder.createProjectAsync(), expectedProjectHolder.createProjectAsync());
    }
 
-   protected void assertProblemMarkerMessages(final String[] expectedMarkerMessages) throws CoreException {
-      assertProblemMarkerMessages(IProblemReporter.GENERIC_CODE_ANALYSIS_MARKER_TYPE, expectedMarkerMessages);
+   @Override
+   protected void configureTest(final Properties properties) {
+      extractMarkerLines(properties);
+      super.configureTest(properties);
    }
 
-   protected void assertProblemMarkerMessages(final String expectedMarkerId, final String[] expectedMarkerMessages) throws CoreException {
-      final List<String> expectedList = new ArrayList<>(Arrays.asList(expectedMarkerMessages));
-      final IMarker[] markers = findMarkers(expectedMarkerId);
-      for (final IMarker curMarker : markers) {
-         final String markerMsg = curMarker.getAttribute("message", null);
-         if (expectedList.contains(markerMsg)) {
-            expectedList.remove(markerMsg);
-         } else {
-            fail("marker-message '" + markerMsg + "' not present in given marker message list");
-         }
+   private void extractMarkerLines(final Properties properties) {
+      final String markerLines = properties.getProperty(CDTTestingConfigConstants.MARKER_LINES);
+      if (markerLines != null && !markerLines.isEmpty()) {
+         expectedMarkerLinesFromProperties = Stream.of(markerLines.split(",")).map(String::trim).map(Integer::valueOf).collect(Collectors.toList()); //$NON-NLS-1$
       }
-      assertTrue("Not all expected messages found. Remaining: " + expectedList, expectedList.isEmpty());
    }
 
-   protected void assertProblemMarker(final String expectedMsg, final int expectedLine) throws CoreException {
+   /* vv ASSERTION vv */
+
+   public void assertMarkerMessages(final String... expectedMarkerMessages) throws CoreException {
+      assertMarkerMessages(Arrays.asList(expectedMarkerMessages));
+   }
+
+   public void assertMarkerMessages(final List<String> expectedMarkerMessages) throws CoreException {
+      assertMarkerMessages(IProblemReporter.GENERIC_CODE_ANALYSIS_MARKER_TYPE, expectedMarkerMessages);
+   }
+
+   public void assertMarkerMessages(final String expectedMarkerId, final String... expectedMarkerMessages) throws CoreException {
+      assertMarkerMessages(expectedMarkerId, Arrays.asList(expectedMarkerMessages));
+   }
+
+   public void assertMarkerMessages(final String expectedMarkerId, final List<String> expectedMarkerMessages) throws CoreException {
+      assertMarkerAttributes(IMarker.MESSAGE, Messages.CDTTestingCheckerTest_Fail_assertMarkerMessages, findMarkers(expectedMarkerId),
+            expectedMarkerMessages);
+   }
+
+   public void assertSingleMarker(final String expectedMsg, final int expectedLine) throws CoreException {
       final IMarker[] markers = findMarkers();
-      final String msg =
-                       "assertProblemMarker(String, int) is only intended when there is exactly one marker. Use assertProblemMarker(String, int, IMarker) and findMarkers(...) otherwise.";
-      assertEquals(msg, 1, markers.length);
-      assertProblemMarker(expectedMsg, expectedLine, markers[0]);
+      assertEquals(Messages.CDTTestingCheckerTest_Fail_singleMarker, 1, markers.length);
+      assertMarkerLineAndMessage(expectedMsg, expectedLine, markers[0]);
    }
 
-   protected void assertProblemMarker(final String expectedMsg, final int expectedLine, final IMarker marker) {
-      assertEquals(expectedMsg, marker.getAttribute("message", null));
-      assertEquals(expectedLine, marker.getAttribute("lineNumber", -1));
+   public void assertMarkerLineAndMessage(final String expectedMsg, final int expectedLine, final IMarker marker) {
+      assertEquals(expectedMsg, marker.getAttribute(IMarker.MESSAGE, null));
+      assertEquals(expectedLine, marker.getAttribute(IMarker.LINE_NUMBER, -1));
    }
 
-   protected void assertProblemMarkerPositions(final Integer... expectedMarkerLines) throws CoreException {
-      assertProblemMarkerPositions(IProblemReporter.GENERIC_CODE_ANALYSIS_MARKER_TYPE, expectedMarkerLines);
+   public void assertMarkerLines(final Integer... expectedMarkerLines) throws CoreException {
+      assertMarkerLines(Arrays.asList(expectedMarkerLines));
    }
 
-   protected void assertProblemMarkerPositions(final String expectedMarkerId, final Integer... expectedMarkerLines) throws CoreException {
-      final List<Integer> expectedList = new ArrayList<>(Arrays.asList(expectedMarkerLines));
-      final IMarker[] markers = findMarkers(expectedMarkerId);
+   public void assertMarkerLines(final List<Integer> expectedMarkerLines) throws CoreException {
+      assertMarkerLines(IProblemReporter.GENERIC_CODE_ANALYSIS_MARKER_TYPE, expectedMarkerLines);
+   }
+
+   public void assertMarkerLines(final String expectedMarkerId, final Integer... expectedMarkerLines) throws CoreException {
+      assertMarkerLines(expectedMarkerId, Arrays.asList(expectedMarkerLines));
+   }
+
+   public void assertMarkerLines(final String expectedMarkerId, final List<Integer> expectedMarkerLines) throws CoreException {
+      assertMarkerAttributes(IMarker.LINE_NUMBER, Messages.CDTTestingCheckerTest_Fail_assertMarkerLines, findMarkers(expectedMarkerId),
+            expectedMarkerLines.stream().map(String::valueOf).collect(Collectors.toList()));
+   }
+
+   /* vv ASSERTION INTERNALS vv */
+
+   private void assertMarkerAttributes(final String attributeName, String failMessage, IMarker[] markers, List<String> expectedValues)
+         throws CoreException {
+      if (expectedValues == null) throw new IllegalArgumentException(Messages.CDTTestingCheckerTest_Fail_assertMarkerAttributes_null);
       for (final IMarker curMarker : markers) {
-         final int markerLine = curMarker.getAttribute("lineNumber", -1);
-         if (expectedList.contains(markerLine)) {
-            expectedList.remove((Integer) markerLine);
+         final String attribute = extractMarkerAttribute(attributeName, curMarker);
+         if (expectedValues.contains(attribute)) {
+            expectedValues.remove(attribute);
          } else {
-            fail("marker-line '" + markerLine + "' not present in given marker lines list");
+            fail(NLS.bind(failMessage, attribute));
          }
       }
-      assertTrue("Not all expected line numbers found. Remaining: " + expectedList, expectedList.isEmpty());
+      assertTrue(Messages.CDTTestingCheckerTest_Fail_assertMarkerAttributes_some_remaining + StringUtil.toString(expectedValues), expectedValues
+            .isEmpty());
    }
+
+   private String extractMarkerAttribute(final String attributeName, IMarker marker) throws CoreException {
+      Object value = marker.getAttribute(attributeName);
+      if (value == null) return null;
+      return String.valueOf(value);
+   }
+
 }
