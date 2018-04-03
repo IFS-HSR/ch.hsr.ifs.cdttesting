@@ -80,7 +80,7 @@ public abstract class CDTTestingCheckerTest extends CDTTestingTest {
    private void extractMarkerLines(final Properties properties) {
       final String markerLines = properties.getProperty(CDTTestingConfigConstants.MARKER_LINES);
       if (markerLines != null && !markerLines.isEmpty()) {
-         expectedMarkerLinesFromProperties = Stream.of(markerLines.split(",")).map(String::trim).map(Integer::valueOf).collect(Collectors.toList()); 
+         expectedMarkerLinesFromProperties = Stream.of(markerLines.split(",")).map(String::trim).map(Integer::valueOf).collect(Collectors.toList());
       }
    }
 
@@ -105,7 +105,9 @@ public abstract class CDTTestingCheckerTest extends CDTTestingTest {
 
    public void assertSingleMarker(final String expectedMsg, final int expectedLine) throws CoreException {
       final IMarker[] markers = findMarkers();
-      assertEquals("assertSingleMarker(String, int) is only intended to be uesed when there is exactly one marker. Use assertMarkerLineAndMessage(String, int, IMarker) and findMarkers(...) otherwise.", 1, markers.length);
+      assertEquals(
+            "assertSingleMarker(String, int) is only intended to be uesed when there is exactly one marker. Use assertMarkerLineAndMessage(String, int, IMarker) and findMarkers(...) otherwise.",
+            1, markers.length);
       assertMarkerLineAndMessage(expectedMsg, expectedLine, markers[0]);
    }
 
@@ -144,8 +146,7 @@ public abstract class CDTTestingCheckerTest extends CDTTestingTest {
             fail(NLS.bind(failMessage, attribute));
          }
       }
-      assertTrue("Not all expected values found. Remaining: " + StringUtil.toString(expectedValues), expectedValues
-            .isEmpty());
+      assertTrue("Not all expected values found. Remaining: " + StringUtil.toString(expectedValues), expectedValues.isEmpty());
    }
 
    private String extractMarkerAttribute(final String attributeName, IMarker marker) throws CoreException {
