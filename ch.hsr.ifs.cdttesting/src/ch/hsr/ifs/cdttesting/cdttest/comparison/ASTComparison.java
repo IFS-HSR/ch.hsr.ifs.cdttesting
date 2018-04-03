@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -79,7 +78,7 @@ import ch.hsr.ifs.iltis.core.collections.CollectionUtil;
 import ch.hsr.ifs.iltis.core.data.AbstractPair;
 import ch.hsr.ifs.iltis.core.functional.StreamFactory;
 import ch.hsr.ifs.iltis.core.functional.StreamPair;
-import ch.hsr.ifs.iltis.core.functional.functions.Function;
+import ch.hsr.ifs.iltis.core.functional.functions.Consumer;
 import ch.hsr.ifs.iltis.core.resources.WorkspaceUtil;
 
 
@@ -108,10 +107,7 @@ public class ASTComparison {
     *        The comparison arguments
     */
    public static void assertEqualsAST(final IASTTranslationUnit expectedAST, final IASTTranslationUnit actualAST, EnumSet<ComparisonArg> args) {
-      ComparisonResult result = equalsAST(expectedAST, actualAST, args);
-      if (result.isUnequal()) {
-         assertEquals(result.getDescriptionString(), result.getExpectedStrings(), result.getActualStrings());
-      }
+      equalsAST(expectedAST, actualAST, args).ifUnequal(r -> assertEquals(r.getDescriptionString(), r.getExpectedStrings(), r.getActualStrings()));
    }
 
    /**
@@ -173,9 +169,8 @@ public class ASTComparison {
       String expectedStmt = collectToString(getFilteredIncludeStmts(expected));
       String actualStmt = collectToString(getFilteredIncludeStmts(actual));
 
-      String lineNo = getLineNo(zip(getFilteredIncludeStmts(expected), getFilteredIncludeStmts(actual)).filter(
-            ((Predicate<AbstractPair<IASTPreprocessorIncludeStatement, IASTPreprocessorIncludeStatement>>) AbstractPair::allElementEquals).negate())
-            .map(StreamPair::first).findFirst());
+      String lineNo = getLineNo(zip(getFilteredIncludeStmts(expected), getFilteredIncludeStmts(actual)).filter(AbstractPair::notAllElementEquals).map(
+            StreamPair::first).findFirst());
 
       if (expectedStmt.equals(actualStmt)) {
          /* All includes are present */
@@ -232,7 +227,7 @@ public class ASTComparison {
    }
 
    private static Stream<IASTPreprocessorIncludeStatement> getFilteredIncludeStmts(IASTTranslationUnit ast) {
-      return Arrays.stream(ast.getIncludeDirectives()).filter(IASTPreprocessorIncludeStatement::isPartOfTranslationUnitFile);
+      return Stream.of(ast.getIncludeDirectives()).filter(IASTPreprocessorIncludeStatement::isPartOfTranslationUnitFile);
    }
 
    /**
@@ -281,7 +276,7 @@ public class ASTComparison {
    }
 
    private static Stream<IASTNode> getFilteredChildren(IASTNode node) {
-      return Arrays.stream(node.getChildren()).filter(IASTNode::isPartOfTranslationUnitFile);
+      return Stream.of(node.getChildren()).filter(IASTNode::isPartOfTranslationUnitFile);
    }
 
    private static <T extends IASTNode> boolean typeSensitiveNodeEquals(T expected, T actual, EnumSet<ComparisonArg> args) {
@@ -673,6 +668,7 @@ public class ASTComparison {
          this.value = value;
       }
 
+      @Override
       public String toString() {
          return id.prefix + info + (isNotCompareAttr() ? ": " : ":\n") + value;
       }
@@ -741,18 +737,16 @@ public class ASTComparison {
          return state.desc;
       }
 
-      public <T> ComparisonResult ifEqual(Function<ComparisonResult, T> fun) {
+      public void ifEqual(Consumer<ComparisonResult> fun) {
          if (isEqual()) {
-            fun.apply(this);
+            fun.accept(this);
          }
-         return this;
       }
 
-      public <T> ComparisonResult ifUnequal(Function<ComparisonResult, T> fun) {
+      public void ifUnequal(Consumer<ComparisonResult> fun) {
          if (isUnequal()) {
-            fun.apply(this);
+            fun.accept(this);
          }
-         return this;
       }
    }
 
