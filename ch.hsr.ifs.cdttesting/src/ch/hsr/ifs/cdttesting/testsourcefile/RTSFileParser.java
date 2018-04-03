@@ -28,7 +28,7 @@ public class RTSFileParser {
    public static final String SELECTION_OPEN  = "$*/";
 
    public static final String SELECTION_START_TAG_REGEX = "(.*?)(/\\*\\$)(.*?)(\\*/)(.*)";
-   public static final String SELECTION_END_TAG_REGEX   = "(.*)(/\\*)(.*?)(\\$\\*/)(.*)";
+   public static final String SELECTION_END_TAG_REGEX   = "(.*?)(/\\*)(.*?)(\\$\\*/)(.*)";
 
    public static ArrayList<RTSTest> parse(final BufferedReader inputReader) throws Exception {
       Matcher BEGIN_OF_SELECTION_MATCHER = Pattern.compile(SELECTION_START_TAG_REGEX).matcher("");
