@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
 
 public class RTSFileParser {
 
-   private static final String FAIL_ONLY_ONE_EXPECTED_FILE_IS_ALLOWED = "Only one expected file is allowed for file \'%s\'";
-   private static final String FAIL_SELECTION_NOT_CLOSED              = "Selection not closed";
+   private static final String FAIL_ONLY_ONE_EXPECTED_FILE_IS_ALLOWED = "Only one expected file is allowed for file \'%s\' in test \'%s\'";
+   private static final String FAIL_SELECTION_NOT_CLOSED              = "Selection not closed for file \'%s\' in test \'%s\'";
    private static final String FAIL_TEST_HAS_NO_NAME                  = "Test has no name";
    private static final String FAIL_FILE_HAS_NO_NAME                  = "File in test \'%s\' has no name";
 
@@ -134,7 +134,7 @@ public class RTSFileParser {
          case inSelection:
             if (isFILE(line) || isEXPECTED(line) || isTEST(line)) {
                matcherState = MatcherState.inFail;
-               failMSG = FAIL_SELECTION_NOT_CLOSED;
+               failMSG = String.format(FAIL_SELECTION_NOT_CLOSED, currentFile.getName(), currentTest.getName());
             }
             if (END_OF_SELECTION_MATCHER.reset(line).find()) {
                line = END_OF_SELECTION_MATCHER.group(1) + END_OF_SELECTION_MATCHER.group(3);
@@ -165,7 +165,7 @@ public class RTSFileParser {
                   testCases.add(currentTest);
                }
             } else if (isEXPECTED(line)) {
-               failMSG = String.format(FAIL_ONLY_ONE_EXPECTED_FILE_IS_ALLOWED, currentFile.getName());
+               failMSG = String.format(FAIL_ONLY_ONE_EXPECTED_FILE_IS_ALLOWED, currentFile.getName(), currentTest.getName());
                matcherState = MatcherState.inFail;
                continue;
             } else {
