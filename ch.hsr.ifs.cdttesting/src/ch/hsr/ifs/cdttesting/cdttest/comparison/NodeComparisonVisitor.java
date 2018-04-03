@@ -5,13 +5,14 @@ import java.util.EnumSet;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 
+import ch.hsr.ifs.iltis.core.data.StringPrintStream;
+import ch.hsr.ifs.iltis.core.functional.Functional;
+
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonArg;
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonAttrID;
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonAttribute;
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonResult;
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonState;
-import ch.hsr.ifs.iltis.core.data.StringPrintStream;
-import ch.hsr.ifs.iltis.core.functional.Functional;
 
 
 public class NodeComparisonVisitor {
@@ -22,9 +23,9 @@ public class NodeComparisonVisitor {
    private EnumSet<ComparisonArg> args;
    private boolean                compareComments;
 
-   public NodeComparisonVisitor(IASTTranslationUnit left, IASTTranslationUnit right, EnumSet<ComparisonArg> args) {
-      this.leftCollector = new ASTNodeCollector(left, args);
-      this.rightCollector = new ASTNodeCollector(right, args);
+   public NodeComparisonVisitor(IASTTranslationUnit leftAST, IASTTranslationUnit rightAST, EnumSet<ComparisonArg> args) {
+      this.leftCollector = new ASTNodeCollector(leftAST, args);
+      this.rightCollector = new ASTNodeCollector(rightAST, args);
       this.args = args;
       this.compareComments = args.contains(ComparisonArg.COMPARE_COMMENTS);
    }
