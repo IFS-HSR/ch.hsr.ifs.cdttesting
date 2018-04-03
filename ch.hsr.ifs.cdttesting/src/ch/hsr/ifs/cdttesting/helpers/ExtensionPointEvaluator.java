@@ -16,8 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -125,8 +125,8 @@ public class ExtensionPointEvaluator {
    }
 
    private static IConfigurationElement[] getExtensionsContributedByBundle(Bundle bundle) {
-      return Arrays.stream(RegistryFactory.getRegistry().getConfigurationElementsFor(TestingPlugin.XML_EXTENSION_POINT_ID)).filter((
-            element) -> element.getContributor().getName().equals(bundle.getSymbolicName())).toArray(IConfigurationElement[]::new);
+      return Stream.of(RegistryFactory.getRegistry().getConfigurationElementsFor(TestingPlugin.XML_EXTENSION_POINT_ID)).filter((element) -> element
+            .getContributor().getName().equals(bundle.getSymbolicName())).toArray(IConfigurationElement[]::new);
    }
 
    public IPath getExternalTestResourcePath() {

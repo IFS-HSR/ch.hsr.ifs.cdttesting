@@ -11,41 +11,38 @@
  *******************************************************************************/
 package ch.hsr.ifs.cdttesting.testsourcefile;
 
-import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Optional;
 
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextSelection;
 
 
 /**
- * @author Emanuel Graf, Lukas Felber
+ * The representation of a test-source file
+ * 
+ * @author Tobias Stauber, Emanuel Graf, Lukas Felber
  *
  */
 public class TestSourceFile {
 
-   private static final String REPLACEMENT    = "";
-   private final String        name;
-   private final StringBuilder source         = new StringBuilder();
-   private StringBuilder       expectedSource;
-   private static final String NL             = System.getProperty("line.separator");
-   private int                 selectionStart = -1;
-   private int                 selectionEnd   = -1;
-   private boolean             firstInsert    = true;
+   private static final String NL = System.getProperty("line.separator");
 
-   protected static final String selectionStartRegex     = "/\\*\\$\\*/";
-   protected static final String selectionEndRegex       = "/\\*\\$\\$\\*/";
-   protected static final String selectionStartLineRegex = "(.*)(" + selectionStartRegex + ")(.*)";
-   protected static final String selectionEndLineRegex   = "(.*)(" + selectionEndRegex + ")(.*)";
+   private final String             name;
+   private final StringBuilder      source = new StringBuilder();
+   private StringBuilder            expectedSource;
+   private Optional<ITextSelection> selection;
 
+   private int selectionStart = -1;
+   private int selectionEnd   = -1;
+
+   /**
+    * Create a new test-source file
+    * 
+    * @param name
+    *        The name of the test-source file
+    */
    public TestSourceFile(final String name) {
-      super();
-      this.name = useSystemSeperator(name);
-   }
-
-   private String useSystemSeperator(final String name) {
-      final char systemSeparator = File.separatorChar;
-      return name.replace('\\', systemSeparator).replace('/', systemSeparator);
+      this.name = name;
    }
 
    public String getExpectedSource() {
@@ -69,48 +66,39 @@ public class TestSourceFile {
       return source.toString();
    }
 
-   public void addLineToSource(String code) {
-      final Matcher start = createMatcherFromString(selectionStartLineRegex, code);
-      final int nlLength = firstInsert ? 0 : NL.length();
-      if (start.matches()) {
-         selectionStart = start.start(2) + nlLength + source.length();
-         code = code.replaceAll(selectionStartRegex, REPLACEMENT);
-      }
-      final Matcher end = createMatcherFromString(selectionEndLineRegex, code);
-      if (end.matches()) {
-         selectionEnd = end.start(2) + nlLength + source.length();
-         code = code.replaceAll(selectionEndRegex, REPLACEMENT);
-      }
-      append(source, code);
+   void appendLineToSource(final String line) {
+      if (source.length() != 0) source.append(NL);
+      source.append(line);
    }
 
-   private void append(final StringBuilder builder, final String code) {
-      if (firstInsert) {
-         firstInsert = false;
-      } else {
-         builder.append(NL);
+   void appendLineToExpectedSource(final String line) {
+      if (expectedSource.length() != 0) expectedSource.append(NL);
+      expectedSource.append(line);
+   }
+
+   void setSelectionStart(int start) {
+      selectionStart = start;
+   }
+
+   void setSelectionEnd(int end) {
+      selectionEnd = end;
+   }
+
+   public Optional<ITextSelection> getSelection() {
+      if (selection == null) {
+         if (selectionStart >= 0 && selectionEnd < 0) {
+            /* No selection end tag encountered -> assume end of source */
+            selection = Optional.of(new TextSelection(selectionStart, source.length() - selectionStart));
+         } else if (selectionStart < 0 || selectionEnd < 0) {
+            selection = Optional.empty();
+         } else {
+            selection = Optional.of(new TextSelection(selectionStart, selectionEnd - selectionStart));
+         }
       }
-      builder.append(code);
-   }
-
-   public void addLineToExpectedSource(final String code) {
-      append(expectedSource, code);
-   }
-
-   public TextSelection getSelection() {
-      if (selectionStart < 0 || selectionEnd < 0) {
-         return null;
-      } else {
-         return new TextSelection(selectionStart, selectionEnd - selectionStart);
-      }
-   }
-
-   protected static Matcher createMatcherFromString(final String pattern, final String line) {
-      return Pattern.compile(pattern).matcher(line);
+      return selection;
    }
 
    public void initExpectedSource() {
       expectedSource = new StringBuilder();
-      firstInsert = true;
    }
 }

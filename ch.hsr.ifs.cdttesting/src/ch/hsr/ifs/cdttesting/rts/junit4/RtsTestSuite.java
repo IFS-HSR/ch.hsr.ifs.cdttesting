@@ -12,8 +12,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
@@ -25,7 +23,7 @@ import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
 
 import ch.hsr.ifs.cdttesting.cdttest.base.SourceFileBaseTest;
-import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
+import ch.hsr.ifs.cdttesting.testsourcefile.RTSTest;
 
 
 /**
@@ -37,27 +35,25 @@ public class RtsTestSuite extends Suite {
 
    private class RTSTestRunner extends BlockJUnit4ClassRunner {
 
-      private final String                    testName;
-      private final ArrayList<TestSourceFile> testFiles;
+      private final RTSTest test;
 
-      RTSTestRunner(Class<?> type, String testName, ArrayList<TestSourceFile> testFiles) throws InitializationError {
+      RTSTestRunner(Class<?> type, RTSTest test) throws InitializationError {
          super(type);
-         this.testName = testName;
-         this.testFiles = testFiles;
-
+         this.test = test;
       }
 
       @Override
       public Object createTest() throws Exception {
          SourceFileBaseTest testInstance = (SourceFileBaseTest) getTestClass().getOnlyConstructor().newInstance();
-         testInstance.setName(testName);
-         testInstance.initTestSourceFiles(testFiles);
+         testInstance.setName(test.getName());
+         testInstance.setLanguage(test.getLanguage());
+         testInstance.initTestSourceFiles(test.getTestSourceFiles());
          return testInstance;
       }
 
       @Override
       protected String getName() {
-         return testName;
+         return test.getName();
       }
 
       @Override
@@ -81,11 +77,10 @@ public class RtsTestSuite extends Suite {
    /**
     * Only called reflectively. Do not use programmatically.
     */
-   public RtsTestSuite(Class<?> klass) throws Throwable {
-      super(klass, Collections.<Runner>emptyList());
-      Map<String, ArrayList<TestSourceFile>> parametersList = getParametersList(getTestClass());
-      for (Entry<String, ArrayList<TestSourceFile>> testCase : parametersList.entrySet())
-         runners.add(new RTSTestRunner(getTestClass().getJavaClass(), testCase.getKey(), testCase.getValue()));
+   public RtsTestSuite(Class<?> clazz) throws Throwable {
+      super(clazz, Collections.<Runner>emptyList());
+      for (RTSTest testCase : getParametersList(getTestClass()))
+         runners.add(new RTSTestRunner(getTestClass().getJavaClass(), testCase));
    }
 
    @Override
@@ -94,8 +89,8 @@ public class RtsTestSuite extends Suite {
    }
 
    @SuppressWarnings("unchecked")
-   private Map<String, ArrayList<TestSourceFile>> getParametersList(TestClass klass) throws Throwable {
-      return (Map<String, ArrayList<TestSourceFile>>) getParametersMethod(klass).invokeExplosively(null, klass.getJavaClass());
+   private ArrayList<RTSTest> getParametersList(TestClass clazz) throws Throwable {
+      return (ArrayList<RTSTest>) getParametersMethod(clazz).invokeExplosively(null, clazz.getJavaClass());
    }
 
    private FrameworkMethod getParametersMethod(TestClass testClass) throws Exception {
