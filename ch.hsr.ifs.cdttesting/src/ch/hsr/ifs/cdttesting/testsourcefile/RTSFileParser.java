@@ -124,6 +124,8 @@ public class RTSFileParser {
                   /* Closing tag on this line */
                   currentFile.setSelectionEnd(END_OF_SELECTION_MATCHER.start(2) + currentFile.getSource().length());
                   line = BEGIN_OF_SELECTION_MATCHER.group(1) + BEGIN_OF_SELECTION_MATCHER.group(5);
+               } else {
+                  /* Closing tag must be on another line */
                   matcherState = MatcherState.inSelection;
                }
                currentFile.appendLineToSource(line);
