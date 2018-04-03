@@ -1,15 +1,17 @@
 package ch.hsr.ifs.cdttesting.cdttest.comparison;
 
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.cdt.core.dom.ast.ASTVisitor;
 import org.eclipse.cdt.core.dom.ast.IASTNode;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
@@ -44,12 +46,12 @@ class ASTNodeCollector {
       this.eotNode = new EOTNode(ast);
 
       if (compareComments) {
-         commentRelations = Arrays.stream(ast.getComments()).map(CommentRelation::new).collect(Collectors.toList());
+         commentRelations = Stream.of(ast.getComments()).map(CommentRelation::new).collect(Collectors.toList());
       }
 
-      String filePath = ast.getContainingFilename();
+      IPath filePath = new Path(ast.getContainingFilename());
 
-      job = Job.create("Node collector on " + filePath.subSequence(filePath.lastIndexOf("/"), filePath.length()), mon -> {
+      job = Job.create("Node collector on " + filePath.lastSegment(), mon -> {
          ast.accept(visitor);
          visitingFinished = true;
       });
@@ -95,7 +97,7 @@ class ASTNodeCollector {
    }
 
    private int handleNode(IASTNode node) {
-      if (!node.isPartOfTranslationUnitFile()) return ASTVisitor.PROCESS_SKIP; //TODO can this be changed to PROCESS_SKIP?
+      if (!node.isPartOfTranslationUnitFile()) return ASTVisitor.PROCESS_SKIP;
       try {
          updateAllCommentRelations(commentRelations, node);
          pipe.put(node);
