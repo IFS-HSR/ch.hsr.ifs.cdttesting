@@ -9,12 +9,11 @@ import ch.hsr.ifs.cdttesting.example.examplerefactoringtest.refactorings.DummyRe
 
 public class ExampleRefactoringModificationsTest extends CDTTestingRefactoringTest {
 
-   private String testSourceFileName;
+   private String testSourceFileName = "main.cpp";
 
    @Override
    protected Refactoring createRefactoring() {
-      testSourceFileName = "main.cpp";
-      return new DummyRenameRefactoring(getCurrentCElement(getCurrentIFile(testSourceFileName)).get(), getSelection(testSourceFileName),
+      return new DummyRenameRefactoring(getCurrentCElement(getCurrentIFile(testSourceFileName)).get(), getSelection(testSourceFileName).get(),
             getCurrentCProject());
    }
 

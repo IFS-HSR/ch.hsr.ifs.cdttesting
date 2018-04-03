@@ -15,7 +15,7 @@ public class ExampleRefactoringTest extends CDTTestingRefactoringTest {
 
    @Override
    protected Refactoring createRefactoring() {
-      testRefactoring = new TestRefactoring(getCurrentCElement("XY.cpp").get(), getSelection("XY.cpp"), getCurrentCProject());
+      testRefactoring = new TestRefactoring(getCurrentCElement("XY.cpp").get(), getSelection("XY.cpp").get(), getCurrentCProject());
       return testRefactoring;
    }
 
