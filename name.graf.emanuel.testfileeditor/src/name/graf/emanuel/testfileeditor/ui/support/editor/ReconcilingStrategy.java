@@ -24,23 +24,28 @@ public class ReconcilingStrategy implements IReconcilingStrategy, IReconcilingSt
       this.editor = editor;
    }
 
+   @Override
    public void reconcile(final IRegion partition) {
       this.initialReconcile();
    }
 
+   @Override
    public void reconcile(final DirtyRegion dirtyRegion, final IRegion subRegion) {
       this.initialReconcile();
    }
 
+   @Override
    public void setDocument(final IDocument document) {
       this.document = document;
    }
 
+   @Override
    public void initialReconcile() {
       if (this.editor.getOutline() != null) {
          this.editor.getOutline().update();
       }
    }
 
+   @Override
    public void setProgressMonitor(final IProgressMonitor monitor) {}
 }

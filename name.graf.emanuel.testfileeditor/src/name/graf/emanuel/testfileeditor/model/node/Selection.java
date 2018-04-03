@@ -14,30 +14,37 @@ public class Selection implements Node {
       this.parent = parent;
    }
 
+   @Override
    public Node[] getChildren() {
       return null;
    }
 
+   @Override
    public Object getParent() {
       return this.parent;
    }
 
+   @Override
    public Position getPosition() {
       return this.pos;
    }
 
+   @Override
    public boolean hasChildren() {
       return false;
    }
 
+   @Override
    public boolean equals(final Object obj) {
       return this.hashCode() == obj.hashCode();
    }
 
+   @Override
    public int hashCode() {
       return super.hashCode();
    }
 
+   @Override
    public String toString() {
       return "";
    }

@@ -16,26 +16,32 @@ public class Expected implements Node {
       this.pos = pos;
    }
 
+   @Override
    public Node[] getChildren() {
       return null;
    }
 
+   @Override
    public Node getParent() {
       return this.parent;
    }
 
+   @Override
    public Position getPosition() {
       return this.pos;
    }
 
+   @Override
    public boolean hasChildren() {
       return false;
    }
 
+   @Override
    public String toString() {
       return this.text;
    }
 
+   @Override
    public boolean equals(final Object obj) {
       return this.hashCode() == obj.hashCode();
    }

@@ -26,6 +26,7 @@ public class TestFileLabelProvider extends LabelProvider {
          .createImage();
    private static final Image SELECTION = ImageDescriptor.createFromURL(Activator.getDefault().getBundle().getEntry("icons/sel.gif")).createImage();
 
+   @Override
    public Image getImage(final Object element) {
       if (element instanceof TestFile) { return TEST_FILE; }
       if (element instanceof Test) { return TEST; }

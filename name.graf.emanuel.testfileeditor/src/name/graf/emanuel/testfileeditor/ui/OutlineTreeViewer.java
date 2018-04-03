@@ -65,6 +65,7 @@ public class OutlineTreeViewer extends TreeViewer {
       }
    }
 
+   @Override
    public int getAutoExpandLevel() {
       return 2;
    }

@@ -16,26 +16,32 @@ public class Language implements Node {
       this.test = test;
    }
 
+   @Override
    public Node[] getChildren() {
       return null;
    }
 
+   @Override
    public Node getParent() {
       return this.test;
    }
 
+   @Override
    public Position getPosition() {
       return this.pos;
    }
 
+   @Override
    public boolean hasChildren() {
       return false;
    }
 
+   @Override
    public String toString() {
       return this.lang;
    }
 
+   @Override
    public boolean equals(final Object obj) {
       return this.hashCode() == obj.hashCode();
    }

@@ -26,10 +26,12 @@ public class Activator extends AbstractUIPlugin {
       Activator.plugin = this;
    }
 
+   @Override
    public void start(final BundleContext context) throws Exception {
       super.start(context);
    }
 
+   @Override
    public void stop(final BundleContext context) throws Exception {
       Activator.plugin = null;
       super.stop(context);
@@ -63,7 +65,7 @@ public class Activator extends AbstractUIPlugin {
    }
 
    public static void logError(final Throwable t, final int code) {
-      log((IStatus) new Status(Status.ERROR, PLUGIN_ID, code, t.getMessage(), t));
+      log(new Status(IStatus.ERROR, PLUGIN_ID, code, t.getMessage(), t));
    }
 
    @Override
