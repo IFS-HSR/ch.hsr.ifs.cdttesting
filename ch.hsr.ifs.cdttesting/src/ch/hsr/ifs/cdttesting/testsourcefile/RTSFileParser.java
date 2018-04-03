@@ -11,13 +11,11 @@ import java.util.regex.Pattern;
 public class RTSFileParser {
 
    private static final String FAIL_INVALID_PARSE_STATE               = "Invalid parse state!";
-   private static final String FAIL_MORE_THAN_ONE_SELECTION           = "More than one selection for file \\'%s\\' in test \\'%s\\'";
-   private static final String FAIL_ONLY_ONE_EXPECTED_FILE_IS_ALLOWED = "Only one expected file is allowed for file \'%s\' in test \'%s\'";
-   private static final String FAIL_SELECTION_NOT_CLOSED              = "Selection not closed for file \'%s\' in test \'%s\'";
+   private static final String FAIL_MORE_THAN_ONE_SELECTION           = "More than one selection for file \"%s\" in test \"%s\"";
+   private static final String FAIL_ONLY_ONE_EXPECTED_FILE_IS_ALLOWED = "More than one expected file for file \"%s\" in test \"%s\"";
+   private static final String FAIL_SELECTION_NOT_CLOSED              = "Selection not closed for file \"%s\" in test \"%s\"";
    private static final String FAIL_TEST_HAS_NO_NAME                  = "Test has no name";
-   private static final String FAIL_FILE_HAS_NO_NAME                  = "File in test \'%s\' has no name";
-
-   public static final String REMOVE = "";
+   private static final String FAIL_FILE_HAS_NO_NAME                  = "File in test \"%s\" has no name";
 
    public static final String CLASS           = "//#";
    public static final String COMMENT_OPEN    = "/*";
@@ -144,7 +142,7 @@ public class RTSFileParser {
                failMSG = String.format(FAIL_SELECTION_NOT_CLOSED, currentFile.getName(), currentTest.getName());
             }
             if (END_OF_SELECTION_MATCHER.reset(line).find()) {
-               line = END_OF_SELECTION_MATCHER.group(1) + END_OF_SELECTION_MATCHER.group(3);
+               line = END_OF_SELECTION_MATCHER.group(1) + END_OF_SELECTION_MATCHER.group(5);
                currentFile.setSelectionEnd(END_OF_SELECTION_MATCHER.start(2) + currentFile.getSource().length());
                matcherState = MatcherState.inFile;
             }
