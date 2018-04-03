@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 
 public class RTSFileParser {
 
+   private static final String FAIL_INVALID_PARSE_STATE               = "Invalid parse state!";
+   private static final String FAIL_MORE_THAN_ONE_SELECTION           = "More than one selection for file \\'%s\\' in test \\'%s\\'";
    private static final String FAIL_ONLY_ONE_EXPECTED_FILE_IS_ALLOWED = "Only one expected file is allowed for file \'%s\' in test \'%s\'";
    private static final String FAIL_SELECTION_NOT_CLOSED              = "Selection not closed for file \'%s\' in test \'%s\'";
    private static final String FAIL_TEST_HAS_NO_NAME                  = "Test has no name";
@@ -39,14 +41,13 @@ public class RTSFileParser {
       RTSTest currentTest = null;
       TestSourceFile currentFile = null;
 
-      String line;
-
-      String failMSG = "Invalid parse state!";
+      String failMSG = FAIL_INVALID_PARSE_STATE;
 
       MatcherState matcherState = MatcherState.skip;
 
       /* YES CODE DUPLICATION MUTCH, BUT FUCK THAT, IT'S FAST!! */
-
+      
+      String line;
       while ((line = inputReader.readLine()) != null) {
 
          switch (matcherState) {
@@ -114,6 +115,10 @@ public class RTSFileParser {
                   testCases.add(currentTest);
                }
             } else if (BEGIN_OF_SELECTION_MATCHER.reset(line).find()) {
+               if (currentFile.hasSelection()) {
+                  failMSG = String.format(FAIL_MORE_THAN_ONE_SELECTION, currentFile.getName(), currentTest.getName());
+                  matcherState = MatcherState.inFail;
+               }
                /* Opening tag on this line */
                currentFile.setSelectionStart(BEGIN_OF_SELECTION_MATCHER.start(2) + currentFile.getSource().length());
                line = BEGIN_OF_SELECTION_MATCHER.group(1) + BEGIN_OF_SELECTION_MATCHER.group(5);

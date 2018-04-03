@@ -26,14 +26,15 @@ import org.eclipse.jface.text.TextSelection;
 public class TestSourceFile {
 
    private static final String NL = System.getProperty("line.separator");
+   private static final int NOT_SET = -1;
 
    private final String             name;
    private final StringBuilder      source = new StringBuilder();
    private StringBuilder            expectedSource;
    private Optional<ITextSelection> selection;
 
-   private int selectionStart = -1;
-   private int selectionEnd   = -1;
+   private int selectionStart = NOT_SET;
+   private int selectionEnd   = NOT_SET;
 
    /**
     * Create a new test-source file
@@ -82,6 +83,10 @@ public class TestSourceFile {
 
    void setSelectionEnd(int end) {
       selectionEnd = end;
+   }
+   
+   public boolean hasSelection() {
+      return selectionStart != NOT_SET;
    }
 
    public Optional<ITextSelection> getSelection() {
