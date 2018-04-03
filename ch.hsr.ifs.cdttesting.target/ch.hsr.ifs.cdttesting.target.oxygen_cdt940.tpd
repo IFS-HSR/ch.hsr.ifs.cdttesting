@@ -1,14 +1,13 @@
-target "Eclipse Oxygen with CDT 9.4"
-
-with source requirements
+target "Eclipse Oxygen with CDT 9.4" with source requirements
 
 location "http://download.eclipse.org/eclipse/updates/4.7" {
+	org.eclipse.equinox.sdk.feature.group lazy
 	org.eclipse.platform.sdk [4.7.0,4.8.0)
 	org.eclipse.sdk.ide [4.7.0,4.8.0)
 }
 
 location "http://download.eclipse.org/tools/cdt/releases/9.4/" {
-		org.eclipse.cdt.sdk.feature.group lazy
+	org.eclipse.cdt.sdk.feature.group lazy
 }
 
 location "http://download.eclipse.org/releases/oxygen" {
@@ -16,8 +15,8 @@ location "http://download.eclipse.org/releases/oxygen" {
 }
 
 location "https://hudson.eclipse.org/cdt/job/cdt-9.4/lastSuccessfulBuild/artifact/releng/org.eclipse.cdt.testing.repo/target/repository/" {
-	org.eclipse.cdt.testing.source.feature.group [9.4.0,9.5.0)
-	org.eclipse.cdt.testing.feature.group [9.4.0,9.5.0)
+	org.eclipse.cdt.testing.source.feature.group [9.4.4,9.5.0)
+	org.eclipse.cdt.testing.feature.group [9.4.4,9.5.0)
 }
 
 location "http://download.eclipse.org/tools/orbit/downloads/drops/S20180119201206/repository/" {
@@ -31,6 +30,11 @@ location "https://hudson.eclipse.org/cdt/job/tools-templates-master/lastSuccessf
 	org.eclipse.tools.templates.ui lazy
 }
 
+//location "https://www.cevelop.com/cdt-testing/9.4.0" {
+//	ch.hsr.ifs.cdttesting.feature.feature.group [9.4.0,9.5.0)
+//}
+
 location "https://www.cevelop.com/iltis" {
+	ch.hsr.ifs.iltis.core.feature.feature.group lazy
 	ch.hsr.ifs.iltis.cpp.feature.feature.group lazy
 }
