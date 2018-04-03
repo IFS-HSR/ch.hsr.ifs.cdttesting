@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.BadPositionCategoryException;
@@ -394,7 +395,7 @@ public class TestFile extends Observable {
 
                if (currentState == ParseState.FILE) {
                   currentState = ParseState.SELECTION;
-                  currentSelectionStart = lineOffset + lineContent.indexOf(Tokens.SELECTION_CLOSE);
+                  currentSelectionStart = lineOffset + lineContent.indexOf(Tokens.SELECTION_OPEN);
                }
                break;
             }
@@ -425,7 +426,7 @@ public class TestFile extends Observable {
 
    private void cleanMarkers() {
       try {
-         final IMarker[] currentMarkers = fInput.getFile().findMarkers(MARKER_ID_DUPLICATE_TEST, false, IFile.DEPTH_INFINITE);
+         final IMarker[] currentMarkers = fInput.getFile().findMarkers(MARKER_ID_DUPLICATE_TEST, false, IResource.DEPTH_INFINITE);
          for (final IMarker marker : currentMarkers) {
             final int offset = MarkerUtilities.getCharStart(marker);
             final int length = MarkerUtilities.getCharEnd(marker) - offset;

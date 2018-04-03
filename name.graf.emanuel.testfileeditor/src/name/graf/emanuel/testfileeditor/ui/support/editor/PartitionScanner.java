@@ -41,12 +41,12 @@ public class PartitionScanner extends RuleBasedPartitionScanner {
       //@formatter:off
         final IPredicateRule[] rules = new IPredicateRule[] {
                 new EndOfLineRule(CLASS, clazz),
-                new MultiLineRule(COMMENT_OPEN, COMMENT_CLOSE, comment),
                 new EndOfLineRule(EXPECTED, expected),
                 new EndOfLineRule(FILE, file),
                 new EndOfLineRule(LANGUAGE, language),
                 new EndOfLineRule(TEST, name),
-                new MultiLineRule(SELECTION_OPEN, SELECTION_CLOSE, selection)
+                new MultiLineRule(SELECTION_OPEN, SELECTION_CLOSE, selection),
+                new MultiLineRule(COMMENT_OPEN, COMMENT_CLOSE, comment),
         };
         //@formattor:on
 
