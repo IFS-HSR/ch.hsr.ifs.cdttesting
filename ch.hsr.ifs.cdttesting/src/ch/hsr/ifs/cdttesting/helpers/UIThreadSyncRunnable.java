@@ -3,11 +3,22 @@ package ch.hsr.ifs.cdttesting.helpers;
 import org.eclipse.ui.PlatformUI;
 
 import ch.hsr.ifs.iltis.core.exception.ILTISException;
+import ch.hsr.ifs.iltis.core.functional.functions.ThrowingRunnable;
 
 
 public abstract class UIThreadSyncRunnable implements Runnable {
 
    volatile private Exception e;
+
+   public static void run(ThrowingRunnable<Exception> runnable) {
+      new UIThreadSyncRunnable() {
+
+         @Override
+         protected void runSave() throws Exception {
+            runnable.run();
+         }
+      }.runSyncOnUIThread();
+   }
 
    protected abstract void runSave() throws Exception;
 
