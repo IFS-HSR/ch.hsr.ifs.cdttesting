@@ -17,12 +17,14 @@ Require-Bundle:
  org.eclipse.ui;bundle-version="3.106.0",
  org.eclipse.core.runtime;bundle-version="3.10.0",
  org.eclipse.cdt.core;bundle-version="5.8.0",
- org.junit,
  org.eclipse.cdt.core.tests;bundle-version="5.4.0",
  org.eclipse.cdt.ui.tests;bundle-version="5.4.0",
  ch.hsr.ifs.iltis.core,
  ch.hsr.ifs.iltis.cpp,
- org.eclipse.core.filesystem
+ org.eclipse.core.filesystem,
+ org.eclipse.cdt.codan.ui,
+ org.eclipse.equinox.launcher;bundle-version="1.4.0",
+ org.junit
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: ch.hsr.ifs.cdttesting,
