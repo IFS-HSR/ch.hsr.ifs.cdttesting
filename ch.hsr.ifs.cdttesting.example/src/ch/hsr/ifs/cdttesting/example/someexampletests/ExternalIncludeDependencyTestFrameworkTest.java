@@ -23,8 +23,9 @@ import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingUITest;
 public class ExternalIncludeDependencyTestFrameworkTest extends CDTTestingUITest {
 
    @Override
-   protected void initAdditionalIncludes() {
+   protected void initAdditionalIncludes() throws Exception {
       stageExternalIncludePathsForBothProjects("externalFrameworkTest");
+      super.initAdditionalIncludes();
    }
 
    @Test

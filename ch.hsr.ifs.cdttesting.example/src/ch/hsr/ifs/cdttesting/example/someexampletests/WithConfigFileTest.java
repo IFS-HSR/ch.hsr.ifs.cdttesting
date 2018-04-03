@@ -39,5 +39,6 @@ public class WithConfigFileTest extends CDTTestingUITest {
       // will get a NPE.
       boolProperty = Boolean.parseBoolean(properties.getProperty("yetAnotherKey", "false")); // again, passing false
       // as default.
+      super.configureTest(properties);
    }
 }
