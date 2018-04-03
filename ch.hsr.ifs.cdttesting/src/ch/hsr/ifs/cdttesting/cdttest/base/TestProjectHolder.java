@@ -5,13 +5,10 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,7 +40,6 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -59,45 +55,29 @@ import ch.hsr.ifs.iltis.core.exception.ILTISException;
 import ch.hsr.ifs.iltis.core.resources.FileUtil;
 
 import ch.hsr.ifs.cdttesting.cdttest.formatting.FormatterLoader;
-import ch.hsr.ifs.cdttesting.helpers.FileCache;
+import ch.hsr.ifs.cdttesting.testsourcefile.RTSTest.Language;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
 
-public class TestProjectHolder implements ITestProjectHolder {
+public class TestProjectHolder extends AbstractProjectHolder implements ITestProjectHolder {
 
-   public static final String NL = System.getProperty("line.separator");
-
-   protected boolean   instantiateCPPProject = true;
-   protected FileCache fileCache             = new FileCache();
-
-   protected ICProject  cProject;
-   protected IWorkspace workspace;
-   protected String     projectName;
-   private boolean      isExpectedProject;
+   private boolean isExpectedProject;
 
    protected FileManager fileManager;
 
-   //TODO use faster collections
    private List<ICProject> referencedProjects = new ArrayList<>();
 
    private ArrayList<IPath>                         stagedExternalIncudePaths  = new ArrayList<>();
    private ArrayList<IPath>                         stagedInternalIncludePaths = new ArrayList<>();
-   private LinkedList<URL>                          stagedFilesToImport        = new LinkedList<>();
    private LinkedList<ReferencedProjectDescription> stagedReferncedProjects    = new LinkedList<>();
    private HashMap<String, String>                  stagedTestSourcesToImport  = new HashMap<>();
 
    private List<IPath> formattedDocuments;
 
-   public TestProjectHolder(String projectName, boolean isExpectedProject) {
+   public TestProjectHolder(String projectName, Language language, boolean isExpectedProject) {
       this.projectName = projectName;
+      this.language = language;
       this.isExpectedProject = isExpectedProject;
-   }
-
-   @Override
-   public ProjectHolderJob createProjectAsync() {
-      return ProjectHolderJob.create("Initializing project " + projectName, IProjectHolder.CREATE_PROJ_JOB_FAMILY, mon -> {
-         createProject();
-      });
    }
 
    @Override
@@ -105,24 +85,21 @@ public class TestProjectHolder implements ITestProjectHolder {
       if (CCorePlugin.getDefault() != null && CCorePlugin.getDefault().getCoreModel() != null) {
          workspace = ResourcesPlugin.getWorkspace();
          try {
-            if (instantiateCPPProject) {
+            switch (language) {
+            case CPP:
                cProject = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ 
-            } else {
+               break;
+            case C:
                cProject = CProjectHelper.createCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ 
+               break;
+            default:
+               fail("Invalid language for this holder. Valid choices are: Language.C, Language.CPP ");
             }
-         } catch (final CoreException ignored) {}
-         if (cProject == null) {
-            fail("Unable to create project"); //$NON-NLS-1$
+         } catch (final CoreException ignored) {
+            fail("Failed to create the project");
          }
          fileManager = new FileManager();
       }
-   }
-
-   @Override
-   public ProjectHolderJob cleanupProjectsAsync() {
-      return ProjectHolderJob.create("Cleaningup project " + projectName, IProjectHolder.CLEANUP_PROJ_JOB_FAMILY, mon -> {
-         cleanupProjects();
-      });
    }
 
    @Override
@@ -194,8 +171,8 @@ public class TestProjectHolder implements ITestProjectHolder {
    }
 
    @Override
-   public ITestProjectHolder instantiateCProject() {
-      this.instantiateCPPProject = false;
+   public ITestProjectHolder setLanguage(Language language) {
+      this.language = language;
       return this;
    }
 
@@ -301,19 +278,6 @@ public class TestProjectHolder implements ITestProjectHolder {
    }
 
    @Override
-   public ProjectHolderJob importFilesAsync() {
-      return ProjectHolderJob.create("Importing files into project " + projectName, IProjectHolder.IMPORT_FILES_JOB_FAMILY, mon -> {
-
-         try {
-            importFiles();
-         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-         }
-      });
-   }
-
-   @Override
    public void importFiles() {
       while (!stagedFilesToImport.isEmpty()) {
          URL url = stagedFilesToImport.pop();
@@ -327,24 +291,6 @@ public class TestProjectHolder implements ITestProjectHolder {
       for (Entry<String, String> entry : stagedTestSourcesToImport.entrySet()) {
          IFile iFile = getProject().getFile(entry.getKey());
          importFile(iFile, getProject(), new StringInputStream(entry.getValue()));
-      }
-   }
-
-   @Override
-   public void stageFilesForImport(Collection<URI> files) {
-      for (URI uri : files) {
-         try {
-            stagedFilesToImport.add(uri.toURL());
-         } catch (MalformedURLException e1) {
-            e1.printStackTrace();
-         }
-      }
-   }
-
-   @Override
-   public void stageFilesForImport(Enumeration<URL> files) {
-      while (files.hasMoreElements()) {
-         stagedFilesToImport.add(files.nextElement());
       }
    }
 
@@ -402,63 +348,8 @@ public class TestProjectHolder implements ITestProjectHolder {
    /* -- Public Getters -- */
 
    @Override
-   public IPath makeProjectAbsolutePath(final String relativePath) {
-      return getProject().getLocation().append(relativePath);
-   }
-
-   @Override
-   public IPath makeProjectAbsolutePath(final IPath relativePath) {
-      return getProject().getLocation().append(relativePath);
-   }
-
-   @Override
-   public URI makeProjectAbsoluteURI(final String relativePath) {
-      return URI.create(makeProjectAbsolutePath(relativePath).toOSString());
-   }
-
-   @Override
-   public URI makeProjectAbsoluteURI(final IPath relativePath) {
-      return URI.create(makeProjectAbsolutePath(relativePath).toOSString());
-   }
-
-   @Override
    public List<ICProject> getReferencedProjects() {
       return referencedProjects;
-   }
-
-   @Override
-   public IFile getFile(String filePath) {
-      return getProject().getFile(filePath);
-   }
-
-   @Override
-   public IFile getFile(IPath filePath) {
-      return getProject().getFile(filePath);
-   }
-
-   @Override
-   public IDocument getDocument(URI sourceFile) {
-      return fileCache.getDocument(sourceFile);
-   }
-
-   @Override
-   public IDocument getDocument(IFile sourceFile) {
-      return fileCache.getDocument(sourceFile);
-   }
-
-   @Override
-   public IDocument getDocumentFromRelativePath(String relativePath) {
-      return getDocument(getFile(relativePath));
-   }
-
-   @Override
-   public IDocument getDocumentFromRelativePath(IPath projectRelativePath) {
-      return getDocument(getFile(projectRelativePath));
-   }
-
-   @Override
-   public IProject getProject() {
-      return getCProject().getProject();
    }
 
    @Override

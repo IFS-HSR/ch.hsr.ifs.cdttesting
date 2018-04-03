@@ -17,6 +17,7 @@ import org.eclipse.jface.text.IDocument;
 
 import ch.hsr.ifs.iltis.core.exception.ILTISException;
 
+import ch.hsr.ifs.cdttesting.testsourcefile.RTSTest.Language;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
 
@@ -54,7 +55,7 @@ public class FakeProjectHolder implements ITestProjectHolder {
    }
 
    @Override
-   public FakeProjectHolder instantiateCProject() {
+   public FakeProjectHolder setLanguage(Language language) {
       return this;
    }
 
@@ -79,9 +80,7 @@ public class FakeProjectHolder implements ITestProjectHolder {
    }
 
    @Override
-   public void stageReferencedProjects(ReferencedProjectDescription... referencedProjects) {
-      throw getNoFunctionalityException().rethrowUnchecked();
-   }
+   public void stageReferencedProjects(ReferencedProjectDescription... referencedProjects) {}
 
    protected void importFile(final IFile file, final IContainer root, final String content) throws Exception {}
 
@@ -168,34 +167,22 @@ public class FakeProjectHolder implements ITestProjectHolder {
    }
 
    @Override
-   public void createProject() {
-      throw getNoFunctionalityException().rethrowUnchecked();
-   }
+   public void createProject() {}
 
    @Override
-   public void cleanupProjects() {
-      throw getNoFunctionalityException().rethrowUnchecked();
-   }
+   public void cleanupProjects() {}
 
    @Override
-   public void stageFilesForImport(Collection<URI> files) {
-      throw getNoFunctionalityException().rethrowUnchecked();
-   }
+   public void stageFilesForImport(Collection<URI> files) {}
 
    @Override
-   public void stageFilesForImport(Enumeration<URL> files) {
-      throw getNoFunctionalityException().rethrowUnchecked();
-   }
+   public void stageFilesForImport(Enumeration<URL> files) {}
 
    @Override
-   public void importFiles() {
-      throw getNoFunctionalityException().rethrowUnchecked();
-   }
+   public void importFiles() {}
 
    @Override
-   public void stageTestSourceFilesForImport(Collection<TestSourceFile> files) {
-      throw getNoFunctionalityException().rethrowUnchecked();
-   }
+   public void stageTestSourceFilesForImport(Collection<TestSourceFile> files) {}
 
    @Override
    public ProjectHolderJob setupReferencedProjectsAsync() {

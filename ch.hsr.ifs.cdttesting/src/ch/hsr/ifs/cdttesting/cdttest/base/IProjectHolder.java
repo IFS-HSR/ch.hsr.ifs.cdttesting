@@ -65,7 +65,8 @@ public interface IProjectHolder {
    public void stageFilesForImport(Enumeration<URL> files);
 
    /**
-    * This creates an Eclipse Job which imports the files added by {@link #stageFilesForImport(Collection)} or {@link #stageFilesForImport(Enumeration)}.
+    * This creates an Eclipse Job which imports the files added by {@link #stageFilesForImport(Collection)} or
+    * {@link #stageFilesForImport(Enumeration)}.
     * 
     * @return The job.
     */
@@ -175,7 +176,7 @@ public interface IProjectHolder {
          public boolean shouldRun() {
             return false;
          }
-         
+
          @Override
          public boolean shouldSchedule() {
             return false;
@@ -244,9 +245,10 @@ public interface IProjectHolder {
             return false;
          }
       }
-      
+
       /**
        * Caution this force executes the runnable in this job.
+       * 
        * @return
        */
       public IStatus forceRun() {

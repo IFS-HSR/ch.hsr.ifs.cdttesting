@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.IPath;
 
 import ch.hsr.ifs.iltis.core.data.AbstractPair;
 
+import ch.hsr.ifs.cdttesting.testsourcefile.RTSTest.Language;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
 
@@ -23,6 +24,7 @@ public interface ITestProjectHolder extends IProjectHolder {
    public static final String ADD_REFERENCED_PROJ_JOB_FAMILY      = "ch.hsr.ifs.cdttesting.holderjob.addreferencedproj_job_family";
    public static final String LOAD_FORMATTER_JOB_FAMILY           = "ch.hsr.ifs.cdttesting.holderjob.loadformatter_job_family";
    public static final String FORMATT_FILE_JOB_FAMILY             = "ch.hsr.ifs.cdttesting.holderjob.formattfile_job_family";
+   String NL = System.getProperty("line.separator");
 
    /**
     * This creates an Eclipse Job which sets up the index for the project held.
@@ -52,12 +54,12 @@ public interface ITestProjectHolder extends IProjectHolder {
    public ITestProjectHolder stageInternalIncludePaths(final IPath... projectRelativePaths);
 
    /**
-    * If called a C project will be created instead of a C++ project. All calls to this methods must take place before the Job returned by
+    * Instantiates a project for the passed language. All calls to this methods must take place before the Job returned by
     * {@code createCreateProjectJob()} is executed.
     * 
     * @return Itself for chaining
     */
-   public ITestProjectHolder instantiateCProject();
+   public ITestProjectHolder setLanguage(Language lang);
 
    /**
     * This creates an Eclipse Job which sets up the project references.
@@ -112,6 +114,7 @@ public interface ITestProjectHolder extends IProjectHolder {
     * 
     * @return The job.
     */
+   @Override
    public ProjectHolderJob importFilesAsync();
 
    /**
@@ -120,6 +123,7 @@ public interface ITestProjectHolder extends IProjectHolder {
     * 
     * @throws Exception
     */
+   @Override
    public void importFiles();
 
    /**

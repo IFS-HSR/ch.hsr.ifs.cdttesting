@@ -58,10 +58,10 @@ public interface ITestPreferencesMixin {
    default void splitAndAdd(final Map<String, String> preferencesMap, final String[] splitPreferences) {
       for (final String s : splitPreferences) {
          final String[] pair = s.substring(1, s.length() - 1).split("\\|");
-         preferencesMap.put(pair[0], pair[1]);
+         preferencesMap.put(pair[0].trim(), pair[1].trim());
       }
    }
-   
+
    default Map<String, String> evaluatePreferences(final Map<String, String> preferencesMap) {
       final Map<String, String> evaluatedMap = new HashMap<>();
       final Class<?> prefConstants = getPreferenceConstants();
