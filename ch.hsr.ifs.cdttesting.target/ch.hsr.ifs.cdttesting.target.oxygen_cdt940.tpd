@@ -30,10 +30,6 @@ location "https://hudson.eclipse.org/cdt/job/tools-templates-master/lastSuccessf
 	org.eclipse.tools.templates.ui lazy
 }
 
-//location "https://www.cevelop.com/cdt-testing/9.4.0" {
-//	ch.hsr.ifs.cdttesting.feature.feature.group [9.4.0,9.5.0)
-//}
-
 location "https://www.cevelop.com/iltis" {
 	ch.hsr.ifs.iltis.core.feature.feature.group lazy
 	ch.hsr.ifs.iltis.cpp.feature.feature.group lazy
