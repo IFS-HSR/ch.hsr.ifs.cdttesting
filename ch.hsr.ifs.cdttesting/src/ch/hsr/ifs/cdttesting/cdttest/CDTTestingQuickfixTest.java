@@ -8,6 +8,7 @@ import java.util.EnumSet;
 import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ui.IMarkerResolution;
 import org.junit.Before;
 
@@ -32,42 +33,39 @@ public abstract class CDTTestingQuickfixTest extends CDTTestingUITest {
     */
    protected abstract IMarkerResolution createMarkerResolution();
 
-   protected void runQuickFix() throws Exception {
+   protected void runQuickFix() throws CoreException {
       final IMarker[] markers = findMarkers();
       assertThatOnlyOneMarkerWasFound(markers);
       runQuickFix(markers[0]);
    }
 
-   protected void runQuickFix(final IMarker marker) throws RuntimeException {
+   protected void runQuickFix(final IMarker marker) {
       assertNotNull("Marker was null. Could not run quick fix for it.", marker);
       UIThreadSyncRunnable.run(() -> createMarkerResolution().run(marker));
+      saveAllEditors(); // TODO check if this is necessary, I suppose it is not necessary
    }
 
-   protected void runQuickfixAndAssertAllEqual(final IMarker marker) throws Exception {
+   protected void runQuickfixAndAssertAllEqual(final IMarker marker) {
       runQuickFix(marker);
-      //            saveAllEditors();//FIXME needed? I strongly assume it's not needed
       assertAllSourceFilesEqual(makeComparisonArguments());
    }
 
-   protected void runQuickfixForAllMarkersAndAssertAllEqual() throws Exception {
+   protected void runQuickfixForAllMarkersAndAssertAllEqual() throws CoreException{
       IMarker[] markers = findMarkers();
       assertThatMarkersWereFound(markers);
       Stream.of(markers).forEach(this::runQuickFix);
-      //            saveAllEditors(); //FIXME needed? I strongly assume it's not needed
       assertAllSourceFilesEqual(makeComparisonArguments());
    }
 
    /**
     * Runs the first quickfix found and then asserts all source files to be equal with the expected source. The comparison arguments can be altered by
     * overriding {@link #makeComparisonArguments()}.
-    * 
-    * @throws Exception
+    * @throws CoreException 
     */
-   protected void runQuickfixAndAssertAllEqual() throws Exception {
+   protected void runQuickfixAndAssertAllEqual() throws CoreException {
       final IMarker[] markers = findMarkers();
       assertThatOnlyOneMarkerWasFound(markers);
       runQuickFix(markers[0]);
-      //            saveAllEditors(); //FIXME needed? I strongly assume it's not needed
       assertAllSourceFilesEqual(makeComparisonArguments());
    }
 

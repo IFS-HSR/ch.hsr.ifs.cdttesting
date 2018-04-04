@@ -40,6 +40,7 @@ import org.junit.Before;
 
 import ch.hsr.ifs.iltis.core.functional.OptionalUtil;
 
+import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.TestProjectHolder;
 import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 import junit.framework.AssertionFailedError;
@@ -116,17 +117,17 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
       return getActiveTextEditor().map(AbstractTextEditor::getSelectionProvider);
    }
 
-   public static void closeWelcomeScreen() throws Exception {
+   public static void closeWelcomeScreen() {
       UIThreadSyncRunnable.run(() -> {
          getActivePage().ifPresent(p -> p.hideView(p.findViewReference(INTROVIEW_ID)));
       });
    }
 
-   protected void closeOpenEditors() throws Exception {
+   protected void closeOpenEditors() {
       UIThreadSyncRunnable.run(() -> getActivePage().ifPresent(p -> p.closeAllEditors(false)));
    }
 
-   protected void saveAllEditors() throws Exception {
+   protected void saveAllEditors() {
       UIThreadSyncRunnable.run(() -> {
          getActivePage().ifPresent(p -> p.saveAllEditors(false));
          runEventLoop();
@@ -142,7 +143,7 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
       openTestFileInEditor(getNameOfPrimaryTestFile());
    }
 
-   protected void openTestFileInEditor(final String testSourceFileName) throws Exception {
+   protected void openTestFileInEditor(final String testSourceFileName) {
       if (!testFiles.containsKey(testSourceFileName)) throw new IllegalArgumentException(NLS.bind("No such test file \"{0}\" found.",
             testSourceFileName));
       UIThreadSyncRunnable.run(() -> {
@@ -154,7 +155,7 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
       });
    }
 
-   protected void openExternalFileInEditor(final URI absolutePath) throws Exception {
+   protected void openExternalFileInEditor(final URI absolutePath) {
       UIThreadSyncRunnable.run(() -> {
          OptionalUtil.doIfPresentT(getActivePage(), p -> {
             IDE.openEditor(p, new ExternalEditorInput(absolutePath, getCurrentProject()), "org.eclipse.cdt.ui.editor.CEditor", true);
