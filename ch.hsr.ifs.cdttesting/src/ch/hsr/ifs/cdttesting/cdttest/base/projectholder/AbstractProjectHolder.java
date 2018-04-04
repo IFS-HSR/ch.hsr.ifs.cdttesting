@@ -1,4 +1,4 @@
-package ch.hsr.ifs.cdttesting.cdttest.base;
+package ch.hsr.ifs.cdttesting.cdttest.base.projectholder;
 
 import java.net.MalformedURLException;
 import java.net.URI;

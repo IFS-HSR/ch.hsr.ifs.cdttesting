@@ -3,11 +3,14 @@ package ch.hsr.ifs.cdttesting.cdttest.base;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
 import org.junit.runner.RunWith;
 
-import ch.hsr.ifs.cdttesting.cdttest.base.ITestProjectHolder.ReferencedProjectDescription;
+import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.ExternalTestResourceProjectHolder;
+import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.ITestProjectHolder.ReferencedProjectDescription;
 import ch.hsr.ifs.cdttesting.helpers.ExtensionPointEvaluator;
 import ch.hsr.ifs.cdttesting.rts.junit4.RTSTestCases;
 import ch.hsr.ifs.cdttesting.rts.junit4.RtsTestSuite;
@@ -22,10 +25,13 @@ public abstract class RTSSourceFileTest extends SourceFileBaseTest {
 
    @Override
    protected void initExternalTestResourcesHolder() throws Exception {
-      externalTestResourcesHolder = new ExternalTestResourceProjectHolder(EXTERNAL_TEST_RESOURCE_PROJECT_NAME, language);
-      externalTestResourcesHolder.createProject();
-      externalTestResourcesHolder.stageFilesForImport(evaluator.getExternalResourcesForActiveBundle());
-      externalTestResourcesHolder.importFiles();
+      Enumeration<URL> externalResources = evaluator.getExternalResourcesForActiveBundle();
+      if (externalResources != null) {
+         externalTestResourcesHolder = new ExternalTestResourceProjectHolder(EXTERNAL_TEST_RESOURCE_PROJECT_NAME, language);
+         externalTestResourcesHolder.createProject();
+         externalTestResourcesHolder.stageFilesForImport(externalResources);
+         externalTestResourcesHolder.importFiles();
+      }
    }
 
    /**

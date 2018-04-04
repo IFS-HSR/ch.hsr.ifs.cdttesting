@@ -36,8 +36,10 @@ import org.eclipse.jface.text.IDocument;
 import org.junit.After;
 import org.junit.Before;
 
-import ch.hsr.ifs.cdttesting.cdttest.base.IProjectHolder.ProjectHolderJob;
-import ch.hsr.ifs.cdttesting.cdttest.base.ITestProjectHolder.ReferencedProjectDescription;
+import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.IProjectHolder;
+import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.ITestProjectHolder;
+import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.IProjectHolder.ProjectHolderJob;
+import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.ITestProjectHolder.ReferencedProjectDescription;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
 

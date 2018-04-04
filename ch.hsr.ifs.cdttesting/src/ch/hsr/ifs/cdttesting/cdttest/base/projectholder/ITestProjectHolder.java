@@ -1,4 +1,4 @@
-package ch.hsr.ifs.cdttesting.cdttest.base;
+package ch.hsr.ifs.cdttesting.cdttest.base.projectholder;
 
 import java.util.Collection;
 import java.util.Enumeration;

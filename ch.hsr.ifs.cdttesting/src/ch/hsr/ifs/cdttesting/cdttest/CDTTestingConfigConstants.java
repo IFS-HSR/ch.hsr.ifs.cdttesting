@@ -2,7 +2,7 @@ package ch.hsr.ifs.cdttesting.cdttest;
 
 import java.lang.reflect.Field;
 
-import ch.hsr.ifs.cdttesting.cdttest.base.ITestPreferencesMixin;
+import ch.hsr.ifs.cdttesting.cdttest.base.preferencemixin.ITestPreferencesMixin;
 
 
 /**

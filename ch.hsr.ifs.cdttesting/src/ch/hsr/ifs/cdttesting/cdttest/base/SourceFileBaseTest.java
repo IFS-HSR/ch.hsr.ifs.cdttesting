@@ -30,6 +30,7 @@ import org.eclipse.jface.text.ITextSelection;
 import ch.hsr.ifs.iltis.core.data.StringInputStream;
 
 import ch.hsr.ifs.cdttesting.cdttest.CDTTestingConfigConstants;
+import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.IProjectHolder;
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison;
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonArg;
 import ch.hsr.ifs.cdttesting.testsourcefile.RTSTest.Language;

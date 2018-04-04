@@ -20,8 +20,8 @@ import org.junit.Before;
 import ch.hsr.ifs.iltis.core.resources.StringUtil;
 
 import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingTest;
-import ch.hsr.ifs.cdttesting.cdttest.base.FakeProjectHolder;
-import ch.hsr.ifs.cdttesting.cdttest.base.TestProjectHolder;
+import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.FakeProjectHolder;
+import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.TestProjectHolder;
 
 
 /**

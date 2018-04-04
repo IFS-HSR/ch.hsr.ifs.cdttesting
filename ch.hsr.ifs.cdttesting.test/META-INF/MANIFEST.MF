@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+Automatic-Module-Name: ch.hsr.ifs.cdttesting.test
 Bundle-ManifestVersion: 2
 Bundle-Name: Testfileeditor
 Bundle-SymbolicName: ch.hsr.ifs.cdttesting.tests;singleton:=true
