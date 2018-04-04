@@ -25,9 +25,14 @@ import ch.hsr.ifs.cdttesting.example.someexampletests.SomeExampleTestsSuite;
 @RunWith(Suite.class)
 @SuiteClasses({
       // @formatter:off
-		SomeExampleTestsSuite.class, SomeExampleAnnotationTestsSuite.class, ExampleRefactoringTest.class,
-		ExampleRefactoringModificationsTest.class, ILTISExampleRefactoringTest.class,
-		ILTISExampleRefactoringModificationsTest.class, ExampleCodanCheckerTest.class, ExampleCodanQuickFixTest.class,
+		SomeExampleTestsSuite.class,
+		SomeExampleAnnotationTestsSuite.class,
+		ExampleRefactoringTest.class,
+		ExampleRefactoringModificationsTest.class,
+		ILTISExampleRefactoringTest.class,
+		ILTISExampleRefactoringModificationsTest.class,
+		ExampleCodanCheckerTest.class,
+		ExampleCodanQuickFixTest.class,
 		// @formatter:on
 })
 public class PluginUITestSuiteAll {}
