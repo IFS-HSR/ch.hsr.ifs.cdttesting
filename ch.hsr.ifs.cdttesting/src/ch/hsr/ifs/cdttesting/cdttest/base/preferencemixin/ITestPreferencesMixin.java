@@ -3,8 +3,9 @@ package ch.hsr.ifs.cdttesting.cdttest.base.preferencemixin;
 import java.util.Properties;
 
 /**
+ * <p>
  * Usage:
- *
+ * <pre>
  * Without evaluation -> ( key | value ) can be chained using commas.
  *
  * //!TestFoo
@@ -23,6 +24,7 @@ import java.util.Properties;
  * //@main.cpp
  * char foo {42};
  * 
+ * </pre>
  * @author tstauber
  *
  */
