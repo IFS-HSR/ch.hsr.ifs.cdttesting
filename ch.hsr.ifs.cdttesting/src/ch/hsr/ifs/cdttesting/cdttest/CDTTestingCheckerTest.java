@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -138,15 +139,16 @@ public abstract class CDTTestingCheckerTest extends CDTTestingTest {
    private void assertMarkerAttributes(final String attributeName, String failMessage, IMarker[] markers, List<String> expectedValues)
          throws CoreException {
       if (expectedValues == null) throw new IllegalArgumentException("Expected values were null");
+      ArrayList<String> expecetedValuesMutable = new ArrayList<>(expectedValues);
       for (final IMarker curMarker : markers) {
          final String attribute = extractMarkerAttribute(attributeName, curMarker);
-         if (expectedValues.contains(attribute)) {
-            expectedValues.remove(attribute);
+         if (expecetedValuesMutable.contains(attribute)) {
+            expecetedValuesMutable.remove(attribute);
          } else {
             fail(NLS.bind(failMessage, attribute));
          }
       }
-      assertTrue("Not all expected values found. Remaining: " + StringUtil.toString(expectedValues), expectedValues.isEmpty());
+      assertTrue("Not all expected values found. Remaining: " + StringUtil.toString(expecetedValuesMutable), expecetedValuesMutable.isEmpty());
    }
 
    private String extractMarkerAttribute(final String attributeName, IMarker marker) throws CoreException {
