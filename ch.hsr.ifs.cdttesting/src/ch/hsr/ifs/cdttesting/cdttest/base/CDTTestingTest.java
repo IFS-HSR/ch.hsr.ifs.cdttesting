@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.osgi.util.NLS;
 
 import ch.hsr.ifs.iltis.cpp.ast.checker.helper.IProblemId;
 
@@ -47,6 +48,7 @@ public abstract class CDTTestingTest extends RTSSourceFileTest {
          }
       });
       CodanRuntime.getInstance().getCheckersRegistry().updateProfile(getCurrentProject(), profile);
+      assertTrue(NLS.bind("No checker for problem id [{0}] found.", activeProblemId.getId()), checkerEnabled);
    }
 
    private void enableCodanProblem(final CodanProblem codanProblem) {
