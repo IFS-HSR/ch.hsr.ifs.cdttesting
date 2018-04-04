@@ -9,10 +9,10 @@ import ch.hsr.ifs.cdttesting.cdttest.base.preferencemixin.TestPreferencesMixin;
 /**
  * @author tstauber
  *
- *         An extended RefactoringTest that allows to set individual preferences for
+ *         An extended CheckerTest that allows to set individual preferences for
  *         each test.
  **/
-public abstract class CDTTestingRefactoringTestWithPreferences extends CDTTestingRefactoringTest implements ITestPreferencesMixinHost {
+public abstract class CDTTestingCheckerTestWithPreferences extends CDTTestingCheckerTest implements ITestPreferencesMixinHost {
 
    private TestPreferencesMixin testPreferenceMixin = new TestPreferencesMixin(this);
 
