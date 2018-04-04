@@ -11,11 +11,11 @@ import java.util.regex.Pattern;
 public class RTSFileParser {
 
    private static final String FAIL_INVALID_PARSE_STATE               = "Invalid parse state!";
-   private static final String FAIL_MORE_THAN_ONE_SELECTION           = "More than one selection for file \"%s\" in test \"%s\"";
-   private static final String FAIL_ONLY_ONE_EXPECTED_FILE_IS_ALLOWED = "More than one expected file for file \"%s\" in test \"%s\"";
-   private static final String FAIL_SELECTION_NOT_CLOSED              = "Selection not closed for file \"%s\" in test \"%s\"";
+   private static final String FAIL_MORE_THAN_ONE_SELECTION           = "More than one selection for file [%s] in test [%s]";
+   private static final String FAIL_ONLY_ONE_EXPECTED_FILE_IS_ALLOWED = "More than one expected file for file [%s] in test [%s]";
+   private static final String FAIL_SELECTION_NOT_CLOSED              = "Selection not closed for file [%s] in test [%s]";
    private static final String FAIL_TEST_HAS_NO_NAME                  = "Test has no name";
-   private static final String FAIL_FILE_HAS_NO_NAME                  = "File in test \"%s\" has no name";
+   private static final String FAIL_FILE_HAS_NO_NAME                  = "File in test [%s] has no name";
 
    public static final String CLASS           = "//#";
    public static final String COMMENT_OPEN    = "/*";
@@ -31,10 +31,10 @@ public class RTSFileParser {
    public static final String SELECTION_END_TAG_REGEX   = "(.*?)(/\\*)(.*?)(\\$\\*/)(.*)";
 
    public static ArrayList<RTSTest> parse(final BufferedReader inputReader) throws Exception {
-      Matcher BEGIN_OF_SELECTION_MATCHER = Pattern.compile(SELECTION_START_TAG_REGEX).matcher("");
-      Matcher END_OF_SELECTION_MATCHER = Pattern.compile(SELECTION_END_TAG_REGEX).matcher("");
+      final Matcher BEGIN_OF_SELECTION_MATCHER = Pattern.compile(SELECTION_START_TAG_REGEX).matcher("");
+      final Matcher END_OF_SELECTION_MATCHER = Pattern.compile(SELECTION_END_TAG_REGEX).matcher("");
 
-      ArrayList<RTSTest> testCases = new ArrayList<>();
+      final ArrayList<RTSTest> testCases = new ArrayList<>();
 
       RTSTest currentTest = null;
       TestSourceFile currentFile = null;
@@ -51,7 +51,7 @@ public class RTSFileParser {
          switch (matcherState) {
          case ROOT:
             if (isTEST(line)) {
-               String name = getValue(TEST, line);
+               final String name = getValue(TEST, line);
                if (name.length() == 0) {
                   failMSG = FAIL_TEST_HAS_NO_NAME;
                   matcherState = MatcherState.FAIL_STATE;
@@ -64,7 +64,7 @@ public class RTSFileParser {
             break;
          case IN_TEST_CASE:
             if (isFILE(line)) {
-               String name = getValue(FILE, line);
+               final String name = getValue(FILE, line);
                if (name.length() == 0) {
                   failMSG = String.format(FAIL_FILE_HAS_NO_NAME, currentFile.getName());
                   matcherState = MatcherState.FAIL_STATE;
@@ -74,7 +74,7 @@ public class RTSFileParser {
                   matcherState = MatcherState.IN_TEST_FILE;
                }
             } else if (isTEST(line)) {
-               String name = getValue(TEST, line);
+               final String name = getValue(TEST, line);
                if (name.length() == 0) {
                   failMSG = FAIL_TEST_HAS_NO_NAME;
                   matcherState = MatcherState.FAIL_STATE;
@@ -89,7 +89,7 @@ public class RTSFileParser {
             break;
          case IN_TEST_FILE:
             if (isFILE(line)) {
-               String name = getValue(FILE, line);
+               final String name = getValue(FILE, line);
                if (name.length() == 0) {
                   failMSG = String.format(FAIL_FILE_HAS_NO_NAME, currentFile.getName());
                   matcherState = MatcherState.FAIL_STATE;
@@ -103,7 +103,7 @@ public class RTSFileParser {
                matcherState = MatcherState.IN_EXPECTED_FILE;
                continue;
             } else if (isTEST(line)) {
-               String name = getValue(TEST, line);
+               final String name = getValue(TEST, line);
                if (name.length() == 0) {
                   failMSG = FAIL_TEST_HAS_NO_NAME;
                   matcherState = MatcherState.FAIL_STATE;
@@ -114,15 +114,15 @@ public class RTSFileParser {
                }
             } else if (BEGIN_OF_SELECTION_MATCHER.reset(line).find()) {
                /* Opening tag on this line */
-               currentFile.setSelectionStart(BEGIN_OF_SELECTION_MATCHER.start(2) + currentFile.getSource().length());
+               currentFile.setSelectionStartRelativeToNextLine(BEGIN_OF_SELECTION_MATCHER.start(2));
                line = BEGIN_OF_SELECTION_MATCHER.group(1) + BEGIN_OF_SELECTION_MATCHER.group(5);
                if (BEGIN_OF_SELECTION_MATCHER.group(3).endsWith("$")) {
                   /* Tag is opening and closing */
-                  currentFile.setSelectionEnd(BEGIN_OF_SELECTION_MATCHER.start(2) + currentFile.getSource().length());
-               } else if (END_OF_SELECTION_MATCHER.reset(line).find(BEGIN_OF_SELECTION_MATCHER.end(2))) {
+                  currentFile.setSelectionEndRelativeToNextLine(BEGIN_OF_SELECTION_MATCHER.start(2));
+               } else if (END_OF_SELECTION_MATCHER.reset(line).find()) {
                   /* Closing tag on this line */
-                  currentFile.setSelectionEnd(END_OF_SELECTION_MATCHER.start(2) + currentFile.getSource().length());
-                  line = BEGIN_OF_SELECTION_MATCHER.group(1) + BEGIN_OF_SELECTION_MATCHER.group(5);
+                  currentFile.setSelectionEndRelativeToNextLine(END_OF_SELECTION_MATCHER.start(2));
+                  line = END_OF_SELECTION_MATCHER.group(1) + END_OF_SELECTION_MATCHER.group(5);
                } else {
                   /* Closing tag must be on another line */
                   matcherState = MatcherState.IN_FILE_SELECTION;
@@ -134,7 +134,7 @@ public class RTSFileParser {
             break;
          case IN_FILE_WITH_SELECTION:
             if (isFILE(line)) {
-               String name = getValue(FILE, line);
+               final String name = getValue(FILE, line);
                if (name.length() == 0) {
                   failMSG = String.format(FAIL_FILE_HAS_NO_NAME, currentFile.getName());
                   matcherState = MatcherState.FAIL_STATE;
@@ -148,7 +148,7 @@ public class RTSFileParser {
                matcherState = MatcherState.IN_EXPECTED_FILE;
                continue;
             } else if (isTEST(line)) {
-               String name = getValue(TEST, line);
+               final String name = getValue(TEST, line);
                if (name.length() == 0) {
                   failMSG = FAIL_TEST_HAS_NO_NAME;
                   matcherState = MatcherState.FAIL_STATE;
@@ -170,14 +170,14 @@ public class RTSFileParser {
                failMSG = String.format(FAIL_SELECTION_NOT_CLOSED, currentFile.getName(), currentTest.getName());
             } else if (END_OF_SELECTION_MATCHER.reset(line).find()) {
                line = END_OF_SELECTION_MATCHER.group(1) + END_OF_SELECTION_MATCHER.group(5);
-               currentFile.setSelectionEnd(END_OF_SELECTION_MATCHER.start(2) + currentFile.getSource().length());
+               currentFile.setSelectionEndRelativeToNextLine(END_OF_SELECTION_MATCHER.start(2));
                matcherState = MatcherState.IN_FILE_WITH_SELECTION;
             }
             currentFile.appendLineToSource(line);
             break;
          case IN_EXPECTED_FILE:
             if (isFILE(line)) {
-               String name = getValue(FILE, line);
+               final String name = getValue(FILE, line);
                if (name.length() == 0) {
                   failMSG = String.format(FAIL_FILE_HAS_NO_NAME, currentFile.getName());
                   matcherState = MatcherState.FAIL_STATE;
@@ -187,7 +187,7 @@ public class RTSFileParser {
                   matcherState = MatcherState.IN_TEST_FILE;
                }
             } else if (isTEST(line)) {
-               String name = getValue(TEST, line);
+               final String name = getValue(TEST, line);
                if (name.length() == 0) {
                   failMSG = FAIL_TEST_HAS_NO_NAME;
                   matcherState = MatcherState.FAIL_STATE;
@@ -211,7 +211,7 @@ public class RTSFileParser {
       return testCases;
    }
 
-   private static String getValue(String attribute, String line) {
+   private static String getValue(final String attribute, final String line) {
       return line.trim().substring(attribute.length()).trim();
    }
 

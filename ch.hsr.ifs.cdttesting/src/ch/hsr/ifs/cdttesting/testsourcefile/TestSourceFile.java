@@ -25,8 +25,8 @@ import org.eclipse.jface.text.TextSelection;
  */
 public class TestSourceFile {
 
-   private static final String NL = System.getProperty("line.separator");
-   private static final int NOT_SET = -1;
+   private static final String NL      = System.getProperty("line.separator");
+   private static final int    NOT_SET = -1;
 
    private final String             name;
    private final StringBuilder      source = new StringBuilder();
@@ -67,6 +67,10 @@ public class TestSourceFile {
       return source.toString();
    }
 
+   int getSourceLengthOnWhichToAppend() {
+      return source.length() != 0 ? source.length() + NL.length() : getSource().length();
+   }
+
    void appendLineToSource(final String line) {
       if (source.length() != 0) source.append(NL);
       source.append(line);
@@ -84,7 +88,15 @@ public class TestSourceFile {
    void setSelectionEnd(int end) {
       selectionEnd = end;
    }
-   
+
+   void setSelectionStartRelativeToNextLine(int start) {
+      selectionStart = start + getSourceLengthOnWhichToAppend();
+   }
+
+   void setSelectionEndRelativeToNextLine(int end) {
+      selectionEnd = end + getSourceLengthOnWhichToAppend();
+   }
+
    public boolean hasSelection() {
       return selectionStart != NOT_SET;
    }
