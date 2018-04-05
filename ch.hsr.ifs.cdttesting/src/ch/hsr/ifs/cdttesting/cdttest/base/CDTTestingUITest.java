@@ -40,6 +40,7 @@ import org.junit.Before;
 
 import ch.hsr.ifs.iltis.core.functional.OptionalUtil;
 
+import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.ITestProjectHolder;
 import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.TestProjectHolder;
 import ch.hsr.ifs.cdttesting.helpers.UIThreadSyncRunnable;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
@@ -67,7 +68,6 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
    @Override
    public void setUp() throws Exception {
       super.setUp();
-      //TODO test if this results in a speed-up
       IPreferenceStore store = CodanUIActivator.getDefault().getPreferenceStore(getCurrentProject());
       store.setValue(PreferenceConstants.P_RUN_IN_EDITOR, executeQuickfixAndRefactoringInEditor);
    }
@@ -76,7 +76,7 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
    protected void initCurrentExpectedProjectHolders() throws InterruptedException {
       currentProjectHolder = new TestProjectHolder(makeCurrentProjectName(), language, false);
       expectedProjectHolder = new TestProjectHolder(makeExpectedProjectName(), language, true);
-      scheduleAndJoinBoth(currentProjectHolder.createProjectAsync(), expectedProjectHolder.createProjectAsync());
+      scheduleAndJoinBoth(ITestProjectHolder::createProjectAsync);
    }
 
    /* -- WORKBENCH -- */
@@ -147,7 +147,7 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
       if (!testFiles.containsKey(testSourceFileName)) throw new IllegalArgumentException(NLS.bind("No such test file \"{0}\" found.",
             testSourceFileName));
       UIThreadSyncRunnable.run(() -> {
-         OptionalUtil.doIfPresentT(getActivePage(), p -> {
+         OptionalUtil.of(getActivePage()).doIfPresentT(p -> {
             IDE.openEditor(p, getCurrentIFile(testSourceFileName));
             setSelectionInActiveEditorIfAvailable(testFiles.get(testSourceFileName));
             runEventLoop();
@@ -157,7 +157,7 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
 
    protected void openExternalFileInEditor(final URI absolutePath) {
       UIThreadSyncRunnable.run(() -> {
-         OptionalUtil.doIfPresentT(getActivePage(), p -> {
+         OptionalUtil.of(getActivePage()).doIfPresentT(p -> {
             IDE.openEditor(p, new ExternalEditorInput(absolutePath, getCurrentProject()), "org.eclipse.cdt.ui.editor.CEditor", true);
             runEventLoop();
          });
@@ -173,7 +173,8 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
    }
 
    private static void setTextSelectionInActiveEditor(ITextSelection selection) {
-      getActiveEditorSelectionProvider().orElseThrow(() -> new AssertionError("no active editor found.")).setSelection(selection);
+      getActiveEditorSelectionProvider().orElseThrow(() -> new AssertionError(
+            "No active editor found. Is executeQuickfixAndRefactoringInEditor == false ?")).setSelection(selection);
    }
 
    protected static void setSelectionInActiveEditorIfAvailable(final TestSourceFile testSourceFile) {
