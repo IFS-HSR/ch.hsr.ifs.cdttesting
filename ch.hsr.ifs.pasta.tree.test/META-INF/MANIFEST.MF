@@ -7,3 +7,4 @@ Bundle-Vendor: IFS Institute for Software
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: ch.hsr.ifs.pasta.tree;bundle-version="1.0.0",
  org.junit
+Automatic-Module-Name: ch.hsr.ifs.pasta.tree.tests

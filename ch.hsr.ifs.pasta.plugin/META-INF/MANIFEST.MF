@@ -27,3 +27,4 @@ Export-Package:
  ch.hsr.ifs.pasta
 Bundle-Activator: ch.hsr.ifs.pasta.PastaPlugin
 Bundle-Vendor: IFS Institute For Software
+Automatic-Module-Name: ch.hsr.ifs.pasta.plugin
