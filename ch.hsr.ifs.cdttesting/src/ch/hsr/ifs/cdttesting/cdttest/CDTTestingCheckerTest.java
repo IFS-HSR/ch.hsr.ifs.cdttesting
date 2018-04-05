@@ -22,6 +22,7 @@ import ch.hsr.ifs.iltis.core.resources.StringUtil;
 
 import ch.hsr.ifs.cdttesting.cdttest.base.CDTTestingTest;
 import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.FakeProjectHolder;
+import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.ITestProjectHolder;
 import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.TestProjectHolder;
 
 
@@ -69,7 +70,7 @@ public abstract class CDTTestingCheckerTest extends CDTTestingTest {
       currentProjectHolder = new TestProjectHolder(makeCurrentProjectName(), language, false);
       /* Create fake-expected project for performance reasons */
       expectedProjectHolder = new FakeProjectHolder(makeExpectedProjectName());
-      scheduleAndJoinBoth(currentProjectHolder.createProjectAsync(), expectedProjectHolder.createProjectAsync());
+      scheduleAndJoinBoth(ITestProjectHolder::createProjectAsync);
    }
 
    @Override

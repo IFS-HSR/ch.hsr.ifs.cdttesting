@@ -95,8 +95,7 @@ abstract public class ProjectHolderBaseTest {
     * Use to stage additional external include paths to the project holders. The paths have to be relative to the external test resources folder.
     */
    protected void stageExternalIncludePathForBothProjects(IPath[] absolutePaths) {
-      currentProjectHolder.stageAbsoluteExternalIncludePaths(absolutePaths);
-      expectedProjectHolder.stageAbsoluteExternalIncludePaths(absolutePaths);
+      doOnBoth(holder -> holder.stageAbsoluteExternalIncludePaths(absolutePaths));
    }
 
    /**
@@ -111,8 +110,7 @@ abstract public class ProjectHolderBaseTest {
     * Use to stage additional project-internal include paths to the project holders. The paths have to be relative to the project folder.
     */
    protected void stageInternalIncludePathsForBothProjects(IPath[] relativePaths) {
-      currentProjectHolder.stageInternalIncludePaths(relativePaths);
-      expectedProjectHolder.stageInternalIncludePaths(relativePaths);
+      doOnBoth(holder -> holder.stageInternalIncludePaths(relativePaths));
    }
 
    /**
@@ -121,16 +119,14 @@ abstract public class ProjectHolderBaseTest {
     * @throws InterruptedException
     */
    protected void stageReferencedProjectsForBothProjects(ReferencedProjectDescription... projects) throws InterruptedException {
-      currentProjectHolder.stageReferencedProjects(projects);
-      expectedProjectHolder.stageReferencedProjects(projects);
+      doOnBoth(holder -> holder.stageReferencedProjects(projects));
    }
 
    /**
     * Use to stage the project files to the project holders
     */
    protected void stageTestSourceFileForImportForBothProjects(Collection<TestSourceFile> files) {
-      currentProjectHolder.stageTestSourceFilesForImport(files);
-      expectedProjectHolder.stageTestSourceFilesForImport(files);
+      doOnBoth(holder -> holder.stageTestSourceFilesForImport(files));
    }
 
    /**
@@ -240,19 +236,19 @@ abstract public class ProjectHolderBaseTest {
    }
 
    private void setupProjectFiles() throws Exception {
-      scheduleAndJoinBoth(currentProjectHolder.importFilesAsync(), expectedProjectHolder.importFilesAsync());
+      scheduleAndJoinBoth(ITestProjectHolder::importFilesAsync);
    }
 
    private void setupReferencedProjects() throws InterruptedException {
-      scheduleAndJoinBoth(currentProjectHolder.setupReferencedProjectsAsync(), expectedProjectHolder.setupReferencedProjectsAsync());
+      scheduleAndJoinBoth(ITestProjectHolder::setupReferencedProjectsAsync);
    }
 
    private void setupProjectReferences() throws Exception {
-      scheduleAndJoinBoth(currentProjectHolder.setupProjectReferencesAsync(), expectedProjectHolder.setupProjectReferencesAsync());
+      scheduleAndJoinBoth(ITestProjectHolder::setupProjectReferencesAsync);
    }
 
    private void setupIncludePaths() throws Exception {
-      scheduleAndJoinBoth(currentProjectHolder.setupIncludePathsAsync(), expectedProjectHolder.setupIncludePathsAsync());
+      scheduleAndJoinBoth(ITestProjectHolder::setupIncludePathsAsync);
    }
 
    /**
@@ -265,7 +261,7 @@ abstract public class ProjectHolderBaseTest {
    }
 
    private void setupIndices() throws Exception {
-      scheduleAndJoinBoth(currentProjectHolder.setupIndexAsync(), expectedProjectHolder.setupIndexAsync());
+      scheduleAndJoinBoth(ITestProjectHolder::setupIndexAsync);
    }
 
    //	@AfterEach
@@ -282,7 +278,7 @@ abstract public class ProjectHolderBaseTest {
    }
 
    public void cleanupProjects() throws InterruptedException {
-      scheduleAndJoinBoth(currentProjectHolder.cleanupProjectsAsync(), expectedProjectHolder.cleanupProjectsAsync());
+      scheduleAndJoinBoth(ITestProjectHolder::cleanupProjectsAsync);
    }
 
    /**
@@ -369,32 +365,47 @@ abstract public class ProjectHolderBaseTest {
       return expectedProjectHolder.getCElement(file);
    }
 
-   public void scheduleAndJoinBoth(ProjectHolderJob currentJob, ProjectHolderJob expectedJob) throws InterruptedException {
-      scheduleAndJoinBoth(currentJob, expectedJob, !executeProjectHolderOperationsParallel, !executeProjectHolderOperationsParallel);
+   public void doOnBoth(Consumer<ITestProjectHolder> consumer) {
+      consumer.accept(currentProjectHolder);
+      consumer.accept(expectedProjectHolder);
    }
 
-   public static void scheduleAndJoinBoth(ProjectHolderJob currentJob, ProjectHolderJob expectedJob, boolean currentThreadLocal,
-         boolean expectedThreadLocal) throws InterruptedException {
-      if (currentThreadLocal && expectedThreadLocal) {
-         /* current runs in this thread -> expected runs in this thread */
-         currentJob.forceRun();
-         expectedJob.forceRun();
-      } else if (currentThreadLocal && !expectedThreadLocal) {
-         /* current runs in this thread <| expected runs in worker */
-         expectedJob.schedule();
-         currentJob.forceRun();
-         expectedJob.join();
-      } else if (!currentThreadLocal && expectedThreadLocal) {
-         /* current runs in worker |> expected runs in this thread */
+   public void scheduleAndJoinBoth(Function<ITestProjectHolder, ProjectHolderJob> supplier) throws InterruptedException {
+      scheduleAndJoinBoth(supplier.apply(currentProjectHolder), supplier.apply(expectedProjectHolder), !executeProjectHolderOperationsParallel);
+   }
+
+   public static void scheduleAndJoinBoth(Job currentJob, Job expectedJob, boolean executeSequential) throws InterruptedException {
+      if (executeSequential) {
          currentJob.schedule();
-         expectedJob.forceRun();
          currentJob.join();
+         expectedJob.schedule();
+         expectedJob.join();
       } else {
-         /* current runs in worker || expected runs in worker */
          currentJob.schedule();
          expectedJob.schedule();
          currentJob.join();
          expectedJob.join();
       }
+      //      if (currentThreadLocal && expectedThreadLocal) {
+      //         /* current runs in this thread -> expected runs in this thread */
+      //         currentJob.forceRun();
+      //         expectedJob.forceRun();
+      //      } else if (currentThreadLocal && !expectedThreadLocal) {
+      //         /* current runs in this thread <| expected runs in worker */
+      //         expectedJob.schedule();
+      //         currentJob.forceRun();
+      //         expectedJob.join();
+      //      } else if (!currentThreadLocal && expectedThreadLocal) {
+      //         /* current runs in worker |> expected runs in this thread */
+      //         currentJob.schedule();
+      //         expectedJob.forceRun();
+      //         currentJob.join();
+      //      } else {
+      //         /* current runs in worker || expected runs in worker */
+      //         currentJob.schedule();
+      //         expectedJob.schedule();
+      //         currentJob.join();
+      //         expectedJob.join();
+      //      }
    }
 }

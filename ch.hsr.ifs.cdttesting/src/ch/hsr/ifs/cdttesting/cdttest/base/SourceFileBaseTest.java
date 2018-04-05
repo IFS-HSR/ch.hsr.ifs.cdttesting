@@ -8,7 +8,10 @@
  ******************************************************************************/
 package ch.hsr.ifs.cdttesting.cdttest.base;
 
+import static ch.hsr.ifs.iltis.core.functional.Functional.doForT;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,18 +22,23 @@ import java.util.Optional;
 import java.util.Properties;
 
 import org.eclipse.cdt.core.CCorePlugin;
+import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.index.IIndex;
 import org.eclipse.cdt.core.index.IIndexManager;
 import org.eclipse.cdt.core.model.CoreModelUtil;
 import org.eclipse.cdt.core.model.ICElement;
 import org.eclipse.cdt.core.model.ITranslationUnit;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.text.ITextSelection;
+import org.osgi.framework.FrameworkUtil;
 
 import ch.hsr.ifs.iltis.core.data.StringInputStream;
 
 import ch.hsr.ifs.cdttesting.cdttest.CDTTestingConfigConstants;
 import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.IProjectHolder;
+import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.IProjectHolder.ProjectHolderJob;
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison;
 import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonArg;
 import ch.hsr.ifs.cdttesting.testsourcefile.RTSTest.Language;
@@ -135,9 +143,7 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
    }
 
    private void formatDocumentForBothProjects(String relativePath) throws InterruptedException {
-      scheduleAndJoinBoth(currentProjectHolder.formatFileAsync(currentProjectHolder.makeProjectAbsolutePath(relativePath)), expectedProjectHolder
-            .formatFileAsync(currentProjectHolder.makeProjectAbsolutePath(relativePath)));
-
+      scheduleAndJoinBoth((holder) -> holder.formatFileAsync(holder.makeProjectAbsolutePath(relativePath)));
    }
 
    /**
@@ -319,23 +325,51 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
    }
 
    private void assertEqualsWithAST(final String testSourceFileName, EnumSet<ComparisonArg> args, int astStyle) {
-      IIndex expectedIndex = null;
-      IIndex currentIndex = null;
+      final IIndex[] expectedIndex = { null };
+      final IIndex[] currentIndex = { null };
+      final IASTTranslationUnit[] expectedAST = { null };
+      final IASTTranslationUnit[] currentAST = { null };
       try {
-         //         TODO parallelize creation of index and ast
-         expectedIndex = CCorePlugin.getIndexManager().getIndex(getExpectedCProject(), IIndexManager.ADD_DEPENDENCIES & IIndexManager.ADD_DEPENDENT);
-         currentIndex = CCorePlugin.getIndexManager().getIndex(getCurrentCProject(), IIndexManager.ADD_DEPENDENCIES & IIndexManager.ADD_DEPENDENT);
-         expectedIndex.acquireReadLock();
-         currentIndex.acquireReadLock();
-         ITranslationUnit expectedTU = CoreModelUtil.findTranslationUnit(getExpectedIFile(testSourceFileName));
-         ITranslationUnit currentTU = CoreModelUtil.findTranslationUnit(getCurrentIFile(testSourceFileName));
-         //            ASTComparison.assertEqualsAST(expectedTU.getAST(), currentTU.getAST(), args);
-         ASTComparison.assertEqualsAST(expectedTU.getAST(expectedIndex, astStyle), currentTU.getAST(currentIndex, astStyle), args);
-      } catch (Exception e) {
-         e.printStackTrace();
+         ProjectHolderJob expected = ProjectHolderJob.create("Create expected AST", "ch.hsr.ifs.cdttesting.comparison.buildAST", mon -> {
+            try {
+               expectedIndex[0] = CCorePlugin.getIndexManager().getIndex(getExpectedCProject(), IIndexManager.ADD_DEPENDENCIES &
+                                                                                                IIndexManager.ADD_DEPENDENT);
+               expectedIndex[0].acquireReadLock();
+               expectedAST[0] = CoreModelUtil.findTranslationUnit(getExpectedIFile(testSourceFileName)).getAST(expectedIndex[0], astStyle);
+            } catch (Exception e) {
+               return new Status(IStatus.ERROR, FrameworkUtil.getBundle(getClass()).getSymbolicName(), "Could not create expected AST", e);
+            }
+            return Status.OK_STATUS;
+         });
+
+         ProjectHolderJob current = ProjectHolderJob.create("Create current AST", "ch.hsr.ifs.cdttesting.comparison.buildAST", mon -> {
+            try {
+               currentIndex[0] = CCorePlugin.getIndexManager().getIndex(getCurrentCProject(), IIndexManager.ADD_DEPENDENCIES &
+                                                                                              IIndexManager.ADD_DEPENDENT);
+               currentIndex[0].acquireReadLock();
+               currentAST[0] = CoreModelUtil.findTranslationUnit(getCurrentIFile(testSourceFileName)).getAST(currentIndex[0], astStyle);
+            } catch (Exception e) {
+               return new Status(IStatus.ERROR, FrameworkUtil.getBundle(getClass()).getSymbolicName(), "Could not create current AST", e);
+            }
+            return Status.OK_STATUS;
+         });
+
+         scheduleAndJoinBoth(current, expected, false);
+
+         doForT(j -> {
+            if (j.getState() != IStatus.OK) fail(j.getResult().getException().getMessage());
+         }, expected, current);
+
+         assertNotNull(expected);
+         assertNotNull(current);
+
+         //            ASTComparison.assertEqualsAST(expectedTU.getAST(), currentTU.getAST(), args); //FIXME remove after testing
+         ASTComparison.assertEqualsAST(expectedAST[0], currentAST[0], args);
+      } catch (InterruptedException e) {
+         fail("Thread got interrupted");
       } finally {
-         if (expectedIndex != null) expectedIndex.releaseReadLock();
-         if (currentIndex != null) currentIndex.releaseReadLock();
+         if (expectedIndex[0] != null) expectedIndex[0].releaseReadLock();
+         if (currentIndex[0] != null) currentIndex[0].releaseReadLock();
       }
    }
 
