@@ -55,11 +55,9 @@ Run TestSuiteAll.java as Eclipse Plug-in test.
          <attribute name="sourceLocation" type="string" use="required">
             <annotation>
                <documentation>
-                  If your rts files reside in ch.hsr.ifs.examplator.plugin/resources/ch.hsr.ifs.examplator.plugin.tests/package/name/detail/AwesomeTest.rts, then you use &quot;/resources/ch.hsr.ifs.examplator.plugin.tests/&quot; as name.
+                  If your rts files reside in [ch.hsr.ifs.examplator.plugin/resources/ch.hsr.ifs.examplator.plugin.tests/package/name/detail/AwesomeTest.rts], then you use &quot;resources/ch.hsr.ifs.examplator.plugin.tests/&quot; as name.
 
- &lt;testResouresLocation sourceLocation=&quot;/resources/ch.hsr.ifs.examplator.tests/&quot;/&gt;
-
-It is important, that this attribute starts and ends with &quot;/&quot;
+ &lt;testResouresLocation sourceLocation=&quot;resources/ch.hsr.ifs.examplator.tests/&quot;/&gt;
                </documentation>
                <appinfo>
                   <meta.attribute kind="resource"/>
@@ -69,7 +67,9 @@ It is important, that this attribute starts and ends with &quot;/&quot;
          <attribute name="externalSourceLocation" type="string">
             <annotation>
                <documentation>
-                  Describes the base folder of where external test resources (normally external library headers) reside. Use the &apos;addIncludeDirPath(&quot;aSubFolder&quot;)&apos; method to add a include directory to the folder ch.hsr.ifs.examplator.plugin.tests/{externalSourceLocation}/aSubFolder to your project.
+                  Describes the base folder of where external test resources (normally external library headers) reside. Use the &apos;stageExternalIncludePathsForBothProjects(&quot;aSubFolder&quot;)&apos; method to add a include directory to the folder ch.hsr.ifs.examplator.plugin.tests/{externalSourceLocation}/aSubFolder to your project.
+
+ &lt;testResouresLocation sourceLocation=&quot;/resources/ch.hsr.ifs.examplator.tests/&quot; externalSourceLocation=&quot;myExternalTestResources/&quot;/&gt;
 
 Default for this value is &quot;externalTestResource&quot;.
                </documentation>
