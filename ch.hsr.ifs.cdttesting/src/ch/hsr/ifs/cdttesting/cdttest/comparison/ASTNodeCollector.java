@@ -23,8 +23,6 @@ import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonArg;
 
 class ASTNodeCollector {
 
-   //   private Thread thread;
-
    private Job job;
 
    private BlockingQueue<IASTNode> pipe = new LinkedBlockingQueue<>();
