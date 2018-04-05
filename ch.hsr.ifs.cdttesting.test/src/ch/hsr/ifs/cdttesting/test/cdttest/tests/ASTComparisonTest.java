@@ -1,6 +1,5 @@
 package ch.hsr.ifs.cdttesting.test.cdttest.tests;
 
-
 import java.io.IOException;
 import java.util.EnumSet;
 

@@ -14,15 +14,15 @@ public class SnakeCaseName extends AbstractProblem implements Problem {
    public String getDescription() {
       return "Test name is not a sentence (maybe snake-case or camel-case)";
    }
-   
+
    @Override
    public int getPrioriry() {
       return IMarker.PRIORITY_NORMAL;
    }
-   
+
    @Override
    public int getSeverity() {
       return IMarker.SEVERITY_WARNING;
    }
-   
+
 }

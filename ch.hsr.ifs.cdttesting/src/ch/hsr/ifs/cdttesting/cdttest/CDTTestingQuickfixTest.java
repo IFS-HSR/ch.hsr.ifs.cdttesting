@@ -40,9 +40,9 @@ public abstract class CDTTestingQuickfixTest extends CDTTestingUITest {
    }
 
    protected void runQuickFix(final IMarker marker) {
-      assertNotNull("Marker was null. Could not run quick fix for it.", marker);
+      assertNotNull("Marker was null. Could not run quick fix for it. ", marker);
       UIThreadSyncRunnable.run(() -> createMarkerResolution().run(marker));
-      saveAllEditors(); // TODO check if this is necessary, I suppose it is not necessary
+      //      saveAllEditors(); // TODO check if this is necessary, I suppose it is not necessary
    }
 
    protected void runQuickfixAndAssertAllEqual(final IMarker marker) {
@@ -50,7 +50,7 @@ public abstract class CDTTestingQuickfixTest extends CDTTestingUITest {
       assertAllSourceFilesEqual(makeComparisonArguments());
    }
 
-   protected void runQuickfixForAllMarkersAndAssertAllEqual() throws CoreException{
+   protected void runQuickfixForAllMarkersAndAssertAllEqual() throws CoreException {
       IMarker[] markers = findMarkers();
       assertThatMarkersWereFound(markers);
       Stream.of(markers).forEach(this::runQuickFix);
@@ -60,7 +60,8 @@ public abstract class CDTTestingQuickfixTest extends CDTTestingUITest {
    /**
     * Runs the first quickfix found and then asserts all source files to be equal with the expected source. The comparison arguments can be altered by
     * overriding {@link #makeComparisonArguments()}.
-    * @throws CoreException 
+    * 
+    * @throws CoreException
     */
    protected void runQuickfixAndAssertAllEqual() throws CoreException {
       final IMarker[] markers = findMarkers();

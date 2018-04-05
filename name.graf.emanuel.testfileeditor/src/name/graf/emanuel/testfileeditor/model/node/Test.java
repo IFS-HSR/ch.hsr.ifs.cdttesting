@@ -53,7 +53,7 @@ public class Test implements Node {
       }
       return null;
    }
-   
+
    public String getName() {
       return name;
    }

@@ -2,7 +2,7 @@ package name.graf.emanuel.testfileeditor.model;
 
 public interface Tokens {
 
-   public static final int TOKENLENGTH        = 3;
+   public static final int TOKENLENGTH = 3;
 
    public static final String CLASS           = "//#";
    public static final String COMMENT_OPEN    = "/*";

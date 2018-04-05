@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class RTSTest {
 
    private String                    testName;
-   private Language                  language = Language.CPP;
+   private Language                  language        = Language.CPP;
    private ArrayList<TestSourceFile> testSourceFiles = new ArrayList<>();
 
    public RTSTest(String name) {

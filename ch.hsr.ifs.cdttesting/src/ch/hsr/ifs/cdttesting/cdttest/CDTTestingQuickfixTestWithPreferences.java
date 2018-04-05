@@ -10,6 +10,7 @@ import ch.hsr.ifs.cdttesting.cdttest.base.preferencemixin.TestPreferencesMixin;
  * An extended {@link CDTTestingQuickfixTest} that allows to set individual preferences for each test.
  * <p>
  * Usage:
+ * 
  * <pre>
  * Without evaluation -> ( key | value ) can be chained using commas.
  *
@@ -30,6 +31,7 @@ import ch.hsr.ifs.cdttesting.cdttest.base.preferencemixin.TestPreferencesMixin;
  * char foo {42};
  * 
  * </pre>
+ * 
  * @author tstauber
  *
  */

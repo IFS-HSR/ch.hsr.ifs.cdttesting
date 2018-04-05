@@ -11,7 +11,8 @@ public class ILTISExampleRefactoringModificationsTest extends CDTTestingRefactor
 
    @Override
    protected Refactoring createRefactoring() {
-      return new ILTISDummyRenameRefactoring(getPrimaryCElementFromCurrentProject().get(), getSelectionOfPrimaryTestFile().get(), getCurrentCProject());
+      return new ILTISDummyRenameRefactoring(getPrimaryCElementFromCurrentProject().get(), getSelectionOfPrimaryTestFile().get(),
+            getCurrentCProject());
    }
 
    @Test
