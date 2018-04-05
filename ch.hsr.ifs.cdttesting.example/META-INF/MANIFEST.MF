@@ -24,3 +24,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: ch.hsr.ifs.cdttesting.example,ch.hsr.ifs.cdttesting.ex
  ample.annotationtest,ch.hsr.ifs.cdttesting.example.someexampletests
+Automatic-Module-Name: ch.hsr.ifs.cdttesting.example
