@@ -81,6 +81,8 @@ import ch.hsr.ifs.iltis.core.functional.StreamPair;
 import ch.hsr.ifs.iltis.core.functional.functions.Consumer;
 import ch.hsr.ifs.iltis.core.resources.WorkspaceUtil;
 
+import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonAttrID;
+
 
 /**
  * A utility class providing static methods to compare two IASTNodes. This can
@@ -126,16 +128,14 @@ public class ASTComparison {
    public static ComparisonResult equalsAST(final IASTTranslationUnit expected, final IASTTranslationUnit actual, final EnumSet<ComparisonArg> args) {
       if (args.contains(ComparisonArg.COMPARE_INCLUDE_DIRECTIVES)) {
          final ComparisonResult result = equalsIncludes(expected, actual, args);
-         if (result.isUnequal()) {
-            return addTuLevelComparisonAttributes(result, expected, actual, args);
-         }
+         if (result.isUnequal()) return addTuLevelComparisonAttributes(result, expected, actual, args);
       }
       final NodeComparisonVisitor comparisonVisitor = new NodeComparisonVisitor(expected, actual, args);
       return addTuLevelComparisonAttributes(comparisonVisitor.compare(), expected, actual, args);
    }
 
-   private static ComparisonResult addTuLevelComparisonAttributes(final ComparisonResult result, final IASTTranslationUnit expected, final IASTTranslationUnit actual,
-         final EnumSet<ComparisonArg> args) {
+   private static ComparisonResult addTuLevelComparisonAttributes(final ComparisonResult result, final IASTTranslationUnit expected,
+         final IASTTranslationUnit actual, final EnumSet<ComparisonArg> args) {
       if (args.contains(ComparisonArg.PRINT_WHOLE_ASTS_ON_FAIL)) {
          result.attributes.add(new ComparisonAttribute(ComparisonAttrID.EXPECTED_CONTEXT, "TU", getTURawSignatureOrMissing(expected, args)));
          result.attributes.add(new ComparisonAttribute(ComparisonAttrID.ACTUAL_CONTEXT, "TU", getTURawSignatureOrMissing(actual, args)));
@@ -171,8 +171,8 @@ public class ASTComparison {
       final String expectedStmt = collectToString(getFilteredIncludeStmts(expected));
       final String actualStmt = collectToString(getFilteredIncludeStmts(actual));
 
-      final String lineNo = getLineNo(zip(getFilteredIncludeStmts(expected), getFilteredIncludeStmts(actual)).filter(AbstractPair::notAllElementEquals).map(
-            StreamPair::first).findFirst());
+      final String lineNo = getLineNo(zip(getFilteredIncludeStmts(expected), getFilteredIncludeStmts(actual)).filter(
+            AbstractPair::notAllElementEquals).map(StreamPair::first).findFirst());
 
       if (expectedStmt.equals(actualStmt)) {
          /* All includes are present */
@@ -187,10 +187,8 @@ public class ASTComparison {
       final Set<IASTPreprocessorIncludeStatement> actualIncludes = getFilteredIncludeStmts(actual).collect(Collectors.toSet());
       final Set<IASTPreprocessorIncludeStatement> expectedIncludes = getFilteredIncludeStmts(expected).collect(Collectors.toSet());
 
-      if (CollectionUtil.haveSameElements(actualIncludes, expectedIncludes, ASTComparison::equalsRaw)) {
-         return new ComparisonResult(
-               ComparisonState.EQUAL);
-      }
+      if (CollectionUtil.haveSameElements(actualIncludes, expectedIncludes, ASTComparison::equalsRaw)) { return new ComparisonResult(
+            ComparisonState.EQUAL); }
 
       final Set<IASTPreprocessorIncludeStatement> onlyInActual = new HashSet<>();
       final Set<IASTPreprocessorIncludeStatement> onlyInExpected = new HashSet<>();
@@ -199,8 +197,8 @@ public class ASTComparison {
             ASTComparison::equalsRaw, stmt).isPresent(), onlyInActual, stmt -> CollectionUtil.firstMatch(actualIncludes, ASTComparison::equalsRaw,
                   stmt).isPresent(), onlyInExpected);
 
-      final List<ComparisonAttribute> attributes = generateBasicIncludeComparisonAttributes(getLineNo(onlyInExpected, 0), collectToString(onlyInExpected
-            .stream()), collectToString(onlyInActual.stream()));
+      final List<ComparisonAttribute> attributes = generateBasicIncludeComparisonAttributes(getLineNo(onlyInExpected, 0), collectToString(
+            onlyInExpected.stream()), collectToString(onlyInActual.stream()));
       if (!onlyInActual.isEmpty()) {
          return new ComparisonResult(ComparisonState.ADDITIONAL_INCLUDE, attributes);
       } else {
@@ -217,9 +215,7 @@ public class ASTComparison {
    }
 
    private static String getLineNo(final IASTNode node) {
-      if (node == null || node.getFileLocation() == null) {
-         return "?";
-      }
+      if (node == null || node.getFileLocation() == null) { return "?"; }
       return String.valueOf(node.getFileLocation().getStartingLineNumber());
    }
 
@@ -227,7 +223,8 @@ public class ASTComparison {
       return nodes.map(ASTComparison::getRawSignatureOrMissing).collect(Collectors.joining("\n"));
    }
 
-   private static List<ComparisonAttribute> generateBasicIncludeComparisonAttributes(final String firstMismatchLineNo, final String expected, final String actual) {
+   private static List<ComparisonAttribute> generateBasicIncludeComparisonAttributes(final String firstMismatchLineNo, final String expected,
+         final String actual) {
       return Arrays.asList(new ComparisonAttribute(ComparisonAttrID.LINE_NO, firstMismatchLineNo), new ComparisonAttribute(
             ComparisonAttrID.EXPECTED_INCLUDES, expected), new ComparisonAttribute(ComparisonAttrID.ACTUAL_INCLUDES, actual));
    }
@@ -326,9 +323,7 @@ public class ASTComparison {
 
          final ICPPASTTemplateParameter e = as(expected);
          final ICPPASTTemplateParameter a = as(actual);
-         if (e.isParameterPack() != a.isParameterPack()) {
-            return false;
-         }
+         if (e.isParameterPack() != a.isParameterPack()) { return false; }
          if (expected instanceof ICPPASTSimpleTypeTemplateParameter) {
             final ICPPASTSimpleTypeTemplateParameter et = as(expected);
             final ICPPASTSimpleTypeTemplateParameter at = as(actual);
@@ -358,9 +353,7 @@ public class ASTComparison {
          final ICPPASTDeclSpecifier a = as(actual);
          if (e.isConst() != a.isConst() || e.isVirtual() != a.isVirtual() || e.isVolatile() != a.isVolatile() || e.isConstexpr() != a.isConstexpr() ||
              e.isExplicit() != a.isExplicit() || e.isFriend() != a.isFriend() || e.isRestrict() != a.isRestrict() || e.isThreadLocal() != a
-                   .isThreadLocal() || e.getStorageClass() != a.getStorageClass()) {
-            return false;
-         }
+                   .isThreadLocal() || e.getStorageClass() != a.getStorageClass()) { return false; }
 
          /* Terminal checks */
          if (expected instanceof ICPPASTNamedTypeSpecifier) {
@@ -445,9 +438,7 @@ public class ASTComparison {
 
          final ICPPASTPackExpandable e = as(expected);
          final ICPPASTPackExpandable a = as(actual);
-         if (e.isPackExpansion() != a.isPackExpansion()) {
-            return false;
-         }
+         if (e.isPackExpansion() != a.isPackExpansion()) { return false; }
 
          if (expected instanceof ICPPASTInitializerList) {
             final ICPPASTInitializerList et = as(expected);
@@ -472,9 +463,7 @@ public class ASTComparison {
 
          final ICPPASTName e = as(expected);
          final ICPPASTName a = as(actual);
-         if (e.isQualified() != a.isQualified()) {
-            return false;
-         }
+         if (e.isQualified() != a.isQualified()) { return false; }
 
          if (expected instanceof ICPPASTTemplateId) {
             final ICPPASTTemplateId et = as(expected);
@@ -501,9 +490,7 @@ public class ASTComparison {
    }
 
    private static boolean defaultHandler(final IASTNode expected, final IASTNode actual, final EnumSet<ComparisonArg> args) {
-      if (args.contains(ComparisonArg.DEBUG_COMPARE_SIGNATURE_FOR_DEFAULT_HANDLER)) {
-         return equalsRaw(expected, actual, args);
-      }
+      if (args.contains(ComparisonArg.DEBUG_COMPARE_SIGNATURE_FOR_DEFAULT_HANDLER)) { return equalsRaw(expected, actual, args); }
       return true;
    }
 
@@ -557,9 +544,7 @@ public class ASTComparison {
    }
 
    private static <T extends IASTNode> String getSimpleClassNameOrNULL(final T node) {
-      if (node == null) {
-         return "NULL";
-      }
+      if (node == null) { return "NULL"; }
       return node.getClass().getSimpleName();
    }
 
@@ -568,9 +553,7 @@ public class ASTComparison {
    }
 
    protected static String getRawSignatureContextOrMissing(final IASTNode node, final EnumSet<ComparisonArg> args) {
-      if (node == null) {
-         return NODE_MISSING;
-      }
+      if (node == null) { return NODE_MISSING; }
       IASTNode parent = node;
       IASTFileLocation loc = node.getFileLocation();
       if (loc == null) {

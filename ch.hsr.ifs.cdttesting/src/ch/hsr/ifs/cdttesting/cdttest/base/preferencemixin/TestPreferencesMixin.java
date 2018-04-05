@@ -8,7 +8,6 @@ import java.util.Properties;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 import ch.hsr.ifs.cdttesting.cdttest.CDTTestingConfigConstants;
-import ch.hsr.ifs.cdttesting.cdttest.base.preferencemixin.ITestPreferencesMixin;
 
 
 public class TestPreferencesMixin implements ITestPreferencesMixin {
@@ -22,6 +21,7 @@ public class TestPreferencesMixin implements ITestPreferencesMixin {
       this.host = host;
    }
 
+   @Override
    public ITestPreferencesMixinHost getHost() {
       return host;
    }

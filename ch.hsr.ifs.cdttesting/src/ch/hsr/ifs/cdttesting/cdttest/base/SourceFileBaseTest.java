@@ -63,11 +63,6 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
     */
    protected LinkedHashMap<String, TestSourceFile> testFiles = new LinkedHashMap<>();
 
-   //   /**
-   //    * Key: file name, value: selection
-   //    */
-   //   protected LinkedHashMap<String, TextSelection> testSelections = new LinkedHashMap<>();
-
    private boolean calledConfigureTest = false;
 
    /**
@@ -83,7 +78,6 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
             configFile = file;
          } else {
             if (primaryTestSourceFileName == null) primaryTestSourceFileName = file.getName();
-            //            initSelection(file);
             testFiles.put(file.getName(), file);
          }
       }
@@ -256,7 +250,6 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
     *        The comparison arguments
     */
    protected void assertAllSourceFilesEqual(EnumSet<ComparisonArg> args) {
-      //FIXME parallelize for each pair of file
       for (final TestSourceFile testFile : testFiles.values()) {
          fastAssertEquals(testFile.getName(), args);
       }

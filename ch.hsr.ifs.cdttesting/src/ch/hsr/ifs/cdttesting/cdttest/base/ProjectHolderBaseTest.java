@@ -32,13 +32,17 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.IDocument;
 import org.junit.After;
 import org.junit.Before;
 
+import ch.hsr.ifs.iltis.core.functional.functions.Consumer;
+import ch.hsr.ifs.iltis.core.functional.functions.Function;
+
 import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.IProjectHolder;
-import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.ITestProjectHolder;
 import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.IProjectHolder.ProjectHolderJob;
+import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.ITestProjectHolder;
 import ch.hsr.ifs.cdttesting.cdttest.base.projectholder.ITestProjectHolder.ReferencedProjectDescription;
 import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
