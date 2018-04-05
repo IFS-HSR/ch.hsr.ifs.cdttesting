@@ -81,8 +81,6 @@ import ch.hsr.ifs.iltis.core.functional.StreamPair;
 import ch.hsr.ifs.iltis.core.functional.functions.Consumer;
 import ch.hsr.ifs.iltis.core.resources.WorkspaceUtil;
 
-import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonAttrID;
-
 
 /**
  * A utility class providing static methods to compare two IASTNodes. This can
