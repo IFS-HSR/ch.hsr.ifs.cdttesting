@@ -126,6 +126,8 @@ public class ASTComparison {
     * @return The result of the comparison
     */
    public static ComparisonResult equalsAST(final IASTTranslationUnit expected, final IASTTranslationUnit actual, final EnumSet<ComparisonArg> args) {
+      if (expected == null || actual == null) return new ComparisonResult(ComparisonState.AST_WAS_NULL);
+
       if (args.contains(ComparisonArg.COMPARE_INCLUDE_DIRECTIVES)) {
          final ComparisonResult result = equalsIncludes(expected, actual, args);
          if (result.isUnequal()) return addTuLevelComparisonAttributes(result, expected, actual, args);
@@ -625,7 +627,7 @@ public class ASTComparison {
       DIFFERENT_TYPE("Different type."), DIFFERENT_NUMBER_OF_CHILDREN("Different number of children."), DIFFERENT_COMMENT("Different comments."),
       DIFFERENT_SIGNATURE("Different raw signature."), NO_COUNTERPART("Node has no counterpart."), PROBLEM_NODE("Encountered a IASTProblem node."),
       MISSING_INCLUDE("Missing includes found."), INCLUDE_ORDER("Different include order."), ADDITIONAL_INCLUDE("Additional includes found."), EQUAL(""),
-      INTERRUPTED("The comparison encountered an InterruptedException and is therefore invalid!");
+      INTERRUPTED("The comparison encountered an InterruptedException and is therefore invalid!"), AST_WAS_NULL("AST was null.");
       //@formatter:on
 
       String desc;
