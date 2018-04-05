@@ -73,6 +73,33 @@
          </command>
       </menuContribution>
    </extension>
+   
+      <extension
+         id="name.graf.emanuel.testfileeditor.markers"
+         name="RTS Test is snake case"
+         point="org.eclipse.core.resources.markers">
+      <persistent
+            value="false">
+      </persistent>
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+  
+   </extension>
+   
+   <extension
+         id="name.graf.emanuel.testfileeditor.markers.SnakeCaseNameMarker"
+         name="RTS Test is snake case"
+         point="org.eclipse.core.resources.markers">
+      <persistent
+            value="false">
+      </persistent>
+      <super
+            type="name.graf.emanuel.testfileeditor.markers">
+      </super>
+  
+   </extension>
+   
    <extension
          id="name.graf.emanuel.testfileeditor.markers.DuplicateTestMarker"
          name="Duplicate RTS Test"
@@ -81,9 +108,10 @@
             value="false">
       </persistent>
       <super
-            type="org.eclipse.core.resources.problemmarker">
+            type="name.graf.emanuel.testfileeditor.markers">
       </super>
    </extension>
+   
    <extension
          point="org.eclipse.ui.editors.markerAnnotationSpecification">
       <specification
@@ -101,7 +129,23 @@
             verticalRulerPreferenceKey="duplicateTestAnnotationVerticalRuler"
             verticalRulerPreferenceValue="true">
       </specification>
+      <specification
+            annotationType="name.graf.emanuel.testfileeditor.annotations.SnakeCaseNameMarkerAnnotation"
+            colorPreferenceKey="duplicateTestAnnotationColor"
+            colorPreferenceValue="255,0,0"
+            highlightPreferenceValue="false"
+            includeOnPreferencePage="true"
+            label="Test name is snake-case"
+            overviewRulerPreferenceKey="duplicateTestAnnotationOverviewRuler"
+            overviewRulerPreferenceValue="true"
+            symbolicIcon="warning"
+            textPreferenceKey="duplicateTestAnnotationText"
+            textPreferenceValue="false"
+            verticalRulerPreferenceKey="duplicateTestAnnotationVerticalRuler"
+            verticalRulerPreferenceValue="true">
+      </specification>
    </extension>
+   
    <extension
          point="org.eclipse.ui.editors.annotationTypes">
       <type
@@ -109,6 +153,12 @@
             markerType="name.graf.emanuel.testfileeditor.markers.DuplicateTestMarker"
             name="name.graf.emanuel.testfileeditor.annotations.DuplicateTestMarkerAnnotation"
             super="org.eclipse.ui.workbench.texteditor.error">
+      </type>
+            <type
+            markerSeverity="2"
+            markerType="name.graf.emanuel.testfileeditor.markers.SnakeCaseNameMarker"
+            name="name.graf.emanuel.testfileeditor.annotations.SnakeCaseNameMarkerAnnotation"
+            super="org.eclipse.ui.workbench.texteditor.warning">
       </type>
    </extension>
 

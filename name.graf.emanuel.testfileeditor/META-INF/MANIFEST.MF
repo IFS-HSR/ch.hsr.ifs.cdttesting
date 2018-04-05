@@ -25,3 +25,4 @@ Import-Package: org.eclipse.jdt.core,
  org.eclipse.jdt.internal.junit.ui,
  org.eclipse.jdt.junit,
  org.eclipse.ui.part
+Automatic-Module-Name: name.graf.emanuel.testfileeditor

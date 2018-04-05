@@ -32,4 +32,8 @@ public interface Problem {
     * @return The description of the problem
     */
    String getDescription();
+
+   int getSeverity();
+
+   int getPrioriry();
 }

@@ -34,7 +34,9 @@ public class TestFile extends Observable {
    private static final String MARKER_LINES_STRING      = "markerLines=";
    private static final String CONFIG_TEXT_STRING_REGEX = "(//@\\.config\\r?\\n(\\s*^(?!//@).*\\r?\\n)*?\\s*markerLines=((\\d+,)*\\d+)?)";
 
-   private static final String MARKER_ID_DUPLICATE_TEST = "name.graf.emanuel.testfileeditor.markers.DuplicateTestMarker";
+   private static final String MARKER_ID_GENERIC         = "name.graf.emanuel.testfileeditor.markers";
+   private static final String MARKER_ID_DUPLICATE_TEST  = "name.graf.emanuel.testfileeditor.markers.DuplicateTestMarker";
+   private static final String MARKER_ID_SNAKE_CASE_NAME = "name.graf.emanuel.testfileeditor.markers.SnakeCaseNameMarker";
 
    private final String            fName;
    private final Set<Test>         fTests;
@@ -306,10 +308,15 @@ public class TestFile extends Observable {
                }
                previousTest = currentTest;
 
+               if (isSnakeCase(currentTest.getName())) {
+                  final Problem snakeCaseName = new SnakeCaseName(currentTest.getName(), currentLine + 1, headPos_TEST);
+                  reportProblem(snakeCaseName, MARKER_ID_SNAKE_CASE_NAME);
+                  fProblems.add(snakeCaseName);
+               }
                if (fTests.contains(currentTest)) {
-                  final Problem duplicateTest = new DuplicateTest(currentTest.toString(), currentLine + 1, headPos_TEST);
-                  reportProblem(duplicateTest);
-                  fProblems.add(new DuplicateTest(currentTest.toString(), currentLine + 1, headPos_TEST));
+                  final Problem duplicateTest = new DuplicateTest(currentTest.getName(), currentLine + 1, headPos_TEST);
+                  reportProblem(duplicateTest, MARKER_ID_DUPLICATE_TEST);
+                  fProblems.add(duplicateTest);
                } else {
                   fTests.add(currentTest);
                }
@@ -413,20 +420,24 @@ public class TestFile extends Observable {
       setChanged();
    }
 
-   private void reportProblem(final Problem problem) throws CoreException {
+   private boolean isSnakeCase(String testName) {
+      return !testName.trim().contains(" ");
+   }
+
+   private void reportProblem(final Problem problem, String markerID) throws CoreException {
       final IFile file = fInput.getFile();
-      final IMarker marker = file.createMarker(MARKER_ID_DUPLICATE_TEST);
+      final IMarker marker = file.createMarker(markerID);
       MarkerUtilities.setCharStart(marker, problem.getPosition().offset);
       MarkerUtilities.setCharEnd(marker, problem.getPosition().offset + problem.getPosition().length);
       MarkerUtilities.setLineNumber(marker, problem.getLineNumber());
-      marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-      marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
+      marker.setAttribute(IMarker.SEVERITY, problem.getSeverity());
+      marker.setAttribute(IMarker.PRIORITY, problem.getPrioriry());
       marker.setAttribute(IMarker.MESSAGE, problem.getDescription());
    }
 
    private void cleanMarkers() {
       try {
-         final IMarker[] currentMarkers = fInput.getFile().findMarkers(MARKER_ID_DUPLICATE_TEST, false, IResource.DEPTH_INFINITE);
+         final IMarker[] currentMarkers = fInput.getFile().findMarkers(MARKER_ID_GENERIC, true, IResource.DEPTH_INFINITE);
          for (final IMarker marker : currentMarkers) {
             final int offset = MarkerUtilities.getCharStart(marker);
             final int length = MarkerUtilities.getCharEnd(marker) - offset;

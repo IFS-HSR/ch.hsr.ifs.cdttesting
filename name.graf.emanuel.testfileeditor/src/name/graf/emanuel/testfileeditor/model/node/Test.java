@@ -53,6 +53,10 @@ public class Test implements Node {
       }
       return null;
    }
+   
+   public String getName() {
+      return name;
+   }
 
    @Override
    public String toString() {
