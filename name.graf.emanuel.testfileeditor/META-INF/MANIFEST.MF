@@ -26,3 +26,5 @@ Import-Package: org.eclipse.jdt.core,
  org.eclipse.jdt.junit,
  org.eclipse.ui.part
 Automatic-Module-Name: name.graf.emanuel.testfileeditor
+Export-Package: name.graf.emanuel.testfileeditor.model;x-friends:="ch.hsr.ifs.cdttesting.junitextensions",
+ name.graf.emanuel.testfileeditor.model.node;x-friends:="ch.hsr.ifs.cdttesting.junitextensions"

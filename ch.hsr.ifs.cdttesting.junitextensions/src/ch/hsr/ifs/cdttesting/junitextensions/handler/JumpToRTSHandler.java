@@ -1,4 +1,4 @@
-package name.graf.emanuel.testfileeditor.ui;
+package ch.hsr.ifs.cdttesting.junitextensions.handler;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

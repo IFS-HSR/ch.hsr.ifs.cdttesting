@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="ch.hsr.ifs.cdttesting.junitextensions.JumpToMostSpecificClass"
+            name="Jump to most specific class">
+      </command>
+      <command
+            id="name.graf.emanuel.testfileeditor.command.JumpToRTS"
+            name="Jump to RTS">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="ch.hsr.ifs.cdttesting.junitextensions.handler.JumpToMostSpecificClassHandler"
+            commandId="ch.hsr.ifs.cdttesting.junitextensions.JumpToMostSpecificClass">
+      </handler>
+      <handler
+            class="ch.hsr.ifs.cdttesting.junitextensions.handler.JumpToRTSHandler"
+            commandId="name.graf.emanuel.testfileeditor.command.JumpToRTS">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.jdt.junit.ResultView?after=additions">
+         <command
+               commandId="ch.hsr.ifs.cdttesting.junitextensions.JumpToMostSpecificClass"
+               label="Jump to most specific class"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.jdt.junit.ResultView?after=additions">
+         <command
+               commandId="name.graf.emanuel.testfileeditor.command.JumpToRTS"
+               label="Jump to RTS"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   
+</plugin>

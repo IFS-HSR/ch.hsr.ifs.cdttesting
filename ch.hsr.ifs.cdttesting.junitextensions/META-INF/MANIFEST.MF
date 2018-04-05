@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: CDTTesting JUnit Extensions
+Bundle-SymbolicName: ch.hsr.ifs.cdttesting.junitextensions;singleton:=true
+Bundle-Version: 9.4.0.qualifier
+Automatic-Module-Name: ch.hsr.ifs.cdttesting.junitextensions
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.jdt.core,
+ org.eclipse.core.commands,
+ org.eclipse.core.runtime,
+ org.eclipse.jface,
+ org.eclipse.ui.workbench,
+ org.eclipse.ui.editors,
+ org.eclipse.jdt.junit.core,
+ org.eclipse.jdt.junit,
+ org.eclipse.ui.ide,
+ org.eclipse.core.resources,
+ org.eclipse.jdt.ui;bundle-version="3.13.52",
+ org.eclipse.text,
+ name.graf.emanuel.testfileeditor

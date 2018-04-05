@@ -25,6 +25,7 @@
     <module>ch.hsr.ifs.cdttesting.test</module>
     <module>ch.hsr.ifs.cdttesting.example</module>
     <module>ch.hsr.ifs.cdttesting.example.feature</module>
+    <module>ch.hsr.ifs.cdttesting.junitextensions</module>
     <module>ch.hsr.ifs.cdttesting.showoffset</module>
     <module>name.graf.emanuel.testfileeditor</module>
     <module>ch.hsr.ifs.cdttesting.feature</module>
