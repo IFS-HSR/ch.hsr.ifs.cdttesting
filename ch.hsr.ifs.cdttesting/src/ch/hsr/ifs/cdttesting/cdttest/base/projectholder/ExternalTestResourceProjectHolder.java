@@ -1,21 +1,15 @@
 package ch.hsr.ifs.cdttesting.cdttest.base.projectholder;
 
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import org.eclipse.cdt.core.CCorePlugin;
-import org.eclipse.cdt.core.dom.IPDOMManager;
-import org.eclipse.cdt.core.testplugin.CProjectHelper;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -35,27 +29,6 @@ public class ExternalTestResourceProjectHolder extends AbstractProjectHolder imp
    public ExternalTestResourceProjectHolder(String projectName, Language language) {
       this.projectName = projectName;
       this.language = language;
-   }
-
-   @Override
-   public void createProject() {
-      if (CCorePlugin.getDefault() != null && CCorePlugin.getDefault().getCoreModel() != null) {
-         workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-         try {
-            switch (language) {
-            case CPP:
-               cProject = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ 
-               break;
-            case C:
-               cProject = CProjectHelper.createCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ 
-               break;
-            default:
-               fail("Invalid language for this holder. Valid choices are: Language.C, Language.CPP ");
-            }
-         } catch (final CoreException ignored) {
-            fail("Failed to create the project");
-         }
-      }
    }
 
    @Override

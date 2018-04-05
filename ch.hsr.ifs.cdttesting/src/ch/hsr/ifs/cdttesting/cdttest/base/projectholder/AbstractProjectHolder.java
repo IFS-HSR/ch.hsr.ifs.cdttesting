@@ -1,5 +1,7 @@
 package ch.hsr.ifs.cdttesting.cdttest.base.projectholder;
 
+import static org.junit.Assert.fail;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -7,10 +9,16 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedList;
 
+import org.eclipse.cdt.core.CCorePlugin;
+import org.eclipse.cdt.core.dom.IPDOMManager;
 import org.eclipse.cdt.core.model.ICProject;
+import org.eclipse.cdt.core.testplugin.CProjectHelper;
+import org.eclipse.cdt.core.testplugin.FileManager;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.text.IDocument;
 
@@ -23,13 +31,15 @@ import ch.hsr.ifs.cdttesting.testsourcefile.RTSTest.Language;
 public abstract class AbstractProjectHolder implements IProjectHolder {
 
    protected ICProject cProject;
+   protected IProject  project;
    protected String    projectName;
 
    protected FileCache fileCache = new FileCache();
 
    protected LinkedList<URL> stagedFilesToImport = new LinkedList<>();
-   protected Language language;
-   protected IWorkspace workspace;
+   protected Language        language;
+   protected IWorkspace      workspace;
+   protected FileManager     fileManager;
 
    public AbstractProjectHolder() {
       super();
@@ -105,7 +115,7 @@ public abstract class AbstractProjectHolder implements IProjectHolder {
 
    @Override
    public IProject getProject() {
-      return cProject.getProject();
+      return project;
    }
 
    @Override
@@ -127,6 +137,29 @@ public abstract class AbstractProjectHolder implements IProjectHolder {
       return ProjectHolderJob.create("Importing files into project " + projectName, IProjectHolder.IMPORT_FILES_JOB_FAMILY, mon -> {
          importFiles();
       });
+   }
+
+   @Override
+   public void createProject() {
+      if (CCorePlugin.getDefault() != null && CCorePlugin.getDefault().getCoreModel() != null) {
+         workspace = ResourcesPlugin.getWorkspace();
+         try {
+            switch (language) {
+            case CPP:
+               cProject = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ 
+               break;
+            case C:
+               cProject = CProjectHelper.createCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ 
+               break;
+            default:
+               fail("Invalid language for this holder. Valid choices are: Language.C, Language.CPP ");
+            }
+            project = cProject.getProject();
+         } catch (final CoreException ignored) {
+            fail("Failed to create the project");
+         }
+         fileManager = new FileManager();
+      }
    }
 
 }

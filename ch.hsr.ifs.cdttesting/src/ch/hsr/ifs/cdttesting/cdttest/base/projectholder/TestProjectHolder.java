@@ -1,7 +1,5 @@
 package ch.hsr.ifs.cdttesting.cdttest.base.projectholder;
 
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +30,6 @@ import org.eclipse.cdt.core.model.ITranslationUnit;
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.core.settings.model.ICProjectDescription;
 import org.eclipse.cdt.core.testplugin.CProjectHelper;
-import org.eclipse.cdt.core.testplugin.FileManager;
 import org.eclipse.cdt.core.testplugin.TestScannerProvider;
 import org.eclipse.cdt.core.testplugin.util.BaseTestCase;
 import org.eclipse.cdt.ui.CUIPlugin;
@@ -63,8 +60,6 @@ public class TestProjectHolder extends AbstractProjectHolder implements ITestPro
 
    private boolean isExpectedProject;
 
-   protected FileManager fileManager;
-
    private List<ICProject> referencedProjects = new ArrayList<>();
 
    private ArrayList<IPath>                         stagedExternalIncudePaths  = new ArrayList<>();
@@ -78,28 +73,6 @@ public class TestProjectHolder extends AbstractProjectHolder implements ITestPro
       this.projectName = projectName;
       this.language = language;
       this.isExpectedProject = isExpectedProject;
-   }
-
-   @Override
-   public void createProject() {
-      if (CCorePlugin.getDefault() != null && CCorePlugin.getDefault().getCoreModel() != null) {
-         workspace = ResourcesPlugin.getWorkspace();
-         try {
-            switch (language) {
-            case CPP:
-               cProject = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ 
-               break;
-            case C:
-               cProject = CProjectHelper.createCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ 
-               break;
-            default:
-               fail("Invalid language for this holder. Valid choices are: Language.C, Language.CPP ");
-            }
-         } catch (final CoreException ignored) {
-            fail("Failed to create the project");
-         }
-         fileManager = new FileManager();
-      }
    }
 
    @Override
