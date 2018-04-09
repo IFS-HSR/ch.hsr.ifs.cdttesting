@@ -47,9 +47,10 @@
          </targetClass>
       </column>
    </extension>
-      <extension
+   
+   <extension
          id="name.graf.emanuel.testfileeditor.markers"
-         name="RTS Test is snake case"
+         name="TestFileEditor root marker"
          point="org.eclipse.core.resources.markers">
       <persistent
             value="false">
