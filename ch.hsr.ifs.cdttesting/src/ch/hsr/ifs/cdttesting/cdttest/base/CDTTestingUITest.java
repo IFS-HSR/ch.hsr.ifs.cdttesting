@@ -147,7 +147,7 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
       if (!testFiles.containsKey(testSourceFileName)) throw new IllegalArgumentException(NLS.bind("No such test file \"{0}\" found.",
             testSourceFileName));
       UIThreadSyncRunnable.run(() -> {
-         OptionalUtil.of(getActivePage()).doIfPresentT(p -> {
+         OptionalUtil.of(getActivePage()).ifPresentT(p -> {
             IDE.openEditor(p, getCurrentIFile(testSourceFileName));
             setSelectionInActiveEditorIfAvailable(testFiles.get(testSourceFileName));
             runEventLoop();
@@ -157,7 +157,7 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
 
    protected void openExternalFileInEditor(final URI absolutePath) {
       UIThreadSyncRunnable.run(() -> {
-         OptionalUtil.of(getActivePage()).doIfPresentT(p -> {
+         OptionalUtil.of(getActivePage()).ifPresentT(p -> {
             IDE.openEditor(p, new ExternalEditorInput(absolutePath, getCurrentProject()), "org.eclipse.cdt.ui.editor.CEditor", true);
             runEventLoop();
          });

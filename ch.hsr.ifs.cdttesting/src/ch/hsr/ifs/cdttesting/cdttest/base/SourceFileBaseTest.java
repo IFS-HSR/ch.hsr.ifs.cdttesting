@@ -327,6 +327,8 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
    private void assertEqualsWithAST(final String testSourceFileName, EnumSet<ComparisonArg> args, int astStyle) {
       final IIndex[] expectedIndex = { null };
       final IIndex[] currentIndex = { null };
+      final ITranslationUnit[] expectedTU = { null };
+      final ITranslationUnit[] currentTU = { null };
       final IASTTranslationUnit[] expectedAST = { null };
       final IASTTranslationUnit[] currentAST = { null };
       try {
@@ -335,7 +337,8 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
                expectedIndex[0] = CCorePlugin.getIndexManager().getIndex(getExpectedCProject(), IIndexManager.ADD_DEPENDENCIES &
                                                                                                 IIndexManager.ADD_DEPENDENT);
                expectedIndex[0].acquireReadLock();
-               expectedAST[0] = CoreModelUtil.findTranslationUnit(getExpectedIFile(testSourceFileName)).getAST(expectedIndex[0], astStyle);
+               expectedTU[0] = CoreModelUtil.findTranslationUnit(getExpectedIFile(testSourceFileName));
+               expectedAST[0] = expectedTU[0].getAST(expectedIndex[0], astStyle);
             } catch (Exception e) {
                return new Status(IStatus.ERROR, FrameworkUtil.getBundle(getClass()).getSymbolicName(), "Could not create expected AST", e);
             }
@@ -347,7 +350,8 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
                currentIndex[0] = CCorePlugin.getIndexManager().getIndex(getCurrentCProject(), IIndexManager.ADD_DEPENDENCIES &
                                                                                               IIndexManager.ADD_DEPENDENT);
                currentIndex[0].acquireReadLock();
-               currentAST[0] = CoreModelUtil.findTranslationUnit(getCurrentIFile(testSourceFileName)).getAST(currentIndex[0], astStyle);
+               currentTU[0] = CoreModelUtil.findTranslationUnit(getCurrentIFile(testSourceFileName));
+               currentAST[0] = currentTU[0].getAST(currentIndex[0], astStyle);
             } catch (Exception e) {
                return new Status(IStatus.ERROR, FrameworkUtil.getBundle(getClass()).getSymbolicName(), "Could not create current AST", e);
             }
@@ -363,10 +367,12 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
          assertNotNull(expected);
          assertNotNull(current);
 
-         //            ASTComparison.assertEqualsAST(expectedTU.getAST(), currentTU.getAST(), args); //FIXME remove after testing
+         //                     ASTComparison.assertEqualsAST(expectedTU[0].getAST(), currentTU[0].getAST(), args); //FIXME remove after testing
          ASTComparison.assertEqualsAST(expectedAST[0], currentAST[0], args);
       } catch (InterruptedException e) {
          fail("Thread got interrupted");
+         //      } catch (CoreException e) {
+         //         throw ILTISException.wrap(e);
       } finally {
          if (expectedIndex[0] != null) expectedIndex[0].releaseReadLock();
          if (currentIndex[0] != null) currentIndex[0].releaseReadLock();

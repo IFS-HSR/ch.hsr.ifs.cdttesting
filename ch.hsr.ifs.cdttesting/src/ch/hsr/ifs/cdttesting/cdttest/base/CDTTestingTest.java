@@ -3,7 +3,7 @@ package ch.hsr.ifs.cdttesting.cdttest.base;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.eclipse.cdt.codan.core.CodanRuntime;
 import org.eclipse.cdt.codan.core.model.CheckerLaunchMode;
@@ -38,7 +38,7 @@ public abstract class CDTTestingTest extends RTSSourceFileTest {
    protected void enableAndConfigureChecker() {
       IProblemId activeProblemId = getProblemId();
       final IProblemProfile profile = CodanRuntime.getInstance().getCheckersRegistry().getResourceProfile(getCurrentProject());
-      Arrays.stream(profile.getProblems()).forEach(problem -> {
+      Stream.of(profile.getProblems()).forEach(problem -> {
          final CodanProblem codanProblem = (CodanProblem) problem;
          if (codanProblem.getId().equals(activeProblemId.getId())) {
             enableCodanProblem(codanProblem);
