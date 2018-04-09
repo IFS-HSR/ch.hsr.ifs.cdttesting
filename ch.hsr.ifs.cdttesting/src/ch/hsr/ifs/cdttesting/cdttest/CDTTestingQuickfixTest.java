@@ -71,6 +71,16 @@ public abstract class CDTTestingQuickfixTest extends CDTTestingUITest {
    }
 
    /**
+    * Finds all markers and returns the one which starts at the smallest offset.
+    * @return The first marker
+    * @throws CoreException
+    */
+   protected IMarker getFirstMarker() throws CoreException {
+      return Stream.of(findMarkers()).min((m1, m2) -> m1.getAttribute(IMarker.CHAR_START, Integer.MAX_VALUE) - m2.getAttribute(IMarker.CHAR_START,
+            Integer.MAX_VALUE)).orElse(null);
+   }
+
+   /**
     * Can be overloaded to use specific comparison arguments in {@link #runQuickfixAndAssertAllEqual(IMarkerResolution)},
     * {@link #runQuickfixAndAssertAllEqual(IMarker, IMarkerResolution)}, and {@link #runQuickfixForAllMarkersAndAssertAllEqual(IMarkerResolution)}.
     * <p>
