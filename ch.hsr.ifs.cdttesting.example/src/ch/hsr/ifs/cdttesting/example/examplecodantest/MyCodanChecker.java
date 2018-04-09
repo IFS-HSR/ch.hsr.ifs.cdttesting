@@ -1,6 +1,6 @@
 package ch.hsr.ifs.cdttesting.example.examplecodantest;
 
-import org.eclipse.cdt.codan.core.cxx.model.AbstractIndexAstChecker;
+import ch.hsr.ifs.iltis.cpp.wrappers.AbstractIndexAstChecker;
 import org.eclipse.cdt.core.dom.ast.IASTDeclaration;
 import org.eclipse.cdt.core.dom.ast.IASTFunctionDefinition;
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;

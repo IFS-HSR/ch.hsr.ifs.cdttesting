@@ -1,12 +1,14 @@
 package ch.hsr.ifs.cdttesting.example.examplerefactoringtest.refactorings;
 
+import java.util.Optional;
+
 import org.eclipse.cdt.core.dom.ast.IASTTranslationUnit;
 import org.eclipse.cdt.core.model.ICElement;
 import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.ltk.core.refactoring.RefactoringDescriptor;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
@@ -21,7 +23,7 @@ public class ILTISTestRefactoring extends CRefactoring {
    private boolean checkInitialConditionsCalled;
    private boolean checkFinalConditionsCalled;
 
-   public ILTISTestRefactoring(ICElement element, ISelection selection, ICProject project) {
+   public ILTISTestRefactoring(ICElement element, Optional<ITextSelection> selection, ICProject project) {
       super(element, selection, project);
    }
 
