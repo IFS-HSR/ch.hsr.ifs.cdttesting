@@ -198,7 +198,7 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
    }
 
    /**
-    * Convenience method to get IFile of current project for the name of a test source file
+    * Convenience method to get the IFile of current project for the name of a test source file
     * 
     * @throws IllegalArgumentException
     *         If the no file with this name exists.
@@ -208,13 +208,23 @@ public abstract class SourceFileBaseTest extends ProjectHolderBaseTest {
    }
 
    /**
-    * Convenience method to get IFile of expected project for the name of a test source file
+    * Convenience method to get the IFile of expected project for the name of a test source file
     * 
     * @throws IllegalArgumentException
     *         If the no file with this name exists.
     */
    protected IFile getExpectedIFile(String testSourceFileName) {
       return getIFile(testSourceFileName, expectedProjectHolder);
+   }
+
+   /**
+    * Convenience method to get the primary IFile of the current project
+    * 
+    * @throws IllegalArgumentException
+    *         If the no file with this name exists.
+    */
+   protected IFile getPrimaryIFileFromCurrentProject() {
+      return getIFile(getNameOfPrimaryTestFile(), currentProjectHolder);
    }
 
    /**
