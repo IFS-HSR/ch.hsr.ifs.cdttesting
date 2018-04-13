@@ -6,7 +6,6 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -55,7 +54,7 @@ public abstract class CDTTestingCheckerTest extends CDTTestingTest {
    /**
     * Contains the line numbers on which markers are expected
     */
-   protected List<Integer> expectedMarkerLinesFromProperties = new LinkedList<>();
+   protected List<Integer> expectedMarkerLinesFromProperties = new ArrayList<>();
 
    @Override
    @Before

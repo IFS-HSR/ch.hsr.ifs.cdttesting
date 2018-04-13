@@ -29,7 +29,6 @@ import ch.hsr.ifs.cdttesting.cdttest.comparison.ASTComparison.ComparisonArg;
  * class. In our case, it executes on the more correctly set-up project/index of
  * our cdttesting framework
  */
-@SuppressWarnings("restriction")
 public abstract class CDTTestingRefactoringTest extends CDTTestingUITest {
 
    /** Expected counts of errors, warnings and info messages */
@@ -82,9 +81,6 @@ public abstract class CDTTestingRefactoringTest extends CDTTestingUITest {
       RefactoringContext context;
       if (refactoring instanceof CRefactoring) {
          context = new CRefactoringContext((CRefactoring) refactoring);
-      } else if (refactoring instanceof org.eclipse.cdt.internal.ui.refactoring.CRefactoring) {
-         context = new org.eclipse.cdt.internal.ui.refactoring.CRefactoringContext(
-               (org.eclipse.cdt.internal.ui.refactoring.CRefactoring) refactoring);
       } else {
          context = new RefactoringContext(refactoring);
       }

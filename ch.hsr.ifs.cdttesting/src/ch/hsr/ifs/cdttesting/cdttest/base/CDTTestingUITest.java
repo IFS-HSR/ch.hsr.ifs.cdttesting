@@ -10,7 +10,6 @@ import java.util.Optional;
 
 import org.eclipse.cdt.codan.core.PreferenceConstants;
 import org.eclipse.cdt.codan.internal.ui.CodanUIActivator;
-import org.eclipse.cdt.core.dom.ast.IASTFileLocation;
 import org.eclipse.cdt.internal.ui.editor.CEditor;
 import org.eclipse.cdt.internal.ui.util.ExternalEditorInput;
 import org.eclipse.cdt.ui.testplugin.Accessor;
@@ -232,11 +231,6 @@ public abstract class CDTTestingUITest extends CDTTestingTest {
       final String expectedNewLine = "\n";
       final String expectedSource = getCurrentDocument(fileLocation).get().replace(NL, expectedNewLine);
       return offset + getOffsetAdaptionDelta(offset, expectedSource, expectedNewLine);
-   }
-
-   @Deprecated
-   protected int adaptActualOffset(final IASTFileLocation fileLocation) throws IOException {
-      return adaptActualOffset(getCurrentProject().getFile(fileLocation.getFileName()), fileLocation.getNodeOffset());
    }
 
    protected int adaptActualOffset(final IFile file, final int offset) throws IOException {

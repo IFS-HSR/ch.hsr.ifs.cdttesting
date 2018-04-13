@@ -77,7 +77,6 @@ import org.eclipse.core.runtime.Path;
 import ch.hsr.ifs.iltis.core.collections.CollectionUtil;
 import ch.hsr.ifs.iltis.core.data.AbstractPair;
 import ch.hsr.ifs.iltis.core.functional.StreamFactory;
-import ch.hsr.ifs.iltis.core.functional.StreamPair;
 import ch.hsr.ifs.iltis.core.functional.functions.Consumer;
 import ch.hsr.ifs.iltis.core.resources.WorkspaceUtil;
 
@@ -127,11 +126,11 @@ public class ASTComparison {
       if (expected == null || actual == null) return new ComparisonResult(ComparisonState.AST_WAS_NULL);
 
       if (args.contains(ComparisonArg.COMPARE_INCLUDE_DIRECTIVES)) {
-         final ComparisonResult result = equalsIncludes(expected, actual, args);
-         if (result.isUnequal()) return addTuLevelComparisonAttributes(result, expected, actual, args);
+         final ComparisonResult includesResult = equalsIncludes(expected, actual, args);
+         if (includesResult.isUnequal()) return addTuLevelComparisonAttributes(includesResult, expected, actual, args);
       }
-      final NodeComparisonVisitor comparisonVisitor = new NodeComparisonVisitor(expected, actual, args);
-      return addTuLevelComparisonAttributes(comparisonVisitor.compare(), expected, actual, args);
+      final ComparisonResult astResult = new NodeComparisonVisitor(expected, actual, args).compare();
+      return addTuLevelComparisonAttributes(astResult, expected, actual, args);
    }
 
    private static ComparisonResult addTuLevelComparisonAttributes(final ComparisonResult result, final IASTTranslationUnit expected,
@@ -172,7 +171,7 @@ public class ASTComparison {
       final String actualStmt = collectToString(getFilteredIncludeStmts(actual));
 
       final String lineNo = getLineNo(zip(getFilteredIncludeStmts(expected), getFilteredIncludeStmts(actual)).filter(
-            AbstractPair::notAllElementEquals).map(StreamPair::first).findFirst());
+            AbstractPair::notAllElementEquals).map(pair -> pair.first() != null ? pair.first() : pair.second()).findFirst());
 
       if (expectedStmt.equals(actualStmt)) {
          /* All includes are present */
@@ -511,12 +510,14 @@ public class ASTComparison {
    }
 
    protected static String getSignature(final IASTNode node) {
+      if (node == null) return "-- No signature. No parent with signature found -- \n";
       final String signature = node.getRawSignature();
       if (signature.length() == 0) {
          /* Provide signature of parent for reference */
          return "-- No signature. Providing parent-signature for context --\n" + getSignature(node.getParent());
+      } else {
+         return signature;
       }
-      return signature;
    }
 
    /**
