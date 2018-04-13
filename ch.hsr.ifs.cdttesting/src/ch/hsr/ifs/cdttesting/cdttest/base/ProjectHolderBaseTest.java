@@ -25,7 +25,6 @@ import java.util.Optional;
 
 import org.eclipse.cdt.core.model.ICElement;
 import org.eclipse.cdt.core.model.ICProject;
-import org.eclipse.cdt.core.testplugin.TestScannerProvider;
 import org.eclipse.cdt.ui.CUIPlugin;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -267,7 +266,7 @@ abstract public class ProjectHolderBaseTest {
    //	@AfterEach
    @After
    public void tearDown() throws Exception {
-      TestScannerProvider.clear();
+      //      TestScannerProvider.clear(); //TODO(Tobias Stauber) clean after testing
       disposeCDTAstCache();
       cleanupProjects();
    }
@@ -386,26 +385,5 @@ abstract public class ProjectHolderBaseTest {
          currentJob.join();
          expectedJob.join();
       }
-      //      if (currentThreadLocal && expectedThreadLocal) {
-      //         /* current runs in this thread -> expected runs in this thread */
-      //         currentJob.forceRun();
-      //         expectedJob.forceRun();
-      //      } else if (currentThreadLocal && !expectedThreadLocal) {
-      //         /* current runs in this thread <| expected runs in worker */
-      //         expectedJob.schedule();
-      //         currentJob.forceRun();
-      //         expectedJob.join();
-      //      } else if (!currentThreadLocal && expectedThreadLocal) {
-      //         /* current runs in worker |> expected runs in this thread */
-      //         currentJob.schedule();
-      //         expectedJob.forceRun();
-      //         currentJob.join();
-      //      } else {
-      //         /* current runs in worker || expected runs in worker */
-      //         currentJob.schedule();
-      //         expectedJob.schedule();
-      //         currentJob.join();
-      //         expectedJob.join();
-      //      }
    }
 }

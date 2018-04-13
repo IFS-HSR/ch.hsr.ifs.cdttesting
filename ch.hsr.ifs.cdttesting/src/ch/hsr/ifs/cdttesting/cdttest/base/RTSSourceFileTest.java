@@ -48,7 +48,8 @@ public abstract class RTSSourceFileTest extends SourceFileBaseTest {
          final ArrayList<RTSTest> testCases = RTSFileParser.parse(in);
          assertTrue("The RTS file + \'" + rtsFileName + "\' which represents a referenced project must contain exactly one test case.", testCases
                .size() == 1);
-         stageReferencedProjectsForBothProjects(new ReferencedProjectDescription(projectName, testCases.get(0).getTestSourceFiles()));
+         RTSTest testCase = testCases.get(0);
+         stageReferencedProjectsForBothProjects(new ReferencedProjectDescription(projectName, testCase.getLanguage(), testCase.getTestSourceFiles()));
       }
    }
 
