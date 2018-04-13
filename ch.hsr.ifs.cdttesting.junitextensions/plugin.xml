@@ -5,7 +5,7 @@
          point="org.eclipse.ui.commands">
       <command
             id="ch.hsr.ifs.cdttesting.junitextensions.JumpToMostSpecificClass"
-            name="Jump to most specific class">
+            name="Jump to Actual Test-Class">
       </command>
       <command
             id="name.graf.emanuel.testfileeditor.command.JumpToRTS"
@@ -30,7 +30,7 @@
             locationURI="popup:org.eclipse.jdt.junit.ResultView?after=additions">
          <command
                commandId="ch.hsr.ifs.cdttesting.junitextensions.JumpToMostSpecificClass"
-               label="Jump to most specific class"
+               label="Jump to Actual Test-Class"
                style="push">
          </command>
       </menuContribution>
