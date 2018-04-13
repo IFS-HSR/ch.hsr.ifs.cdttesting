@@ -159,7 +159,7 @@ public interface IProjectHolder {
     * @return The {@code IProject} of the {@code ICProject} held by this holder. This is a convenience method for {@code getCProject().getProject()}.
     */
    public IProject getProject();
-
+   
    /**
     * An Eclipse job which allows to create new jobs with a family
     * 

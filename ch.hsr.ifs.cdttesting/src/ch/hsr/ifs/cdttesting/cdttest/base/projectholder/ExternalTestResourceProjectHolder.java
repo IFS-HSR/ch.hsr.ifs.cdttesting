@@ -47,8 +47,8 @@ public class ExternalTestResourceProjectHolder extends AbstractProjectHolder imp
 
    @Override
    public void importFiles() {
-      while (!stagedFilesToImport.isEmpty()) {
-         createIResourceAndInitializeIt(stagedFilesToImport.pop(), cProject.getProject());
+      for (URL res : stagedFilesToImport) {
+         createIResourceAndInitializeIt(res, cProject.getProject());
       }
    }
 

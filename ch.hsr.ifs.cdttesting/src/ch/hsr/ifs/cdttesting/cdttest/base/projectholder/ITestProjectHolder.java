@@ -156,14 +156,18 @@ public interface ITestProjectHolder extends IProjectHolder {
    /**
     * A simple holder for a project name and the files used to populate the project
     */
-   public class ReferencedProjectDescription extends AbstractPair<String, List<TestSourceFile>> {
+   public class ReferencedProjectDescription extends AbstractPair<AbstractPair<String, Language>, List<TestSourceFile>> {
 
-      public ReferencedProjectDescription(String projectName, List<TestSourceFile> sourceFiles) {
-         super(projectName, sourceFiles);
+      public ReferencedProjectDescription(String projectName, Language lang, List<TestSourceFile> sourceFiles) {
+         super(new NestingHelper<>(projectName, lang), sourceFiles);
       }
 
       public String getProjectName() {
-         return first;
+         return ((NestingHelper<String, Language>) first).first();
+      }
+
+      public Language getLanguage() {
+         return ((NestingHelper<String, Language>) first).second();
       }
 
       public List<TestSourceFile> getSourceFiles() {

@@ -1,5 +1,7 @@
 package ch.hsr.ifs.cdttesting.cdttest.base.projectholder;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,9 +30,6 @@ import org.eclipse.cdt.core.model.IPathEntry;
 import org.eclipse.cdt.core.model.ITranslationUnit;
 import org.eclipse.cdt.core.settings.model.ICConfigurationDescription;
 import org.eclipse.cdt.core.settings.model.ICProjectDescription;
-import org.eclipse.cdt.core.testplugin.CProjectHelper;
-import org.eclipse.cdt.core.testplugin.TestScannerProvider;
-import org.eclipse.cdt.core.testplugin.util.BaseTestCase;
 import org.eclipse.cdt.ui.CUIPlugin;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -42,6 +40,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.MalformedTreeException;
@@ -58,14 +57,19 @@ import ch.hsr.ifs.cdttesting.testsourcefile.TestSourceFile;
 
 public class TestProjectHolder extends AbstractProjectHolder implements ITestProjectHolder {
 
+   private static final String DEFAULT_INDEXER_TIMEOUT_SEC = "10";
+   private static final String INDEXER_TIMEOUT_PROPERTY    = "indexer.timeout";
+   protected static final int  INDEXER_TIMEOUT_SEC         = Integer.parseInt(System.getProperty(INDEXER_TIMEOUT_PROPERTY,
+         DEFAULT_INDEXER_TIMEOUT_SEC));
+
    private boolean isExpectedProject;
 
    private List<ICProject> referencedProjects = new ArrayList<>();
 
-   private ArrayList<IPath>                         stagedExternalIncudePaths  = new ArrayList<>();
-   private ArrayList<IPath>                         stagedInternalIncludePaths = new ArrayList<>();
-   private LinkedList<ReferencedProjectDescription> stagedReferncedProjects    = new LinkedList<>();
-   private HashMap<String, String>                  stagedTestSourcesToImport  = new HashMap<>();
+   private ArrayList<IPath>                        stagedExternalIncudePaths  = new ArrayList<>();
+   private ArrayList<IPath>                        stagedInternalIncludePaths = new ArrayList<>();
+   private ArrayList<ReferencedProjectDescription> stagedReferncedProjects    = new ArrayList<>();
+   private HashMap<String, String>                 stagedTestSourcesToImport  = new HashMap<>();
 
    private List<IPath> formattedDocuments;
 
@@ -78,11 +82,12 @@ public class TestProjectHolder extends AbstractProjectHolder implements ITestPro
    @Override
    public void cleanupProjects() {
       fileCache.clean();
-      try {
-         fileManager.closeAllFiles();
-      } catch (CoreException | InterruptedException e) {
-         e.printStackTrace();
-      }
+      //TODO(Tobias Stauber) cleanup
+      //      try {
+      //         fileManager.closeAllFiles();
+      //      } catch (CoreException | InterruptedException e) {
+      //         e.printStackTrace();
+      //      }
       deleteProject(cProject);
       referencedProjects.stream().forEach(this::deleteProject);
    }
@@ -120,7 +125,8 @@ public class TestProjectHolder extends AbstractProjectHolder implements ITestPro
          }
       }
       try {
-         BaseTestCase.waitForIndexer(getCProject());
+         Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_REFRESH, null);
+         assertTrue(CCorePlugin.getIndexManager().joinIndexer(INDEXER_TIMEOUT_SEC * 1000, new NullProgressMonitor())); //CCoreInternals.getPDOMManager()
       } catch (final InterruptedException e) {
          System.err.println("Wait for indexer has been interrupted.");
       }
@@ -194,14 +200,13 @@ public class TestProjectHolder extends AbstractProjectHolder implements ITestPro
          /* Adds all the referenced project include paths to the array */
          for (int j = 0; j < referencedProjects.size(); i++, j++) {
             final ICProject referencedProj = referencedProjects.get(j);
-            /* impl from addIncludeRefs(), was moved here, for calculating it twice is bs */
-            //            final IPath referencedProjPath = referencedProjects.get(j).getPath().makeRelative();
             pathsToAdd[i] = referencedProj.getProject().getLocation();
          }
          stagedExternalIncudePaths.clear();
          stagedInternalIncludePaths.clear();
          addIncludeRefs(pathsToAdd, referencedProjectsOffset);
-         TestScannerProvider.sIncludes = Arrays.stream(pathsToAdd).map(IPath::toOSString).toArray(String[]::new);
+         //TODO(Tobias Stauber) figure out why this is needed...
+         //         TestScannerProvider.sIncludes = Arrays.stream(pathsToAdd).map(IPath::toOSString).toArray(String[]::new);
       });
    }
 
@@ -252,8 +257,7 @@ public class TestProjectHolder extends AbstractProjectHolder implements ITestPro
 
    @Override
    public void importFiles() {
-      while (!stagedFilesToImport.isEmpty()) {
-         URL url = stagedFilesToImport.pop();
+      for (URL url : stagedFilesToImport) {
          IFile iFile = getProject().getFile(url.getPath());
          try {
             importFile(iFile, getProject(), url.openStream());
@@ -261,6 +265,7 @@ public class TestProjectHolder extends AbstractProjectHolder implements ITestPro
             ILTISException.wrap(e).rethrowUnchecked();
          }
       }
+
       for (Entry<String, String> entry : stagedTestSourcesToImport.entrySet()) {
          IFile iFile = getProject().getFile(entry.getKey());
          importFile(iFile, getProject(), new StringInputStream(entry.getValue()));
@@ -282,7 +287,8 @@ public class TestProjectHolder extends AbstractProjectHolder implements ITestPro
 
    private void setupReferencedProjects() throws CoreException {
       for (ReferencedProjectDescription pd : stagedReferncedProjects) {
-         final ICProject referencedCProject = CProjectHelper.createCCProject(pd.getProjectName(), "bin", IPDOMManager.ID_NO_INDEXER);
+
+         final ICProject referencedCProject = createNewProject(pd.getProjectName(), pd.getLanguage());
          for (TestSourceFile file : pd.getSourceFiles()) {
             IProject referencedProject = referencedCProject.getProject();
             importFile(referencedProject.getFile(file.getName()), referencedProject, new StringInputStream(isExpectedProject ? file
@@ -310,12 +316,15 @@ public class TestProjectHolder extends AbstractProjectHolder implements ITestPro
          }
       } else {
          try {
-            file.create(stream, true, new NullProgressMonitor());
+            if (!file.exists()) {
+               file.create(stream, true, new NullProgressMonitor());
+            }
          } catch (CoreException e) {
             ILTISException.wrap(e).rethrowUnchecked();
          }
       }
-      fileManager.addFile(file);
+      //TODO(Tobias Stauber) clean after testing
+      //      fileManager.addFile(file);
    }
 
    /* -- Public Getters -- */

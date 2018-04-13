@@ -5,15 +5,15 @@ import static org.junit.Assert.fail;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.LinkedList;
 
+import org.eclipse.cdt.core.CCProjectNature;
 import org.eclipse.cdt.core.CCorePlugin;
 import org.eclipse.cdt.core.dom.IPDOMManager;
 import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.core.testplugin.CProjectHelper;
-import org.eclipse.cdt.core.testplugin.FileManager;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
@@ -36,10 +36,11 @@ public abstract class AbstractProjectHolder implements IProjectHolder {
 
    protected FileCache fileCache = new FileCache();
 
-   protected LinkedList<URL> stagedFilesToImport = new LinkedList<>();
-   protected Language        language;
-   protected IWorkspace      workspace;
-   protected FileManager     fileManager;
+   protected ArrayList<URL> stagedFilesToImport = new ArrayList<>();
+   protected Language       language;
+   protected IWorkspace     workspace;
+   //TODO(Tobias Stauber) cleanup
+   //   protected FileManager     fileManager;
 
    public AbstractProjectHolder() {
       super();
@@ -144,22 +145,38 @@ public abstract class AbstractProjectHolder implements IProjectHolder {
       if (CCorePlugin.getDefault() != null && CCorePlugin.getDefault().getCoreModel() != null) {
          workspace = ResourcesPlugin.getWorkspace();
          try {
-            switch (language) {
-            case CPP:
-               cProject = CProjectHelper.createCCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ 
-               break;
-            case C:
-               cProject = CProjectHelper.createCProject(projectName, "bin", IPDOMManager.ID_NO_INDEXER); //$NON-NLS-1$ 
-               break;
-            default:
-               fail("Invalid language for this holder. Valid choices are: Language.C, Language.CPP ");
-            }
+            cProject = createNewProject(projectName, language);
             project = cProject.getProject();
          } catch (final CoreException ignored) {
             fail("Failed to create the project");
          }
-         fileManager = new FileManager();
+         //TODO(Tobias Stauber) cleanup
+         //         fileManager = new FileManager();
       }
+   }
+
+   protected ICProject createNewProject(String projectName, Language language) throws CoreException {
+      switch (language) {
+      case C:
+         return createCProject(projectName);
+      case CPP:
+         return createCCProject(projectName);
+      default:
+         fail("Invalid language for this holder. Valid choices are: Language.C, Language.CPP ");
+         return null;
+      }
+   }
+
+   protected ICProject createCProject(String projectName) throws CoreException {
+      return CProjectHelper.createNewStyleCProject(projectName, IPDOMManager.ID_NO_INDEXER);
+   }
+
+   protected ICProject createCCProject(String projectName) throws CoreException {
+      ICProject proj = createCProject(projectName);
+      if (!proj.getProject().hasNature(CCProjectNature.CC_NATURE_ID)) {
+         CProjectHelper.addNatureToProject(proj.getProject(), CCProjectNature.CC_NATURE_ID, null);
+      }
+      return proj;
    }
 
 }
